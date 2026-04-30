@@ -21,15 +21,16 @@ login api endpoint
     request-body:   {
                         "submit":"",
                         "email":"",
-                        "password":""
-
+                        "password":"",
+                        "ssid":"xxxxxxxxxxxx" //if exists will be deleted 
                     }
 
     response: valid request
 
             http-response-code : 200 (OK)
             {   
-                "msg": "valid-user request"
+                "msg": "valid-user request",
+                "ssid": "xxxxxxxxxxxxxxxxxx"  // cookie will be generated
             }
     
     response: invalid user request (unkown email)
@@ -93,7 +94,8 @@ signup api endpoint
 
             http-response-code : 200 (OK)
             {   
-                "msg": "valid-user request"
+                "msg": "valid-user request",
+                "ssid" : "xxxxxxxxxxxxxxxxxx"
             }
     
     response: invalid user request (already exists email)
@@ -118,4 +120,29 @@ signup api endpoint
             }
 
 
-    
+
+
+logout api endpoint  (it deletes the cookie on the browser)
+
+    http://localhost:80/dashboard/logout/logout.php
+
+    method: post
+    content-type: application/json
+    request-body:   {
+                        "submit":"",  //submit button of a form
+                        "phpssid":"xxxxxxxxxxxxxxx"  // automatic
+                    }
+
+    response: wrong http-method
+
+            http-response-code: 400 (BAD REQUEST)
+            {
+                "msg":"invalid request method"
+            }
+
+    response : correct logout
+
+        http-response-code: 200
+        {
+            "msg":"logout successful"
+        }
