@@ -8,6 +8,17 @@ create table if not exists rescue_point(
 );
 
 
+create table if not exists email_verification(
+    email_id varchar(100),
+    table_name varchar(100) ,
+
+    is_verified varchar(1) default 'N',
+
+    
+    primary key(email_id , table_name)
+);
+
+
 create table if not exists Users(
 	user_id varchar(36) default UUID() primary key,
     user_name varchar(100) not null,

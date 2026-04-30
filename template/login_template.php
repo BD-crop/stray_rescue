@@ -60,7 +60,7 @@
 
         $obj = PDO_class::initializer();
 
-        if(! ($obj -> email_checker($user_data["email"] , $table_name ))){
+        if(! ($obj -> login_email_checker($user_data["email"] , $table_name ))){
             http_response_code(400);
             
             $array;

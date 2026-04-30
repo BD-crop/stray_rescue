@@ -78,9 +78,8 @@
         }
 
 
-
-        session_start();
-        session_regenerate_id(true);
+        // session_start();
+        // session_regenerate_id(true);
 
 
         http_response_code(200);

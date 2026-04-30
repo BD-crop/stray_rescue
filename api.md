@@ -66,7 +66,7 @@ login api endpoint
 
 
 
-signup api endpoint
+signup api endpoint (with email verification)
 
 
 
@@ -94,10 +94,14 @@ signup api endpoint
 
             http-response-code : 200 (OK)
             {   
-                "msg": "valid-user request",
-                "ssid" : "xxxxxxxxxxxxxxxxxx"
+                "msg": "valid-user request"
             }
+
+    // after this an verification mail will go to the user
+    //clicking that like will cause the server to authorize it
+    // after that the user have to login to join 
     
+
     response: invalid user request (already exists email)
 
             http-response-code: 400 (BAD REQUEST)
