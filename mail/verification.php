@@ -1,27 +1,26 @@
 <?php
-require 'vendor/autoload.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use Dotenv\Dotenv;
 
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
+include_once __DIR__."/PHPMailer/src/PHPMailer.php";
+include_once __DIR__."/PHPMailer/src/SMTP.php";
+include_once __DIR__."/PHPMailer/src/Exception.php";
 
 function send_mail($name, $email, $id, $table_name) {
-    $mail = new PHPMailer(true); 
+
+
 
     try {
+        $mail = new PHPMailer\PHPMailer\PHPMailer;
+
         $mail->isSMTP();  
         $mail->Host = 'smtp.gmail.com';  
         $mail->SMTPAuth = true;  
-        $mail->Username = getenv('gmail');  
-        $mail->Password = getenv('passw');  
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  
+        $mail->Username = "strayrescue4@gmail.com";  
+        $mail->Password = "vddv qonq qcqu hlof";  
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;  
 
-        $mail->setFrom('farhanadib577@gmail.com', 'Stray_Rescue'); 
+        $mail->setFrom('strayrescue4@gmail.com', 'Stray_Rescue'); 
         $mail->addAddress($email, $name);  
 
         $mail->Subject = 'Email Verification';
