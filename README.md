@@ -13,7 +13,7 @@ Frontend client for the `StrayRescue` platform, built with React and Vite. This 
 
 At the moment, this client is primarily a frontend prototype and presentation layer. Authentication form submission and backend API integration are not wired up yet.
 
-## Tech Stack
+## Tech Stack:
 
 - React 19
 - Vite 8
