@@ -1,0 +1,10 @@
+.app-shell {
+  min-height: 100vh;
+  padding-top: 72px;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding-top: 68px;
+  }
+}
