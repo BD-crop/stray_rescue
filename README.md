@@ -58,7 +58,7 @@ volunteers.
 - Fragmented/inhumane shelter management and adoption processes
 - Lack of preference based animal to human matching system
 #### Features Included:
-- User registration and authentication
+- User registration and email authentication
 - Stray animal report submission with location (GPS coordinates), species, age, and
 health status
 - Volunteer registration and location-based profile management
