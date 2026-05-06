@@ -36,7 +36,7 @@ function send_mail($name, $email, $id, $table_name) {
             </body>
             </html>';
 
-
+        $mail->send();
 
     } catch (Exception $e) {
         exit('Error: ' . $e->getMessage());

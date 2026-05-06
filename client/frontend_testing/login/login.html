@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+
+<form id="login">
+    <select name="type" id="type">
+        <option value="user">user</option>
+        <option value="admin">admin</option>
+        <option value="volunteer">volunteer</option>
+    </select>
+    <input type="email" name="email" id="email" placeholder="Email">
+    <input type="password" name="password" id="password" placeholder="Password">
+    <input type="submit" value="Login">
+</form>
+
+<div id="result"></div>
+
+<script>
+document.getElementById('login').onsubmit = async (e) => {
+    e.preventDefault();
+
+    const type = document.getElementById('type').value;
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    // Build the URL-encoded body manually
+    const body = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&submit=submit`;
+
+    try {
+        const res = await fetch(`http://localhost/dashboard/login/${type}_login.php`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: body
+        });
+
+        const data = await res.json();
+
+        console.log("Server response:", data);
+
+        const resultDiv = document.getElementById('result');
+        if (res.ok) {
+            resultDiv.innerHTML = `<p style="color:green;">Login successful!</p>`;
+        } else {
+            resultDiv.innerHTML = `<p style="color:red;">Login failed: ${data.msg}</p>`;
+        }
+    } catch (err) {
+        console.error("Fetch error:", err);
+        document.getElementById('result').innerHTML = `<p style="color:red;">Error connecting to server</p>`;
+    }
+};
+</script>
+
+</body>
+</html>

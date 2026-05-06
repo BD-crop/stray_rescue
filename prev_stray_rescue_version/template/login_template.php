@@ -8,11 +8,7 @@ function login_template($table_name, $POST, $SERVER)
 
     if (isset($_COOKIE[session_name()])) {
         session_start();
-        session_set_cookie_params([
-            'secure'   => true,     // Only for HTTPS connections
-            'httponly' => true,     // Cannot be accessed by JavaScript
-            'samesite' => 'Strict', // Mitigate CSRF risks
-        ]);
+
         $_SESSION = [];
 
         // Delete the cookie
@@ -36,7 +32,7 @@ function login_template($table_name, $POST, $SERVER)
         http_response_code(400);
 
         $array;
-        $array['msg'] = "invalid request";
+        $array['msg'] = "invalid some fields are empty request";
 
         exit(json_encode($array, JSON_PRETTY_PRINT));
     }
@@ -77,11 +73,11 @@ function login_template($table_name, $POST, $SERVER)
     }
 
     session_start();
-    session_set_cookie_params([
-        'secure'   => true,     // Only for HTTPS connections
-        'httponly' => true,     // Cannot be accessed by JavaScript
-        'samesite' => 'Strict', // Mitigate CSRF risks
-    ]);
+    // session_set_cookie_params([
+    //     'secure'   => true,     
+    //     'httponly' => true,     
+    //     'samesite' => 'Strict'
+    // ]);
     session_regenerate_id(true);
 
     http_response_code(200);

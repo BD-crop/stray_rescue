@@ -76,8 +76,8 @@ class PDO_class
     {
         try {
 
-            $stmt = $this->pdo->prepare("insert into Users(user_name,email , password ,user_profile_picture_link)
-                    values(?,?,?,?);");
+            $stmt = $this->pdo->prepare("insert into Users(user_name,email , password)
+                    values(?,?,?);");
             $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT), ""]);
             $this->email_verification_insert($email, "Users");
             $lastUUID = $this->pdo->lastInsertId();
@@ -107,8 +107,8 @@ class PDO_class
     {
         try {
 
-            $stmt = $this->pdo->prepare("insert into volunteers(volunteer_name,email , password ,volunteer_image_link)
-                    values(?,?,?,?);");
+            $stmt = $this->pdo->prepare("insert into volunteers(volunteer_name,email , password)
+                    values(?,?,?);");
             $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT), ""]);
             $this->email_verification_insert($email, "volunteers");
             $lastUUID = $this->pdo->lastInsertId();
@@ -296,7 +296,7 @@ class PDO_class
             $_SESSION['bio']   = $_POST['bio'];
 
         } catch (PDOException $e) {
-            exit($e->getMessage());
+            exit(json_encode($e->getMessage() , JSON_PRETTY_PRINT));
         }
     }
 
@@ -322,5 +322,47 @@ class PDO_class
             exit($e->getMessage());
         }
     }
+
+    //get public profile
+
+    public function get_user_profile($id){
+        $stmt = 'SELECT user_id , user_name , email , user_profile_picture_link , user_bio from Users where user_id = ? limit 1';
+
+        $this->pdo_initializer();
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([$id]);
+
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $res;
+    }
+
+    public function get_admin_profile($id){
+        $stmt = 'SELECT emp_id , emp_name , email , emp_profile_picture_link , emp_bio from Employee where emp_id = ? limit 1';
+
+        $this->pdo_initializer();
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([$id]);
+
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $res;
+    }
+
+    public function get_volunteer_profile($id){
+        $stmt = 'SELECT volunteer_id , volunteer_name , email , volunteer_image_link , volunteer_bio from volunteers where volunteer_id = ? limit 1';
+
+        $this->pdo_initializer();
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([$id]);
+
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $res;
+    }
+
 
 }

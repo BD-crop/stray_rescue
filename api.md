@@ -17,7 +17,6 @@ login api endpoint
 
 
     method: post
-    content-type: application/json
     request-body:   {
                         "submit":"",
                         "email":"",
@@ -82,7 +81,6 @@ signup api endpoint (with email verification)
 
 
     method: post
-    content-type: application/json
     request-body:   {
                         "submit":"",  //submit button of a form
                         "email":"",
@@ -131,7 +129,6 @@ logout api endpoint  (it deletes the cookie on the browser)
     http://localhost:80/dashboard/logout/logout.php
 
     method: post
-    content-type: application/json
     request-body:   {
                         "submit":"",  //submit button of a form
                         "phpssid":"xxxxxxxxxxxxxxx"  // automatic
@@ -149,23 +146,14 @@ logout api endpoint  (it deletes the cookie on the browser)
         http-response-code: 200
         {
             "msg":"logout successful"
-<<<<<<< HEAD
         }
 
 update api endpoint (update user profile)
 
-    ### User sigunup
-    http://localhost:80/dashboard/update/user_update.php
 
-    ### admin signup
-    http://localhost:80/dashboard/update/admin_update.php
-
-    ##volunteer signup
-    http://localhost:80/dashboard/update/volunteer_update.php
-
+    http://localhost:80/dashboard/update/update.php
 
     method: post
-    content-type: application/json
     request-body:   {
                         "fileToUpload":"xxxxx....xxx"", (optional),
                         'bio':"xxxx...xxx", (optional)
@@ -214,6 +202,34 @@ update api endpoint (update user profile)
         {
             "msg":"update successful"
         }
-=======
+
+
+get api endpoint  (session_based session will give back the profile data)
+
+    method: get
+    request: 
+        {
+            'ssid': "an ssid is getting generated"
         }
->>>>>>> e81b3bc5cbe7f7d54c2b9a94dec315f42bfed30f
+
+    response: json (if found)
+        {
+            'msg'='found',
+            'id'="",
+            'type' ="",
+            'name' ="", 
+            'email' ="";
+            'image'= "" ;
+            'bio' = "";
+        
+        }
+    
+    response : if no ssid
+        {
+            'msg' ="no session_id found"
+        }
+
+    response : no user found
+        {
+            'msg' ="no user found"
+        }

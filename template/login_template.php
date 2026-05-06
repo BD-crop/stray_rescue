@@ -8,11 +8,11 @@ function login_template($table_name, $POST, $SERVER)
 
     if (isset($_COOKIE[session_name()])) {
         session_start();
-        session_set_cookie_params([
-            'secure'   => true,     // Only for HTTPS connections
-            'httponly' => true,     // Cannot be accessed by JavaScript
-            'samesite' => 'Strict', // Mitigate CSRF risks
-        ]);
+        // session_set_cookie_params([
+        //     'secure'   => true,     // Only for HTTPS connections
+        //     'httponly' => true,     // Cannot be accessed by JavaScript
+        //     'samesite' => 'Strict', // Mitigate CSRF risks
+        // ]);
         $_SESSION = [];
 
         // Delete the cookie
