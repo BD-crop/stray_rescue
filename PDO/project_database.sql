@@ -9,6 +9,7 @@ create table if not exists rescue_point(
 
 
 create table if not exists email_verification(
+    email_verification_id varchar(36) default UUID(), 
     email_id varchar(100),
     table_name varchar(100) ,
 
@@ -33,6 +34,7 @@ create table if not exists Employee(
 	emp_id varchar(36) default UUID() primary key,
     emp_bio text default "",
     emp_name varchar(100) not null,
+    emp_rank  int default 5,
     email varchar(100) not null Unique,
     password varchar(100) not null,
     rescue_point_id varchar(36) default null ,
@@ -50,7 +52,6 @@ create table if not exists rescue_post(
     animal_species_type varchar(100) default null,
     animal_gender_type char(1) default null,
     animal_age double default null,
-    animal_species_age double default null,	
     post_loc_latitude decimal(16 , 8) default null,
     post_loc_longtitude decimal(16 , 8) default null,
     post_time_stamp timestamp default CURRENT_TIMESTAMP,
@@ -125,3 +126,4 @@ create table if not exists comment_registry_adoption_post(
     foreign key (replying_to) references comment_registry_adoption_post(comment_id)
 
 );
+

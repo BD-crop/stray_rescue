@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rescue Post</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .post {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            max-width: 400px;
+        }
+        .post img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .post div {
+            margin: 5px 0;
+        }
+        .label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Rescue Post Details</h1>
+
+    <div class="post" id="rescuePost">
+        Loading post...
+    </div>
+
+    <script>
+        (async function() {
+            const postId = "744db736-49b2-11f1-b829-00d861ac0d8c";
+            const container = document.getElementById("rescuePost");
+
+            try {
+                const res = await fetch(`http://localhost:80/dashboard/posts/posts.php?id=${postId}`);
+                const data = await res.json();
+
+                // Build HTML for the post
+                container.innerHTML = `
+                    <div><span class="label">Post ID:</span> ${data.post_id}</div>
+                    <div><span class="label">Text:</span> ${data.post_text}</div>
+                    <div><span class="label">Species:</span> ${data.species}</div>
+                    <div><span class="label">Gender:</span> ${data.gender}</div>
+                    <div><span class="label">Age:</span> ${data.age}</div>
+                    <div><span class="label">Latitude:</span> ${data.latitude}</div>
+                    <div><span class="label">Longitude:</span> ${data.longtitude}</div>
+                    <div><span class="label">Posted by:</span> ${data.posted_by}</div>
+                    <div><span class="label">Post Time:</span> ${data.post_time}</div>
+                    <div><img src="${data.image_link}" alt="Rescue Image"></div>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div style="color:red;">Failed to load post: ${error.message}</div>`;
+            }
+        })();
+    </script>
+
+</body>
+</html>

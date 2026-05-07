@@ -28,7 +28,6 @@ document.getElementById('login').onsubmit = async (e) => {
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    // Build the URL-encoded body manually
     const body = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&submit=submit`;
 
     try {

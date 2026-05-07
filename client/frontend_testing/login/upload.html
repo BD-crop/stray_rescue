@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Rescue Post</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h4 id="Location_shown"></h4>
+
+        <form id="rescueForm" enctype="multipart/form-data">
+            <input type="file" name="fileToUpload" required class="form-control mb-2">
+            <input type="text" name="post" placeholder="Post description" class="form-control mb-2">
+            <select name="species_type" id="species_type" class="form-control mb-2">
+                <option value="cat">Cat</option>
+                <option value="dog">Dog</option>
+                <option value="bird">Bird</option>
+                <option value="other">Other</option>
+            </select>
+            <select name="gender" id="gender" class="form-control mb-2">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+            </select>
+            <input type="number" name="age" placeholder="Age" class="form-control mb-2">
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
+            <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+        <div id="map" style="min-height:350px;border-radius:5px;margin-top:15px;"></div>
+        <div id="response" class="mt-2"></div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+    <script>
+        const defaultLng = 90.4125;
+        const defaultLat = 23.8103;
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://tiles.openfreemap.org/styles/liberty',
+            center: [defaultLng, defaultLat],
+            zoom: 9
+        });
+
+        map.addControl(new maplibregl.NavigationControl());
+
+        const marker = new maplibregl.Marker({ draggable: true })
+            .setLngLat([defaultLng, defaultLat])
+            .addTo(map);
+
+        // Initialize hidden inputs
+        document.getElementById("latitude").value = defaultLat;
+        document.getElementById("longitude").value = defaultLng;
+
+        // Update coordinates on marker drag
+        marker.on('dragend', () => {
+            const lngLat = marker.getLngLat();
+            document.getElementById("latitude").value = lngLat.lat;
+            document.getElementById("longitude").value = lngLat.lng;
+        });
+
+        // Update marker on map click
+        map.on('click', (e) => {
+            const lngLat = e.lngLat;
+            marker.setLngLat(lngLat);
+            document.getElementById("latitude").value = lngLat.lat;
+            document.getElementById("longitude").value = lngLat.lng;
+        });
+
+        // Handle form submission via JavaScript
+        const form = document.getElementById('rescueForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // prevent default HTML form submit
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('http://localhost/dashboard/upload/upload_post.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                console.log(data);
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                console.error('Error submitting form:', err);
+                document.getElementById('response').innerText = 'Error submitting form. Check console.';
+            }
+        });
+    </script>
+</body>
+</html>

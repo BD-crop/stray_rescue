@@ -78,7 +78,7 @@ class PDO_class
 
             $stmt = $this->pdo->prepare("insert into Users(user_name,email , password)
                     values(?,?,?);");
-            $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT), ""]);
+            $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
             $this->email_verification_insert($email, "Users");
             $lastUUID = $this->pdo->lastInsertId();
             send_mail($name, $email, $lastUUID, "Users");
@@ -109,7 +109,7 @@ class PDO_class
 
             $stmt = $this->pdo->prepare("insert into volunteers(volunteer_name,email , password)
                     values(?,?,?);");
-            $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT), ""]);
+            $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
             $this->email_verification_insert($email, "volunteers");
             $lastUUID = $this->pdo->lastInsertId();
             send_mail($name, $email, $lastUUID, "volunteers");
@@ -226,7 +226,12 @@ class PDO_class
             $uploadOk      = 1;
             $imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION));
 
-            $uniqueFileName = $target_dir . uniqid() . "." . $imageFileType;
+            $local_path = uniqid() . "." . $imageFileType;
+
+            $uniqueFileName = $target_dir . $local_path;
+
+            $global_path = "http://localhost:80/dashboard/upload_images/" . $local_path;
+            echo $global_path;
 
             $allowed_file_types = ['png', 'jpeg', 'jpg', 'webp'];
 
@@ -242,9 +247,8 @@ class PDO_class
             } else {
             }
 
-
             if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $uniqueFileName)) {
-                return $uniqueFileName;
+                return $global_path;
             } else {
                 $array['msg'] = "Error when uploading the file";
                 exit(json_encode($array, JSON_PRETTY_PRINT));
@@ -296,7 +300,7 @@ class PDO_class
             $_SESSION['bio']   = $_POST['bio'];
 
         } catch (PDOException $e) {
-            exit(json_encode($e->getMessage() , JSON_PRETTY_PRINT));
+            exit(json_encode($e->getMessage(), JSON_PRETTY_PRINT));
         }
     }
 
@@ -325,7 +329,8 @@ class PDO_class
 
     //get public profile
 
-    public function get_user_profile($id){
+    public function get_user_profile($id)
+    {
         $stmt = 'SELECT user_id , user_name , email , user_profile_picture_link , user_bio from Users where user_id = ? limit 1';
 
         $this->pdo_initializer();
@@ -338,7 +343,8 @@ class PDO_class
         return $res;
     }
 
-    public function get_admin_profile($id){
+    public function get_admin_profile($id)
+    {
         $stmt = 'SELECT emp_id , emp_name , email , emp_profile_picture_link , emp_bio from Employee where emp_id = ? limit 1';
 
         $this->pdo_initializer();
@@ -351,7 +357,8 @@ class PDO_class
         return $res;
     }
 
-    public function get_volunteer_profile($id){
+    public function get_volunteer_profile($id)
+    {
         $stmt = 'SELECT volunteer_id , volunteer_name , email , volunteer_image_link , volunteer_bio from volunteers where volunteer_id = ? limit 1';
 
         $this->pdo_initializer();
@@ -363,6 +370,90 @@ class PDO_class
 
         return $res;
     }
+    public function UUID_GENERATOR()
+    {
+        $stmt = 'SELECT UUID();';
+        $this->pdo_initializer();
 
+        $stmt = $this->pdo->prepare($stmt);
 
+        $stmt->execute([]);
+
+        $data = $stmt->fetchColumn();
+        return $data;
+
+    }
+    public function upload_rescue_post()
+    {
+        try {
+            $uniqid_ = $this->UUID_GENERATOR();
+            $stmt    = "insert into rescue_post(rescue_post_id,rescue_post_image_link , rescue_post , animal_species_type , animal_gender_type , animal_age ,post_loc_latitude , post_loc_longtitude ,user_id) values(?,?,?,?,?,?,?,?,?);";
+
+            $global_path = $this->image_upload();
+            $this->pdo_initializer();
+
+            $stmt = $this->pdo->prepare($stmt);
+
+            $stmt->execute([$uniqid_, $global_path, $_POST['post'], $_POST['species_type'], $_POST['gender'], $_POST['age'], $_POST['latitude'], $_POST['longitude'], $_SESSION['id']]);
+
+            return $uniqid_;
+
+        } catch (PDOException $e) {
+            exit(json_encode($e->message(), JSON_PRETTY_PRINT));
+        }
+
+    }
+
+    public function see_rescue_post($id)
+    {
+
+        try {
+
+            $stmt = 'select * from rescue_post where rescue_post_id = ?';
+            $this->pdo_initializer();
+
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$id]);
+
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $data;
+        } catch (PDOException $e) {
+            exit(json_encode($e->message(), JSON_PRETTY_PRINT));
+        }
+        return "";
+    }
+
+    public function total_rescue_posts()
+    {
+        $stmt = 'select COUNT(*) from rescue_post';
+
+        $this->pdo_initializer();
+        $stmt = $this->pdo->prepare($stmt);
+        $stmt->execute([]);
+        $count = $stmt->fetchColumn();
+
+        return $count;
+
+    }
+
+    public function see_rescue_posts($offset, $limit = 10)
+    {
+        $this->pdo_initializer();
+
+        $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)($offset * $limit), PDO::PARAM_INT);
+
+        $stmt->execute();
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $count = $this->total_rescue_posts();
+
+        return ['count' => $count, 'posts' => $posts];
+    }
+
+    public function add_rescue_point(){
+        
+    }
 }
