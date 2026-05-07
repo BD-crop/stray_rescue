@@ -18,6 +18,7 @@ login api endpoint
 
     method: post
     request-body:   {
+                        "type":"",
                         "submit":"",
                         "email":"",
                         "password":"",
@@ -70,19 +71,14 @@ signup api endpoint (with email verification)
 
 
     
-    ### User sigunup
-    http://localhost:80/dashboard/signup/user_signip.php
-
-    ### admin signup
-    http://localhost:80/dashboard/signup/admin_signup.php
-
-    ##volunteer signup
-    http://localhost:80/dashboard/signup/volunteer_signup.php
+    ### sigunup
+    http://localhost:80/dashboard/signup/signup.php
 
 
     method: post
     request-body:   {
-                        "submit":"",  //submit button of a form
+                        "type":"",
+                        "submit":"",  
                         "email":"",
                         "password":""
                         "name" :""

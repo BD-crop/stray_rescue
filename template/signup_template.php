@@ -5,7 +5,7 @@
     INCLUDE_ONCE __DIR__."/../header.php";
     INCLUDE_ONCE __DIR__."/../PDO/PDO.php";
 
-    function signup_template($table_name ,$POST ,$SERVER ){
+    function signup_template($POST ,$SERVER ){
 
         if (isset($_COOKIE[session_name()])) {
             session_start();
@@ -53,7 +53,18 @@
         $user_data["name"] =$POST['name'];
         $user_data["email"] =$POST['email'];
         $user_data['password']=$POST['password'];
+        $user_data['type'] =$_POST['table'];
+        $table_name = $user_data['type'];
 
+        if(!($user_data['type']==='Users' || $user_data['type'] ==='Employee' || $user_data['type'] === 'volunteers')){
+
+            http_response_code(400);
+            $array;
+            $array['msg'] = "wrong type of users";
+
+            exit(json_encode($array ,JSON_PRETTY_PRINT));
+
+        }
 
         $obj = PDO_class::initializer();
 
