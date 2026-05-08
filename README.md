@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # stray_rescue
 
 ### Introduction
