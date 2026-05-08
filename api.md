@@ -6,14 +6,9 @@ home directory
     
 login api endpoint
 
-    ### User login
-    http://localhost:80/dashboard/login/user_login.php
+    ### login api
+    http://localhost:80/dashboard/login/login.php
 
-    ### admin login
-    http://localhost:80/dashboard/login/admin_login.php
-
-    ##volunteer login
-    http://localhost:80/dashboard/login/volunteer_login.php
 
 
     method: post

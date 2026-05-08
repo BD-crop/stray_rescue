@@ -3,7 +3,7 @@
 
 
     include_once __DIR__ . "/../PDO/PDO.php";
-
+    
     $obj = PDO_class::initializer();
 
     $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;

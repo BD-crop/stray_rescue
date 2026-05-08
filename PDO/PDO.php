@@ -453,7 +453,25 @@ class PDO_class
         return ['count' => $count, 'posts' => $posts];
     }
 
-    public function add_rescue_point(){
+    public function get_all_employee(){
+        try{
+            $stmt = "select * from Employee";
+            $this->pdo_initializer();
+            $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
+            $stmt->execute();
+            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $posts;
+
+        }catch(PDOException $e){
+            exit(json_encode($e->message(), JSON_PRETTY_PRINT));
+
+        }         
+    }
+
+    public function assign_manager($rescue_point_id  , $rescue_point ){
         
     }
+
+    
 }

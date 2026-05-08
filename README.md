@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # stray_rescue
 
 ### Introduction
@@ -96,3 +97,4 @@ adoption decisions based on these posts. The post will include animals species ,
 • Git for version control
 • phpMyAdmin for database administration
 • Postman for API testing and documentation
+
