@@ -267,7 +267,7 @@ class PDO_class
                 $image_path = "default_image.jpg";
             }
 
-            $stmt = "UPDATE Users SET user_profile_picture_link = ?, user_bio = ? WHERE user_id = ?";
+            $stmt = "UPDATE Users SET user_profile_picture_link = ?, user_bio = ?git  WHERE user_id = ?";
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
