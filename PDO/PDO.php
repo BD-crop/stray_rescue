@@ -469,6 +469,62 @@ class PDO_class
         }         
     }
 
+    public function get_unassigned_employee(){
+
+    }
+
+    public function get_admins(){
+
+    }
+
+    
+    public function is_manager_or_upper(){
+        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=2';
+        $id = $_SESSON['id'];
+        
+        $this->pdo_initializer();
+        $stmt = $this-> pdo ->prepare($stmt);
+        $stmt->execute([$id]);
+        $count = $stmt->fetchColumn();
+
+        if($count == 1){
+            return true;
+        }
+        return false;
+    }
+
+    public function is_super_admin_or_upper(){
+        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=1';
+        $id = $_SESSON['id'];
+        
+        $this->pdo_initializer();
+        $stmt = $this-> pdo ->prepare($stmt);
+        $stmt->execute([$id]);
+        $count = $stmt->fetchColumn();
+
+        if($count == 1){
+            return true;
+        }
+        return false;
+    }   
+
+    public function is_super_super_admin(){
+        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=1';
+        $id = $_SESSON['id'];
+        
+        $this->pdo_initializer();
+        $stmt = $this-> pdo ->prepare($stmt);
+        $stmt->execute([$id]);
+        $count = $stmt->fetchColumn();
+
+        if($count == 1){
+            return true;
+        }
+        return false;
+    }
+
+
+
     public function assign_manager($rescue_point_id  , $rescue_point ){
         
     }

@@ -66,7 +66,6 @@ create table if not exists rescue_post(
 );
 
 
-
 create table if not exists volunteers(
 	volunteer_id varchar(36) default UUID() primary key,
     volunteer_bio text default "",
@@ -166,3 +165,4 @@ create table if not exists comment_registry_adoption_post(
     foreign key (replying_to) references comment_registry_adoption_post(comment_id)
 
 );
+
