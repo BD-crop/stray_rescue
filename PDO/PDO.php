@@ -465,18 +465,28 @@ class PDO_class
 
         }catch(PDOException $e){
             exit(json_encode($e->message(), JSON_PRETTY_PRINT));
-
         }         
     }
 
     public function get_unassigned_employee(){
+        
+    }
+
+    public function get_assigned_employee(){
 
     }
 
-    public function get_admins(){
+    public function get_admins_manager(){
+        
+    }
+
+    public function  get_super_admins(){
 
     }
 
+    public function get_super_super_admins(){
+
+    }
     
     public function is_manager_or_upper(){
         $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=2';
@@ -509,7 +519,7 @@ class PDO_class
     }   
 
     public function is_super_super_admin(){
-        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=1';
+        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank = 0';
         $id = $_SESSON['id'];
         
         $this->pdo_initializer();
