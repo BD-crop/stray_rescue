@@ -4,14 +4,12 @@ include_once __DIR__ . "/../PDO/PDO.php";
 $obj = PDO_class::initializer();
 
 
-if (isset($_GET['email']) && isset($_GET['table_name'])) {
-    $email = urldecode($_GET['email']);
-            echo "name is ".$_GET['email'];
+if (isset($_GET['email_verification_id'])) {
+    $email_verification_id = urldecode($_GET['email_verification_id']);
+            echo "name is ".$_GET['email_verification_id'];
 
-    $table_name = $_GET['table_name'];
-
-    $obj->email_verification($email, $table_name);
+    $obj->email_verification($email_verification_id);
 } else {
-    echo "Error: Email or Table Name not provided.";
+    echo "verfi not provided.";
 }
 ?>

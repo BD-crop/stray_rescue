@@ -3,7 +3,7 @@
 include_once __DIR__ . "/../header.php";
 include_once __DIR__ . "/../PDO/PDO.php";
 
-function login_template($table_name, $POST, $SERVER)
+function login_template( $POST, $SERVER)
 {
 
     if (isset($_COOKIE[session_name()])) {
@@ -59,6 +59,7 @@ function login_template($table_name, $POST, $SERVER)
         http_response_code(400);
         $array;
         $array['msg'] = "wrong type of users";
+        $array['type'] =$table_name ;
 
         exit(json_encode($array, JSON_PRETTY_PRINT));
 
@@ -67,11 +68,10 @@ function login_template($table_name, $POST, $SERVER)
     $obj = PDO_class::initializer();
 
     if (! ($obj->login_email_checker($user_data["email"], $table_name))) {
-        http_response_code(400);
 
+        http_response_code(400);
         $array;
         $array['msg'] = "invalid-user request";
-
         exit(json_encode($array, JSON_PRETTY_PRINT));
     }
 

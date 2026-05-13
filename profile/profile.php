@@ -27,7 +27,7 @@ if (isset($_SESSION['id'])) {
     http_response_code(200);
     $data;
     $data['msg']   = 'found';
-    $data['id']    = $res['user_id'] ?? $res['emp_id'] ?? $res['volunteer_id'] ?? null;
+    $data['id']    = $_SESSION['id'];
     $data['type']  = $_SESSION['type'];
     $data['name']  = $res['user_name'] ?? $res['emp_name'] ?? $res['volunteer_name'] ?? null;
     $data['email'] = $res['email'];

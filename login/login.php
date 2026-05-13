@@ -3,8 +3,7 @@
     include_once __DIR__ . "/../template/login_template.php";
     
     
-
-    $userdata = login_template( $_POST, $_SERVER);
+     $userdata = login_template( $_POST, $_SERVER);
 
     $obj = PDO_class::initializer();
     session_start();
@@ -31,10 +30,12 @@
         exit(json_encode($arr,JSON_PRETTY_PRINT));
     }
     
+
     $_SESSION['id'] = $obj->get_id($_type, $_POST['email'], $_POST['type']);
-    $userdata['id'] = $_SESSION['id'];
+    $_id['id'] = $_SESSION['id'];
+    $_id['type']= $_SESSION['type'];    
 
 
-    exit(json_encode($userdata, JSON_PRETTY_PRINT));
+    exit(json_encode($_id, JSON_PRETTY_PRINT));
 
 ?>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            width: 300px;
+            border-radius: 10px;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+<h2>My Profile</h2>
+
+
+
+<div id="output"></div>
+
+<script>
+(async function() {
+    const output = document.getElementById("output");
+    output.innerHTML = "Loading...";
+
+    try {
+        const res = await fetch("http://localhost/dashboard/profile/profile.php", {
+            method: "POST",
+            credentials: "include" 
+        });
+
+        const text = await res.text(); // safer than res.json() for debugging
+        console.log("RAW RESPONSE:", text);
+
+        const data = JSON.parse(text);
+
+        if (!res.ok) {
+            output.innerHTML = `<p class="error">${data.msg || "Error"}</p>`;
+            return;
+        }
+
+        output.innerHTML = `
+            <div class="card">
+                <p><b>ID:</b> ${data.id}</p>
+                <p><b>Name:</b> ${data.name}</p>
+                <p><b>Email:</b> ${data.email}</p>
+                <p><b>Type:</b> ${data.type}</p>
+                <p><b>Bio:</b> ${data.bio || "N/A"}</p>
+                <img src="${data.image}" alt="profile image">
+            </div>
+        `;
+
+    } catch (err) {
+        console.error(err);
+        output.innerHTML = `<p class="error">Failed to connect to server</p>`;
+    }
+})();
+</script>
+
+</body>
+</html>

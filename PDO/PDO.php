@@ -63,15 +63,22 @@ class PDO_class
     public function email_verification_insert($email_id, $table_name)
     {
         try {
+            $this->initializer();
+            $stmt = $this->pdo->prepare("insert into email_verification( email_verification_id ,email_id,table_name)
+                    values(UNHEX(REPLACE(? , '-','')),?,?);");
 
-            $stmt = $this->pdo->prepare("insert into email_verification(email_id,table_name)
-                    values(?,?);");
-            $stmt->execute([$email_id, $table_name]);
+            $uuid_id = $this->UUID_GENERATOR();
 
+            $stmt->execute([$uuid_id, $email_id, $table_name]);
+
+            return $uuid_id;
         } catch (PDOException $e) {
             exit("Connection failed: " . $e->getMessage());
         }
+
+        return null;
     }
+
     public function user_insert($name, $email, $password)
     {
         try {
@@ -79,14 +86,16 @@ class PDO_class
             $stmt = $this->pdo->prepare("insert into Users(user_name,email , password)
                     values(?,?,?);");
             $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
-            $this->email_verification_insert($email, "Users");
-            $lastUUID = $this->pdo->lastInsertId();
+            $lastUUID = $this->email_verification_insert($email, "Users");
+
             send_mail($name, $email, $lastUUID, "Users");
 
         } catch (PDOException $e) {
             exit("Connection failed: " . $e->getMessage());
         }
     }
+
+
     public function admin_insert($name, $email, $password)
     {
         try {
@@ -94,15 +103,15 @@ class PDO_class
             $stmt = $this->pdo->prepare("insert into Employee(emp_name,email , password )
                     values(?,?,?);");
             $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
-            $this->email_verification_insert($email, "Employee");
+            $lastUUID = $this->email_verification_insert($email, "Employee");
 
-            $lastUUID = $this->pdo->lastInsertId();
             send_mail($name, $email, $lastUUID, "Employee");
 
         } catch (PDOException $e) {
             exit("Connection failed: " . $e->getMessage());
         }
     }
+    
     public function volunteer_insert($name, $email, $password)
     {
         try {
@@ -110,21 +119,34 @@ class PDO_class
             $stmt = $this->pdo->prepare("insert into volunteers(volunteer_name,email , password)
                     values(?,?,?);");
             $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
-            $this->email_verification_insert($email, "volunteers");
-            $lastUUID = $this->pdo->lastInsertId();
+            $lastUUID = $this->email_verification_insert($email, "volunteers");
+
             send_mail($name, $email, $lastUUID, "volunteers");
 
         } catch (PDOException $e) {
             exit("Connection failed: " . $e->getMessage());
         }
     }
+
+
     //email verification
 
-    public function email_verification($email, $table_name)
+    public function email_verification($email_verification_id)
     {
         try {
-            $stmt = $this->pdo->prepare("Update  email_verification set is_verified='Y' where email_id=? and table_name=?;");
-            $stmt->execute([$email, $table_name]);
+            $this->pdo_initializer();
+
+            $stmt = $this->pdo->prepare("
+                UPDATE email_verification
+                SET is_verified = 'Y'
+                WHERE email_verification_id = ?
+            ");
+
+            $bin = $this->UUID_TO_BIN($email_verification_id);
+
+            $stmt->execute([$bin]);
+
+            echo "Affected rows: " . $stmt->rowCount();
 
         } catch (PDOException $e) {
             exit("Connection failed: " . $e->getMessage());
@@ -157,9 +179,8 @@ class PDO_class
     public function login_email_checker($email, $table)
     {
         try {
-
             $stmt = $this->pdo->prepare(
-                "select count(email) from " . $table . " as t1 inner join email_verification as e1 on t1.email=e1.email_id and e1.table_name=? where email = ?  and is_verified ='Y' ;");
+                "select count(t1.email) from " . $table . " as t1 inner join email_verification as e1 on t1.email=e1.email_id and e1.table_name=? where email = ?  and is_verified ='Y' ;");
             $stmt->execute([$table, $email]);
 
             $count = $stmt->fetchColumn();
@@ -209,7 +230,7 @@ class PDO_class
 
             $stmt->execute([$email]);
 
-            $id = $stmt->fetchColumn();
+            $id = $this->BIN_TO_UUID($stmt->fetchColumn());
 
             return $id;
         } catch (PDOException $e) {
@@ -271,7 +292,7 @@ class PDO_class
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$image_path, $_POST['bio'], $id]);
+            $stmt->execute([$image_path, $_POST['bio'], $this->UUID_TO_BIN($id)]);
 
             $_SESSION['image'] = $image_path;
             $_SESSION['bio']   = $_POST['bio'];
@@ -294,7 +315,7 @@ class PDO_class
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$image_path, $_POST['bio'], $id]);
+            $stmt->execute([$image_path, $_POST['bio'], $this->UUID_TO_BIN($id)]);
 
             $_SESSION['image'] = $image_path;
             $_SESSION['bio']   = $_POST['bio'];
@@ -317,7 +338,7 @@ class PDO_class
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$image_path, $_POST['bio'], $id]);
+            $stmt->execute([$image_path, $_POST['bio'],$this->UUID_TO_BIN($id)]);
 
             $_SESSION['image'] = $image_path;
             $_SESSION['bio']   = $_POST['bio'];
@@ -336,7 +357,7 @@ class PDO_class
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
 
-        $stmt->execute([$id]);
+        $stmt->execute([$this -> UUID_TO_BIN($id)]);
 
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -350,7 +371,7 @@ class PDO_class
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
 
-        $stmt->execute([$id]);
+        $stmt->execute([$this -> UUID_TO_BIN($id)]);
 
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -364,37 +385,31 @@ class PDO_class
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
 
-        $stmt->execute([$id]);
+        $stmt->execute([$this -> UUID_TO_BIN($id)]);
 
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $res;
     }
-    public function UUID_GENERATOR()
-    {
-        $stmt = 'SELECT UUID();';
-        $this->pdo_initializer();
 
-        $stmt = $this->pdo->prepare($stmt);
-
-        $stmt->execute([]);
-
-        $data = $stmt->fetchColumn();
-        return $data;
-
-    }
     public function upload_rescue_post()
     {
         try {
+            if(!( isset($_POST['fileToUpload']) && isset($_POST['submit']) && isset($_POST['post']) && isset($_POST['species_type']) && isset($_POST['gender']) && isset($_POST['age']) && isset( $_POST['latitude'] ) && isset($_POST['longitude']))){
+                http_response_code(400);
+                $msg['msg'] = 'all fields need to be present';
+                exit(json_encode($msg , JSON_PRETTY_PRINT));
+            }
             $uniqid_ = $this->UUID_GENERATOR();
             $stmt    = "insert into rescue_post(rescue_post_id,rescue_post_image_link , rescue_post , animal_species_type , animal_gender_type , animal_age ,post_loc_latitude , post_loc_longtitude ,user_id) values(?,?,?,?,?,?,?,?,?);";
 
-            $global_path = $this->image_upload();
+            $global_path = $this->image_upload() ?? '';
+
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
 
-            $stmt->execute([$uniqid_, $global_path, $_POST['post'], $_POST['species_type'], $_POST['gender'], $_POST['age'], $_POST['latitude'], $_POST['longitude'], $_SESSION['id']]);
+            $stmt->execute([$this->UUID_TO_BIN( $uniqid_), $global_path, $_POST['post'], $_POST['species_type'], $_POST['gender'], $_POST['age'], $_POST['latitude'], $_POST['longitude'], $this->UUID_TO_BIN(  $_SESSION['id'])]);
 
             return $uniqid_;
 
@@ -413,7 +428,7 @@ class PDO_class
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$id]);
+            $stmt->execute([$this->UUID_TO_BIN( $id)]);
 
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -442,8 +457,8 @@ class PDO_class
         $this->pdo_initializer();
 
         $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)($offset * $limit), PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) ($offset * $limit), PDO::PARAM_INT);
 
         $stmt->execute();
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -453,8 +468,9 @@ class PDO_class
         return ['count' => $count, 'posts' => $posts];
     }
 
-    public function get_all_employee(){
-        try{
+    public function get_all_employee()
+    {
+        try {
             $stmt = "select * from Employee";
             $this->pdo_initializer();
             $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
@@ -463,81 +479,122 @@ class PDO_class
 
             return $posts;
 
-        }catch(PDOException $e){
+        } catch (PDOException $e) {
             exit(json_encode($e->message(), JSON_PRETTY_PRINT));
-        }         
+        }
     }
 
-    public function get_unassigned_employee(){
-        
-    }
-
-    public function get_assigned_employee(){
+    public function get_unassigned_employee()
+    {
 
     }
 
-    public function get_admins_manager(){
-        
-    }
-
-    public function  get_super_admins(){
+    public function get_assigned_employee()
+    {
 
     }
 
-    public function get_super_super_admins(){
+    public function get_admins_manager()
+    {
 
     }
-    
-    public function is_manager_or_upper(){
+
+    public function get_super_admins()
+    {
+
+    }
+
+    public function get_super_super_admins()
+    {
+
+    }
+
+    public function is_manager_or_upper()
+    {
         $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=2';
-        $id = $_SESSON['id'];
-        
+        $id   = $_SESSON['id'];
+
         $this->pdo_initializer();
-        $stmt = $this-> pdo ->prepare($stmt);
+        $stmt = $this->pdo->prepare($stmt);
         $stmt->execute([$id]);
         $count = $stmt->fetchColumn();
 
-        if($count == 1){
+        if ($count == 1) {
             return true;
         }
         return false;
     }
 
-    public function is_super_admin_or_upper(){
+    public function is_super_admin_or_upper()
+    {
         $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=1';
-        $id = $_SESSON['id'];
-        
+        $id   = $_SESSION['id'];
+
         $this->pdo_initializer();
-        $stmt = $this-> pdo ->prepare($stmt);
-        $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare($stmt);
+        $stmt->execute([$this->UUID_TO_BIN($id)]);
         $count = $stmt->fetchColumn();
 
-        if($count == 1){
+        if ($count == 1) {
             return true;
         }
         return false;
-    }   
+    }
 
-    public function is_super_super_admin(){
+    public function is_super_super_admin()
+    {
         $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank = 0';
-        $id = $_SESSON['id'];
-        
+        $id   = $_SESSON['id'];
+
         $this->pdo_initializer();
-        $stmt = $this-> pdo ->prepare($stmt);
-        $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare($stmt);
+        $stmt->execute([$this->UUID_TO_BIN($id)]);
         $count = $stmt->fetchColumn();
 
-        if($count == 1){
+        if ($count == 1) {
             return true;
         }
         return false;
     }
 
+    public function assign_manager($rescue_point_id, $rescue_point)
+    {
 
-
-    public function assign_manager($rescue_point_id  , $rescue_point ){
-        
     }
 
-    
+    // utility function -- only utility functions will come after this
+
+    public function UUID_GENERATOR()
+    {
+        $stmt = 'SELECT UUID();';
+        $this->pdo_initializer();
+
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([]);
+
+        $data = $stmt->fetchColumn();
+        return $data;
+
+    }
+
+    public function UUID_TO_BIN($key)
+    {
+        return hex2bin(str_replace('-', '', $key));
+    }
+
+    function BIN_TO_UUID($bin)
+    {
+        $hex = bin2hex($bin);
+
+        return sprintf(
+            '%s-%s-%s-%s-%s',
+            substr($hex, 0, 8),
+            substr($hex, 8, 4),
+            substr($hex, 12, 4),
+            substr($hex, 16, 4),
+            substr($hex, 20)
+        );
+    }
+
 }

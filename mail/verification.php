@@ -30,7 +30,7 @@ function send_mail($name, $email, $id, $table_name) {
             <body>
                 <p>Hi ' . $name . ',</p>
                 <p>Click the button below to verify your email:</p>
-                <a href="http://localhost:80/dashboard/email_verification/email_verification.php?id=' . $id . '&table_name=' . $table_name . '&email=' . urlencode($email) . '" style="text-decoration: none; padding: 12px 24px; background-color: #4CAF50; color: white; font-size: 16px; font-weight: bold; text-align: center; border-radius: 5px; display: inline-block;">
+                <a href="http://localhost:80/dashboard/email_verification/email_verification.php?email_verification_id='.$id.'" style="text-decoration: none; padding: 12px 24px; background-color: #4CAF50; color: white; font-size: 16px; font-weight: bold; text-align: center; border-radius: 5px; display: inline-block;">
                     Verify Email
                 </a>
             </body>
