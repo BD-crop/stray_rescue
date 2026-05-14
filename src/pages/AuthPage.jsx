@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Earth,
   BadgeCheck,
@@ -13,28 +13,35 @@ import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader } from '../components/Card'
 
 function AuthPage({ mode, onNavigate }) {
-  const [isLogin, setIsLogin] = useState(mode === 'login')
   const [selectedRole, setSelectedRole] = useState('')
-
-  useEffect(() => {
-    setIsLogin(mode === 'login')
-    if (mode === 'login') {
-      setSelectedRole('')
-    }
-  }, [mode])
+  const isLogin = mode === 'login'
 
   const roles = [
-    { id: 'user', label: 'Animal Lover', description: 'Report strays and adopt pets' },
-    { id: 'volunteer', label: 'Volunteer', description: 'Rescue animals in need' },
-    { id: 'shelter', label: 'Shelter Admin', description: 'Manage shelter operations' },
+    {
+      id: 'user',
+      label: 'Animal Lover',
+      description: 'Report strays and adopt pets',
+      dashboard: 'user-dashboard',
+    },
+    {
+      id: 'volunteer',
+      label: 'Volunteer',
+      description: 'Rescue animals in need',
+      dashboard: 'volunteer-dashboard',
+    },
+    {
+      id: 'shelter',
+      label: 'Shelter Admin',
+      description: 'Manage shelter operations',
+      dashboard: 'shelter-dashboard',
+    },
   ]
 
   const selectedRoleLabel = roles.find((role) => role.id === selectedRole)?.label
+  const selectedDashboard = roles.find((role) => role.id === selectedRole)?.dashboard
 
   const switchMode = () => {
-    const nextLoginState = !isLogin
-    setIsLogin(nextLoginState)
-    if (nextLoginState) {
+    if (!isLogin) {
       setSelectedRole('')
       onNavigate?.('login')
     } else {
@@ -218,7 +225,7 @@ function AuthPage({ mode, onNavigate }) {
 
                     <Button
                       className="w-full"
-                      onClick={() => onNavigate?.('home')}
+                      onClick={() => onNavigate?.(isLogin ? 'user-dashboard' : selectedDashboard)}
                       size="lg"
                       type="submit"
                     >

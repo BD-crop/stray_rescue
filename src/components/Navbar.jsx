@@ -7,8 +7,9 @@ const navItems = [
   { label: 'Home', page: 'home' },
   { label: 'Adopt', page: 'adopt' },
   { label: 'Report', page: 'report' },
+  { label: 'Map', page: 'map' },
   { label: 'Community', page: 'community' },
-  { label: 'Shelters', page: 'shelters' },
+  { label: 'Shop', page: 'shop' },
 ]
 
 function Navbar({ currentPage, onNavigate }) {

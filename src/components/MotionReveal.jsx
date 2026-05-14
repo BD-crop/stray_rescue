@@ -7,11 +7,16 @@ function MotionReveal({
   duration = 0.55,
   amount = 0.22,
   y = 28,
+  ...props
 }) {
   const reduceMotion = useReducedMotion()
 
   if (reduceMotion) {
-    return <div className={className}>{children}</div>
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    )
   }
 
   return (
@@ -21,6 +26,7 @@ function MotionReveal({
       transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
       viewport={{ once: true, amount }}
       whileInView={{ opacity: 1, y: 0 }}
+      {...props}
     >
       {children}
     </motion.div>
