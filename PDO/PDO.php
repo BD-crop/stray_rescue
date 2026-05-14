@@ -85,7 +85,8 @@ class PDO_class
 
             $stmt = $this->pdo->prepare("insert into Users(user_name,email , password)
                     values(?,?,?);");
-            $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
+// production -->   $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
+            $stmt->execute([$name, $email, $password]);
             $lastUUID = $this->email_verification_insert($email, "Users");
 
             send_mail($name, $email, $lastUUID, "Users");
@@ -102,7 +103,8 @@ class PDO_class
 
             $stmt = $this->pdo->prepare("insert into Employee(emp_name,email , password )
                     values(?,?,?);");
-            $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
+// production -->   $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
+            $stmt->execute([$name, $email, $password]);
             $lastUUID = $this->email_verification_insert($email, "Employee");
 
             send_mail($name, $email, $lastUUID, "Employee");
@@ -118,7 +120,8 @@ class PDO_class
 
             $stmt = $this->pdo->prepare("insert into volunteers(volunteer_name,email , password)
                     values(?,?,?);");
-            $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
+// production -->   $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
+            $stmt->execute([$name, $email, $password]);            
             $lastUUID = $this->email_verification_insert($email, "volunteers");
 
             send_mail($name, $email, $lastUUID, "volunteers");
@@ -128,6 +131,122 @@ class PDO_class
         }
     }
 
+    // rescue_point_creation
+
+    public function name_already_exists(){
+        try{
+
+            $name = $_POST['name'];
+            $stmt ="
+                select Count(*) from rescue_point 
+                where
+                rescue_point_name= ? ; 
+            ";
+
+            $stmt = $this->pdo->prepare($stmt); 
+            $stmt->execute([$name]);    
+
+            $count = $stmt->fetchColumn();
+            if($count == 0){    
+                return false;
+            }else{  
+                return true;
+            }
+        }catch (PDOException $e) {
+            exit("". $e->getMessage());
+        }
+
+    }
+
+    public function same_place(){
+        try{
+
+            $lat = $_POST['lat'];
+            $lang = $_POST['lang'];
+            
+            $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
+
+            
+            $stmt ="
+                select Count(*) from rescue_point 
+                where
+                rescue_point_location_latitude = :lat and
+                rescue_point_location_longtitude = :lang   ; 
+            ";
+
+            $stmt->bindValue(':lat', (float) $lat);
+            $stmt->bindValue(':lang', (float) $lang);
+
+            $stmt = $this->pdo->prepare($stmt); 
+            $stmt->execute([$lat , $lang]);    
+
+            $count = $stmt->fetchColumn();
+            if($count == 0){    
+                return false;
+            }else{  
+                return true;
+            }
+        }catch (PDOException $e) {
+            exit("". $e->getMessage());
+        }
+
+    }
+    
+    public function get_rescue_point_id_by_name($name){
+        try{
+            $this->pdo_initializer();
+            $stmt = $this->pdo->prepare(
+                "select rescue_point_id from rescue_point where rescue_point_name = ?;"
+            );
+
+            $stmt->execute([$name]);
+            return $this->BIN_TO_UUID($stmt->fetchColumn());
+
+
+        }catch(PDOException $e){
+            exit("couldn't get any name". $e->getMessage()); 
+        }
+    }
+
+    public function create_rescue_point(){
+        try {
+            $this->pdo_initializer();
+
+            if($this->name_already_exists()){
+                $message;
+                $message['msg'] ="Similar rescue point name already exists ";
+                exit(   json_encode($message , JSON_PRETTY_PRINT));
+            }
+
+            if($this->same_place()){
+                $message;
+                $message['msg'] ="similar rescue point location already exists ";
+                exit(   json_encode($message , JSON_PRETTY_PRINT));
+            }
+
+
+            $stmt = $this->pdo->prepare("
+                insert into 
+                rescue_point(
+                rescue_point_name , 
+                rescue_point_location_latitude,
+                rescue_point_location_longtitude,
+                supervisor_id
+                )
+                values 
+                (?,?,?,?);
+            ");
+
+            $bin = $this->UUID_TO_BIN($_POST['id']);
+
+            $stmt->execute([$_POST['name'] , $_POST['lat'] , $_POST['lang'] , $bin]);
+
+            echo "Affected rows: " . $stmt->rowCount();
+
+        } catch (PDOException $e) {
+            exit("Connection failed: " . $e->getMessage());
+        }
+    }
 
     //email verification
 
@@ -212,8 +331,8 @@ class PDO_class
                 return false;
             }
 
-            return password_verify($password, $hash);
-
+            // return password_verify($password, $hash);
+            return $hash === $password ;
         } catch (PDOException $e) {
             exit("Connection failed: " . $e->getMessage());
         }
@@ -468,94 +587,119 @@ class PDO_class
         return ['count' => $count, 'posts' => $posts];
     }
 
-    public function get_all_employee()
+    // employee management
+    public function get_all_employee($rank , $name)
     {
         try {
-            $stmt = "select * from Employee";
+            $stmt = "select emp_id ,emp_profile_picture_link, emp_name , email , emp_rank from Employee where emp_rank > ? and emp_name like ? ;";
             $this->pdo_initializer();
-            $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
-            $stmt->execute();
-            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            return $posts;
+
+            $s = str_split($name);
+            $temp = "";
+            foreach ($s as $char) {
+                $temp .= "%" . $char;
+            }
+            $temp .= "%";
+            
+
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$rank , $temp]);
+            
+            $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $employees;
 
         } catch (PDOException $e) {
             exit(json_encode($e->message(), JSON_PRETTY_PRINT));
         }
     }
 
-    public function get_unassigned_employee()
-    {
-
-    }
-
-    public function get_assigned_employee()
-    {
-
-    }
-
-    public function get_admins_manager()
-    {
-
-    }
-
-    public function get_super_admins()
-    {
-
-    }
-
-    public function get_super_super_admins()
-    {
-
-    }
-
-    public function is_manager_or_upper()
-    {
-        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=2';
-        $id   = $_SESSON['id'];
-
-        $this->pdo_initializer();
-        $stmt = $this->pdo->prepare($stmt);
-        $stmt->execute([$id]);
-        $count = $stmt->fetchColumn();
-
-        if ($count == 1) {
-            return true;
-        }
-        return false;
-    }
-
-    public function is_super_admin_or_upper()
-    {
-        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank <=1';
+    public function find_employee_level(){
+        $stmt = 'select emp_rank from Employee where emp_id = ?;';
         $id   = $_SESSION['id'];
 
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
         $stmt->execute([$this->UUID_TO_BIN($id)]);
         $count = $stmt->fetchColumn();
+        
+        // if(!$count){
+        //     http_response_code(400);
+        //     $msg ;
+        //     $msg['msg'] = 'Something went wrong';
 
-        if ($count == 1) {
-            return true;
-        }
-        return false;
+        //     exit(json_encode( $msg , JSON_PRETTY_PRINT ));
+        // }
+        return $count ;
     }
+    
+    public function get_emplyee_info(){
+        $stmt = 'select 
+        E1.emp_id ,
+        E1.emp_bio ,
+        E1.emp_name,
+        E1.emp_rank ,
+        E1.email ,
+        E1.salary ,
+        E1.joing_date ,
+        E1.emp_profile_picture_link ,
+        E1.rank_assign_date ,
+        E1.immediate_supervisor_id as supervisor_id ,
 
-    public function is_super_super_admin()
-    {
-        $stmt = 'select COUNT(*) from Employee where emp_id = ? and emp_rank = 0';
-        $id   = $_SESSON['id'];
+        E2.emp_name as supervisor_name ,
+        E2.email as supervisor_email ,
+        E2.emp_profile_picture_link as supervisor_profile_image 
+
+        from Employee as E1 
+
+        left join Employee as E2 
+        on E1.immediate_supervisor_id = E2.emp_id 
+
+        where E1.emp_id = ? ;';
+
+        $id = $_SESSION['id'];
 
         $this->pdo_initializer();
-        $stmt = $this->pdo->prepare($stmt);
-        $stmt->execute([$this->UUID_TO_BIN($id)]);
-        $count = $stmt->fetchColumn();
 
-        if ($count == 1) {
-            return true;
-        }
-        return false;
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([
+            $this->UUID_TO_BIN($id)
+        ]);
+
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        // if(!$res){
+
+        //     http_response_code(400);
+
+        //     $msg = [];
+        //     $msg['msg'] = 'Something went wrong';
+
+        //     exit(json_encode($msg , JSON_PRETTY_PRINT));
+        // }
+
+        $result = [];
+
+        $result['emp_id'] = $this->BIN_TO_UUID($res['emp_id']);
+        $result['emp_bio'] = $res['emp_bio'];
+        $result['emp_name'] = $res['emp_name'];
+        $result['emp_rank'] = $res['emp_rank'];
+        $result['email'] = $res['email'];
+        $result['salary'] = $res['salary'];
+        $result['joing_date'] = $res['joing_date'];
+        $result['emp_profile_picture_link'] = $res['emp_profile_picture_link'];
+        $result['rank_assign_date'] = $res['rank_assign_date'];
+
+        $result['supervisor_id'] = $this->BIN_TO_UUID($res['supervisor_id']);
+        $result['supervisor_name'] = $res['supervisor_name'];
+        $result['supervisor_email'] = $res['supervisor_email'];
+        $result['supervisor_profile_image'] = $res['supervisor_profile_image'];
+
+        return $result;
     }
+
+
 
     public function assign_manager($rescue_point_id, $rescue_point)
     {
@@ -596,5 +740,8 @@ class PDO_class
             substr($hex, 20)
         );
     }
+
+
+
 
 }

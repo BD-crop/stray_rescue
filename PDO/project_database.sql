@@ -30,16 +30,19 @@ create table if not exists Employee(
 	emp_id BINARY(16) primary key,
     emp_bio text default "",
     emp_name varchar(100) not null,
-    emp_rank  int default 5,
+    emp_rank  int default 4,
     email varchar(100) not null Unique,
     password varchar(100) not null,
-    salary decimal(16 , 8) default null,
+    salary decimal(16 , 8) default 10000,
     joing_date timestamp default CURRENT_TIMESTAMP,
-    emp_profile_picture_link varchar(200) not null default 'https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png'
+    emp_profile_picture_link varchar(200) not null default 'https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png',
+    immediate_supervisor_id BINARY(16),
+    rank_assign_date timestamp default CURRENT_TIMESTAMP,
+    foreign key (immediate_supervisor_id) references Employee(emp_id)
 );
 
 create table if not exists rescue_point(
-
+    rescue_point_name varchar(200) not null Unique, 
 	rescue_point_id BINARY(16) primary key,
     rescue_point_location_latitude decimal(16,8) ,
     rescue_point_location_longtitude decimal(16,8),
@@ -186,6 +189,18 @@ BEFORE INSERT ON Employee
 FOR EACH ROW
 SET NEW.emp_id = UNHEX(REPLACE(UUID(), '-', ''));
 
+
+CREATE TRIGGER if not exists after_update_employee
+BEFORE UPDATE ON Employee
+FOR EACH ROW
+    BEGIN
+        IF OLD.emp_rank <> NEW.emp_rank THEN
+            SET NEW.rank_assign_date = CURRENT_TIMESTAMP;
+        END IF;
+END;
+
+
+
 CREATE TRIGGER if not exists before_insert_volunteers
 BEFORE INSERT ON volunteers
 FOR EACH ROW
@@ -223,3 +238,41 @@ BEFORE INSERT ON comment_registry_adoption_post
 FOR EACH ROW
 SET NEW.comment_id = UNHEX(REPLACE(UUID(), '-', ''));
 
+
+
+-- testing sql queries
+
+
+insert ignore into email_verification(email_verification_id , email_id , table_name , is_verified)
+values('a' , 'a' , 'Users' ,'Y');
+
+insert ignore into email_verification(email_verification_id , email_id , table_name , is_verified)
+values('b' , 'b' , 'Employee' ,'Y');
+
+insert ignore into email_verification(email_verification_id , email_id , table_name , is_verified)
+values ('c' , 'c' , 'volunteers' , "Y");
+
+
+insert ignore into Users(  user_name , email , password) values(
+    'a' , 'a' , 'a'
+);
+
+insert ignore into Employee(emp_name , email , password , emp_rank ) values(
+    'b' ,'b' ,'b' , 0
+);
+
+insert ignore into Employee(emp_name , email , password , emp_rank ) values(
+    'b1' ,'b1' ,'b1' , 4
+);
+
+insert ignore into Employee(emp_name , email , password , emp_rank ) values(
+    'b2' ,'b2' ,'b2' , 3
+);
+
+insert ignore into Employee(emp_name , email , password , emp_rank ) values(
+    'b3' ,'b3' ,'b3' , 2
+);
+
+insert ignore into volunteers(volunteer_name , email , password ) values(
+    'c' ,'c' ,'c'
+);

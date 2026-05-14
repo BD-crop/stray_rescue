@@ -1,24 +1,48 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
+error_reporting(E_ALL);
+
 
     include_once __DIR__."/../PDO/PDO.php";
+    include_once __DIR__."/../template/admin_check.php";
+    
+    $obj =PDO_class::initializer();
 
-    if(isset($_GET['id'])){ 
+    if(!(check_if_employee())){
+        http_response_code(400);
+        $msg;
+        $msg['msg'] ="Not an employee";
 
-        $obj =PDO_class::initializer();
-        $is_admin = $obj -> is_super_admin_or_upper($_GET['id']);
+        exit(json_encode($msg , JSON_PRETTY_PRINT));
+    }  
 
-        if(!$is_admin){
-            $arr= ['msg' => 'no an admin id'];
-            exit(json_encode($arr , JSON_PRETTY_PRINT));
-        }
-        
-        
+    $level = $obj->find_employee_level();
+ 
 
-        exit(json_encode($res , JSON_PRETTY_PRINT));
+
+
+    $_SESSION['level']=$level;
+    $msg = $obj -> get_emplyee_info();
+    
+
+
+
+    if($level == 4){
+        $msg["title"] = "Unassigned Employee";
+    }else if($level == 3){
+        $msg["title"] = "Assigned Employee";
+    }else if($level == 2){
+        $msg["title"] = "Center Manager";
+    }else if($level == 1){
+        $msg["title"] = "Senior Admin";
+    }else{
+        $msg['title'] = "Super Admin";
     }
-    $arr= ['msg' => 'no id found'];
-    exit(json_encode($arr , JSON_PRETTY_PRINT));
 
+
+    exit(json_encode($msg , JSON_PRETTY_PRINT));    
 
 
 ?>
