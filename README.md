@@ -1,47 +1,51 @@
 # StrayRescue Client
 
-Frontend client for the `StrayRescue` platform, built with React and Vite. This app presents a modern rescue-focused landing experience plus role-based authentication screens for animal lovers, volunteers, and shelter admins.
+React frontend for the StrayRescue web app, based on the connected Figma Make design. The project is a complete frontend experience for reporting stray animals, browsing adoptions, community updates, rescue maps, shop support, and role-based dashboards.
 
-## Overview
-
-`stray_rescue_client` is the UI layer for the broader StrayRescue project. It currently focuses on:
-
-- A polished landing page for the rescue platform
-- Section-based navigation for key user journeys
-- Login and registration flows for multiple roles
-- Reusable UI primitives for buttons, cards, animations, and layout
-
-At the moment, this client is primarily a frontend prototype and presentation layer. Authentication form submission and backend API integration are not wired up yet.
-
-## Tech Stack:
+## Tech Stack
 
 - React 19
 - Vite 8
-- Tailwind CSS 4 via `@tailwindcss/vite`
+- Tailwind CSS 4
 - Framer Motion
 - Lucide React
-- ESLint
+- PHP backend API integration points via `fetch`
 
-## Current Experience
+## Backend API
 
-The app currently includes:
+The frontend is ready to talk to your PHP backend at:
 
-- `Home` landing page with hero, stats, rescue process, stories, testimonials, shelters, and call-to-action sections
-- `Login` screen
-- `Register` flow with role selection:
-  - Animal Lover
-  - Volunteer
-  - Shelter Admin
-- Responsive navigation for desktop and mobile
-- Motion-aware reveal animations with reduced-motion support
+```text
+http://localhost:80
+```
+
+The base URL is defined in [`src/services/api.js`](./src/services/api.js). You can override it with:
+
+```env
+VITE_API_BASE_URL=http://localhost:80
+```
+
+Current frontend API hooks are prepared for:
+
+- Login: `/api/auth/login.php`
+- Register: `/api/auth/register.php`
+- Rescue report: `/api/reports/create.php`
+- Adoption request: `/api/adoptions/request.php`
+- Community post: `/api/community/create.php`
+- Shop cart: `/api/shop/cart.php`
+- Volunteer availability: `/api/volunteers/availability.php`
+
+No PHP backend code is included in this client.
 
 ## Project Structure
 
 ```text
 stray_rescue_client/
 |-- public/
+|   `-- favicon.svg
 |-- src/
-|   |-- assets/
+|   |-- app/
+|   |   `-- rescueStore.js
 |   |-- components/
 |   |   |-- Button.jsx
 |   |   |-- Card.jsx
@@ -51,66 +55,80 @@ stray_rescue_client/
 |   |   |-- Navbar.jsx
 |   |   `-- StatCard.jsx
 |   |-- pages/
+|   |   |-- AdminDashboard.jsx
+|   |   |-- AdoptionPage.jsx
 |   |   |-- AuthPage.jsx
-|   |   `-- LandingPage.jsx
+|   |   |-- CommunityPage.jsx
+|   |   |-- InteractiveMap.jsx
+|   |   |-- LandingPage.jsx
+|   |   |-- ReportAnimalPage.jsx
+|   |   |-- ShelterDashboard.jsx
+|   |   |-- ShopPage.jsx
+|   |   |-- UserDashboard.jsx
+|   |   `-- VolunteerDashboard.jsx
+|   |-- services/
+|   |   `-- api.js
 |   |-- App.jsx
 |   |-- App.css
 |   |-- index.css
 |   `-- main.jsx
-|-- eslint.config.js
 |-- index.html
 |-- package.json
 `-- vite.config.js
 ```
 
+## Features
+
+- Figma-inspired responsive landing page
+- Animal report form prepared for backend submission
+- Adoption cards with request action hooks
+- Community page with post action hook
+- Interactive rescue map mockup
+- Rescue shop with cart action hook
+- Role-based dashboards for users, volunteers, shelters, and admins
+- Clean shared data module in [`src/app/rescueStore.js`](./src/app/rescueStore.js)
+- Branded StrayRescue favicon in [`public/favicon.svg`](./public/favicon.svg)
+
 ## Getting Started
 
-### 1. Install dependencies
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### 2. Start the development server
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Vite will print a local URL, usually:
+Vite usually serves the app at:
 
 ```text
 http://localhost:5173
 ```
 
-### 3. Build for production
+Build for production:
 
 ```bash
 npm run build
 ```
 
-### 4. Preview the production build
+Preview the production build:
 
 ```bash
 npm run preview
 ```
 
-## Available Scripts
+Run lint:
 
-- `npm run dev` starts the Vite development server
-- `npm run build` creates a production build in `dist/`
-- `npm run preview` serves the production build locally
-- `npm run lint` runs ESLint
+```bash
+npm run lint
+```
 
-## How Navigation Works
+## Notes
 
-This app currently uses local component state in [`src/App.jsx`](./src/App.jsx) instead of React Router.
-
-- `home`, `login`, and `register` render full-page views
-- Other navigation targets such as `adopt`, `report`, `community`, and `shelters` scroll to matching landing page sections
-
-This keeps the client lightweight for now, but it also means:
-
-- URLs do not change between views
-- Browser back/forward navigation is limited
-- Deep-linking to specific screens is not yet supported
+- Navigation is currently state-based in [`src/App.jsx`](./src/App.jsx), so URLs do not change between app sections.
+- Backend failures are shown as friendly pending messages until your PHP endpoints are available.
+- The client intentionally does not include backend PHP files.

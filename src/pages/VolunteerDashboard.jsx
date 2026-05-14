@@ -1,9 +1,23 @@
 import { AlertTriangle, CheckCircle, Clock, MapPin, Navigation, Users } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader } from '../components/Card'
 import { DashboardFrame, MetricGrid, Row } from './UserDashboard'
+import { api } from '../services/api'
 
 function VolunteerDashboard({ onNavigate }) {
+  const [status, setStatus] = useState('')
+
+  const handleAvailability = async (slot, checked) => {
+    setStatus(`Saving ${slot.toLowerCase()} availability...`)
+    try {
+      await api.updateVolunteerAvailability({ slot, available: checked })
+      setStatus(`${slot} availability saved.`)
+    } catch (error) {
+      setStatus(`${error.message}. Backend endpoint pending at ${api.baseUrl}.`)
+    }
+  }
+
   return (
     <DashboardFrame
       actions={<Button icon={<Navigation className="h-5 w-5" />} onClick={() => onNavigate?.('map')}>Open Map</Button>}
@@ -38,9 +52,14 @@ function VolunteerDashboard({ onNavigate }) {
             {['Morning', 'Afternoon', 'Evening'].map((slot) => (
               <label className="flex items-center justify-between rounded-2xl bg-orange-50 px-4 py-3 font-bold text-slate-700" key={slot}>
                 <span>{slot}</span>
-                <input className="h-5 w-5 accent-orange-500" type="checkbox" />
+                <input className="h-5 w-5 accent-orange-500" onChange={(event) => handleAvailability(slot, event.target.checked)} type="checkbox" />
               </label>
             ))}
+            {status ? (
+              <p className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-orange-600">
+                {status}
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       </div>

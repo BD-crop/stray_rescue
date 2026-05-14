@@ -1,8 +1,31 @@
 import { AlertCircle, Camera, CheckCircle, MapPin, Navigation, Phone, Upload } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader } from '../components/Card'
+import { api } from '../services/api'
 
 function ReportAnimalPage() {
+  const [status, setStatus] = useState({ type: 'idle', message: '' })
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const report = Object.fromEntries(form.entries())
+
+    setStatus({ type: 'loading', message: 'Sending report to rescue API...' })
+
+    try {
+      await api.createRescueReport(report)
+      setStatus({ type: 'success', message: 'Report submitted successfully.' })
+      event.currentTarget.reset()
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        message: `${error.message}. Backend endpoint pending at ${api.baseUrl}.`,
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.85fr_1.15fr]">
@@ -36,18 +59,18 @@ function ReportAnimalPage() {
             <p className="mt-2 text-slate-500">Fields are UI-only for now and ready for API wiring.</p>
           </CardHeader>
           <CardContent>
-            <form className="grid gap-5" onSubmit={(event) => event.preventDefault()}>
+            <form className="grid gap-5" onSubmit={handleSubmit}>
               <div className="grid gap-5 md:grid-cols-2">
-                <Field icon={MapPin} label="Location" placeholder="Road 12, Dhanmondi" />
-                <Field icon={Phone} label="Contact Number" placeholder="+880 1234-567890" />
+                <Field icon={MapPin} label="Location" name="location" placeholder="Road 12, Dhanmondi" />
+                <Field icon={Phone} label="Contact Number" name="contact" placeholder="+880 1234-567890" />
               </div>
               <div className="grid gap-5 md:grid-cols-2">
-                <Select label="Animal Type" options={['Dog', 'Cat', 'Bird', 'Other']} />
-                <Select label="Condition" options={['Injured', 'Sick', 'Healthy but lost', 'Mother with babies']} />
+                <Select label="Animal Type" name="animalType" options={['Dog', 'Cat', 'Bird', 'Other']} />
+                <Select label="Condition" name="condition" options={['Injured', 'Sick', 'Healthy but lost', 'Mother with babies']} />
               </div>
               <label>
                 <span className="mb-2 block text-sm font-bold text-slate-700">Description</span>
-                <textarea className="min-h-36 w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100" placeholder="Describe what you saw, animal behavior, nearby risks, and best access point." />
+                <textarea className="min-h-36 w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 outline-none focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100" name="description" placeholder="Describe what you saw, animal behavior, nearby risks, and best access point." />
               </label>
               <div className="rounded-[26px] border-2 border-dashed border-orange-200 bg-orange-50/60 p-8 text-center">
                 <Camera className="mx-auto h-10 w-10 text-orange-500" />
@@ -57,12 +80,17 @@ function ReportAnimalPage() {
               </div>
               <div className="flex flex-wrap gap-4">
                 <Button icon={<AlertCircle className="h-5 w-5" />} size="lg" type="submit">
-                  Submit Report
+                  {status.type === 'loading' ? 'Submitting...' : 'Submit Report'}
                 </Button>
                 <Button icon={<Navigation className="h-5 w-5" />} size="lg" variant="outline">
                   Use Current Location
                 </Button>
               </div>
+              {status.message ? (
+                <p className={`rounded-2xl px-4 py-3 text-sm font-bold ${status.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'}`}>
+                  {status.message}
+                </p>
+              ) : null}
             </form>
           </CardContent>
         </Card>
@@ -71,23 +99,23 @@ function ReportAnimalPage() {
   )
 }
 
-function Field({ icon: Icon, label, placeholder }) {
+function Field({ icon: Icon, label, name, placeholder }) {
   return (
     <label>
       <span className="mb-2 block text-sm font-bold text-slate-700">{label}</span>
       <span className="relative block">
         <Icon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-        <input className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-12 pr-4 outline-none focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100" placeholder={placeholder} />
+        <input className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-12 pr-4 outline-none focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100" name={name} placeholder={placeholder} required />
       </span>
     </label>
   )
 }
 
-function Select({ label, options }) {
+function Select({ label, name, options }) {
   return (
     <label>
       <span className="mb-2 block text-sm font-bold text-slate-700">{label}</span>
-      <select className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 font-semibold outline-none focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100">
+      <select className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 font-semibold outline-none focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100" name={name}>
         {options.map((option) => <option key={option}>{option}</option>)}
       </select>
     </label>

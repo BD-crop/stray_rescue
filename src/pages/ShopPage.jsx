@@ -1,15 +1,24 @@
 import { Heart, Package, ShoppingBag, Star } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader } from '../components/Card'
 import { ImageWithFallback } from '../components/ImageWithFallback'
-
-const products = [
-  { name: 'Rescue Food Pack', price: '$18', image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=900&auto=format&fit=crop&q=80' },
-  { name: 'Reflective Rescue Collar', price: '$12', image: 'https://images.unsplash.com/photo-1601758125946-6ec2ef64daf8?w=900&auto=format&fit=crop&q=80' },
-  { name: 'Shelter Care Kit', price: '$32', image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=900&auto=format&fit=crop&q=80' },
-]
+import { rescueProducts as products } from '../app/rescueStore'
+import { api } from '../services/api'
 
 function ShopPage() {
+  const [status, setStatus] = useState('')
+
+  const handleAddToCart = async (product) => {
+    setStatus(`Adding ${product.name} to cart...`)
+    try {
+      await api.addToCart({ productId: product.id, quantity: 1 })
+      setStatus(`${product.name} added to cart.`)
+    } catch (error) {
+      setStatus(`${error.message}. Backend endpoint pending at ${api.baseUrl}.`)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -50,11 +59,16 @@ function ShopPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <Button className="w-full" icon={<ShoppingBag className="h-5 w-5" />}>Add to Cart</Button>
+                <Button className="w-full" icon={<ShoppingBag className="h-5 w-5" />} onClick={() => handleAddToCart(product)}>Add to Cart</Button>
               </CardContent>
             </Card>
           ))}
         </div>
+        {status ? (
+          <p className="mt-8 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-orange-600">
+            {status}
+          </p>
+        ) : null}
 
         <div className="mt-10 rounded-[30px] border border-orange-100 bg-orange-50 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

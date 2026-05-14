@@ -1,30 +1,29 @@
 import { Heart, MessageCircle, Plus, Share2, Users } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader } from '../components/Card'
 import { ImageWithFallback } from '../components/ImageWithFallback'
-
-const posts = [
-  {
-    author: 'Sarah Rahman',
-    title: 'Three puppies moved to safe foster care',
-    text: 'Volunteers coordinated food, transport, and a temporary home within two hours.',
-    image: 'https://images.unsplash.com/photo-1601758175576-648226072e90?w=900&auto=format&fit=crop&q=80',
-  },
-  {
-    author: 'Dr. Fatima Noor',
-    title: 'Weekend vaccination camp confirmed',
-    text: 'Partner shelter team will handle first vaccines and basic checkups this Friday.',
-    image: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=900&auto=format&fit=crop&q=80',
-  },
-  {
-    author: 'Ahmed Khan',
-    title: 'Adoption update from Gulshan',
-    text: 'Bella completed her first month at home and is already the center of the family.',
-    image: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?w=900&auto=format&fit=crop&q=80',
-  },
-]
+import { communityPosts as posts } from '../app/rescueStore'
+import { api } from '../services/api'
 
 function CommunityPage() {
+  const [status, setStatus] = useState('')
+
+  const handleCreatePost = async () => {
+    const draft = {
+      title: 'New rescue update',
+      text: 'Community post composer will connect here.',
+    }
+
+    setStatus('Opening community post workflow...')
+    try {
+      await api.createCommunityPost(draft)
+      setStatus('Community post created.')
+    } catch (error) {
+      setStatus(`${error.message}. Backend endpoint pending at ${api.baseUrl}.`)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -37,8 +36,13 @@ function CommunityPage() {
               Local updates from people saving animals together.
             </h1>
           </div>
-          <Button icon={<Plus className="h-5 w-5" />} size="lg">Create Post</Button>
+          <Button icon={<Plus className="h-5 w-5" />} onClick={handleCreatePost} size="lg">Create Post</Button>
         </div>
+        {status ? (
+          <p className="mb-8 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-orange-600">
+            {status}
+          </p>
+        ) : null}
 
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           <div className="grid gap-6">

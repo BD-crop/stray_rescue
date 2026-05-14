@@ -1,12 +1,6 @@
 import { Building2, Crosshair, MapPin, Navigation, Search } from 'lucide-react'
 import { Button } from '../components/Button'
-
-const points = [
-  { name: 'Dhanmondi Rescue Point', type: 'Active report', x: '34%', y: '42%' },
-  { name: 'Gulshan Shelter', type: 'Partner shelter', x: '62%', y: '30%' },
-  { name: 'Uttara Foster Hub', type: 'Foster care', x: '53%', y: '58%' },
-  { name: 'Mirpur Vet Support', type: 'Medical help', x: '24%', y: '65%' },
-]
+import { rescuePoints as points } from '../app/rescueStore'
 
 function InteractiveMap() {
   return (

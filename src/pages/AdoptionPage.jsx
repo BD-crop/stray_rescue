@@ -1,45 +1,25 @@
 import { Calendar, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, Star } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader } from '../components/Card'
 import { ImageWithFallback } from '../components/ImageWithFallback'
 import { MotionReveal } from '../components/MotionReveal'
-
-const pets = [
-  {
-    name: 'Luna',
-    breed: 'Local Mix',
-    age: '2 years',
-    area: 'Dhanmondi',
-    image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=900&auto=format&fit=crop&q=80',
-    tags: ['Vaccinated', 'Calm', 'Family ready'],
-  },
-  {
-    name: 'Milo',
-    breed: 'Rescue Cat',
-    age: '8 months',
-    area: 'Banani',
-    image: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=900&auto=format&fit=crop&q=80',
-    tags: ['Playful', 'Neutered', 'Indoor'],
-  },
-  {
-    name: 'Bruno',
-    breed: 'Street Puppy',
-    age: '5 months',
-    area: 'Uttara',
-    image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=900&auto=format&fit=crop&q=80',
-    tags: ['Energetic', 'Dewormed', 'Training'],
-  },
-  {
-    name: 'Maya',
-    breed: 'Indie Dog',
-    age: '3 years',
-    area: 'Gulshan',
-    image: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=900&auto=format&fit=crop&q=80',
-    tags: ['Gentle', 'Spayed', 'Leash trained'],
-  },
-]
+import { adoptablePets as pets } from '../app/rescueStore'
+import { api } from '../services/api'
 
 function AdoptionPage({ onNavigate }) {
+  const [status, setStatus] = useState('')
+
+  const handleAdoptionRequest = async (pet) => {
+    setStatus(`Sending adoption interest for ${pet.name}...`)
+    try {
+      await api.createAdoptionRequest({ petId: pet.id, petName: pet.name })
+      setStatus(`Adoption request sent for ${pet.name}.`)
+    } catch (error) {
+      setStatus(`${error.message}. Backend endpoint pending at ${api.baseUrl}.`)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <section className="relative overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
@@ -125,12 +105,17 @@ function AdoptionPage({ onNavigate }) {
                         </span>
                       ))}
                     </div>
-                    <Button className="w-full" onClick={() => onNavigate?.('register')}>Meet {pet.name}</Button>
+                    <Button className="w-full" onClick={() => handleAdoptionRequest(pet)}>Meet {pet.name}</Button>
                   </CardContent>
                 </Card>
               </MotionReveal>
             ))}
           </div>
+          {status ? (
+            <p className="mt-8 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-orange-600">
+              {status}
+            </p>
+          ) : null}
         </div>
       </section>
     </div>

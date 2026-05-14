@@ -34,6 +34,12 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home')
 
   const handleNavigate = (page) => {
+    if (page === 'volunteer') {
+      setCurrentPage('register')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
     if (PAGE_MAP.has(page)) {
       setCurrentPage(page)
       window.scrollTo({ top: 0, behavior: 'smooth' })

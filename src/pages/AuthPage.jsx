@@ -11,9 +11,11 @@ import {
 } from 'lucide-react'
 import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader } from '../components/Card'
+import { api } from '../services/api'
 
 function AuthPage({ mode, onNavigate }) {
   const [selectedRole, setSelectedRole] = useState('')
+  const [status, setStatus] = useState({ type: 'idle', message: '' })
   const isLogin = mode === 'login'
 
   const roles = [
@@ -41,11 +43,38 @@ function AuthPage({ mode, onNavigate }) {
   const selectedDashboard = roles.find((role) => role.id === selectedRole)?.dashboard
 
   const switchMode = () => {
+    setStatus({ type: 'idle', message: '' })
     if (!isLogin) {
       setSelectedRole('')
       onNavigate?.('login')
     } else {
       onNavigate?.('register')
+    }
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const payload = {
+      ...Object.fromEntries(form.entries()),
+      role: selectedRole || 'user',
+    }
+
+    setStatus({ type: 'loading', message: isLogin ? 'Signing in...' : 'Creating account...' })
+
+    try {
+      if (isLogin) {
+        await api.login(payload)
+        onNavigate?.('user-dashboard')
+      } else {
+        await api.register(payload)
+        onNavigate?.(selectedDashboard)
+      }
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        message: `${error.message}. Backend endpoint pending at ${api.baseUrl}.`,
+      })
     }
   }
 
@@ -170,7 +199,7 @@ function AuthPage({ mode, onNavigate }) {
                     </div>
                   </div>
 
-                  <form className="space-y-4" onSubmit={(event) => event.preventDefault()}>
+                  <form className="space-y-4" onSubmit={handleSubmit}>
                     {!isLogin ? (
                       <InputField
                         icon={User}
@@ -225,12 +254,16 @@ function AuthPage({ mode, onNavigate }) {
 
                     <Button
                       className="w-full"
-                      onClick={() => onNavigate?.(isLogin ? 'user-dashboard' : selectedDashboard)}
                       size="lg"
                       type="submit"
                     >
-                      {isLogin ? 'Sign In' : 'Create Account'}
+                      {status.type === 'loading' ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
                     </Button>
+                    {status.message ? (
+                      <p className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-orange-600">
+                        {status.message}
+                      </p>
+                    ) : null}
                   </form>
                 </div>
               )}
@@ -264,6 +297,8 @@ function AuthPage({ mode, onNavigate }) {
 }
 
 function InputField({ icon: Icon, label, type, placeholder }) {
+  const name = label.toLowerCase().replace(/\s+/g, '_')
+
   return (
     <div>
       <label className="mb-2 block text-sm font-bold text-slate-700">{label}</label>
@@ -271,7 +306,9 @@ function InputField({ icon: Icon, label, type, placeholder }) {
         <Icon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
         <input
           className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-slate-900 outline-none transition focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100"
+          name={name}
           placeholder={placeholder}
+          required
           type={type}
         />
       </div>
