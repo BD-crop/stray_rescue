@@ -50,6 +50,17 @@ body{
     overflow:hidden;
 }
 
+#Location_shown{
+    font-size:15px;
+    font-weight:600;
+    color:#1a73e8;
+    margin-bottom:10px;
+}
+
+.navbar{
+    background:#1a73e8;
+}
+
 .location-badge{
     background:#e8f0fe;
     color:#1a73e8;
@@ -59,6 +70,7 @@ body{
     margin-bottom:15px;
 }
 
+/* dropdown */
 .search-results{
     position:absolute;
     top:100%;
@@ -68,18 +80,31 @@ body{
     background:#fff;
     border-radius:12px;
     border:1px solid #dbe4f0;
+    overflow:hidden;
     z-index:999;
     display:none;
+    max-height:300px;
+    overflow-y:auto;
 }
 
 .search-item{
-    padding:12px;
+    padding:12px 14px;
     cursor:pointer;
     border-bottom:1px solid #eef2f7;
+    transition:.2s;
 }
 
 .search-item:hover{
     background:#f3f8ff;
+}
+
+.search-item h6{
+    margin:0;
+    font-size:14px;
+}
+
+.search-item small{
+    color:#6b7280;
 }
 
 .manager-card{
@@ -94,56 +119,97 @@ body{
 
 <body>
 
-<nav class="navbar navbar-dark shadow-sm" style="background:#1a73e8">
+<nav class="navbar navbar-dark shadow-sm">
     <div class="container-fluid">
-        <span class="navbar-brand">Assign Rescue Point</span>
+        <span class="navbar-brand mb-0 h1">
+            Assign Rescue Point
+        </span>
+
+        <a href="../index.php" class="btn btn-outline-light btn-sm">
+            Home
+        </a>
     </div>
 </nav>
 
 <div class="container mt-5">
 
-<div class="row g-4">
+<div class="row g-4 justify-content-center">
 
-<!-- LEFT -->
+<!-- LEFT SIDE -->
 <div class="col-lg-5">
 
 <form class="card p-4 shadow-sm" id="rescueForm">
 
-<h4 class="mb-4 text-center">Assign Rescue Point</h4>
+<h4 class="mb-4 text-center">
+Assign Rescue Point
+</h4>
 
-<label>Rescue Point Name</label>
-<input class="form-control mb-3" name="rescue_point_name" id="rescue_point_name" required>
+<label class="fw-semibold">
+Rescue Point Name
+</label>
 
-<label>Assign Manager</label>
+<input
+    class="form-control mb-3"
+    type="text"
+    name="name"
+    id="rescuePointName"
+    required
+>
+
+<!-- SEARCH -->
+<label class="fw-semibold">
+Assign Manager
+</label>
 
 <div class="position-relative mb-3">
 
-<div class="d-flex gap-2">
-    <input class="form-control" id="managerSearch" placeholder="Search employee...">
-    <button type="button" class="btn btn-primary" id="searchManagerBtn">Search</button>
+    <div class="d-flex gap-2">
+
+        <input
+            type="text"
+            class="form-control"
+            id="managerSearch"
+            placeholder="Search employee..."
+            autocomplete="off"
+        >
+
+        <button
+            type="button"
+            class="btn btn-primary"
+            id="searchManagerBtn"
+        >
+            Search
+        </button>
+
+    </div>
+
+    <div id="searchResults" class="search-results"></div>
+
 </div>
 
-<div id="searchResults" class="search-results"></div>
-
-</div>
-
-<div class="manager-card mb-3" id="selectedManagerBox" style="display:none;">
-    Assigned: <strong id="selectedManagerName"></strong>
+<!-- SELECTED -->
+<div
+    class="manager-card mb-3"
+    id="selectedManagerBox"
+    style="display:none;"
+>
+    Assigned:
+    <strong id="selectedManagerName"></strong>
 </div>
 
 <input type="hidden" id="manager_id" name="manager_id">
-<input type="hidden" id="latitude" name="latitude">
-<input type="hidden" id="longitude" name="longitude">
+<input type="hidden" id="lat" name="lat">
+<input type="hidden" id="lang" name="lang">
 
-<button class="btn btn-primary w-100" type="submit">
-Save Rescue Point
+<button class="btn btn-primary w-100">
+    Save Rescue Point
 </button>
 
 </form>
 
 </div>
 
-<!-- RIGHT -->
+<!-- RIGHT SIDE -->
 <div class="col-lg-6">
 
 <div class="card p-3 shadow-sm">
@@ -152,7 +218,9 @@ Save Rescue Point
 Click map to assign rescue point inside Bangladesh
 </div>
 
-<h5 id="Location_shown">Dhaka, Bangladesh</h5>
+<h5 id="Location_shown">
+Dhaka, Bangladesh
+</h5>
 
 <div id="map-wrapper">
     <div id="map"></div>
@@ -175,57 +243,123 @@ Click map to assign rescue point inside Bangladesh
 const defaultLng = 90.4125;
 const defaultLat = 23.8103;
 
+const bangladeshBounds = [
+    [88.0, 20.5],
+    [92.8, 26.8]
+];
+
 const map = new maplibregl.Map({
     container: 'map',
     style: 'https://tiles.openfreemap.org/styles/liberty',
     center: [defaultLng, defaultLat],
     zoom: 6.5,
-    maxBounds: [[88.0, 20.5],[92.8, 26.8]]
+    maxBounds: bangladeshBounds
 });
 
 map.addControl(new maplibregl.NavigationControl());
 
-const marker = new maplibregl.Marker({draggable:true, color:"#1a73e8"})
+const marker = new maplibregl.Marker({
+    draggable:true,
+    color:"#1a73e8"
+})
 .setLngLat([defaultLng, defaultLat])
 .addTo(map);
 
 function resetMarker(){
+
     marker.setLngLat([defaultLng, defaultLat]);
-    map.flyTo({ center:[defaultLng, defaultLat], zoom:6.5 });
+
+    map.flyTo({
+        center:[defaultLng, defaultLat],
+        zoom:6.5
+    });
+
+    updateLocation(defaultLat, defaultLng);
 }
 
 function updateLocation(lat,lng){
-    document.getElementById("latitude").value = lat;
-    document.getElementById("longitude").value = lng;
+
+    document.getElementById("lat").value = lat;
+    document.getElementById("lang").value = lng;
 }
 
-/* OUT OF BOUNDS CHECK (KEEPED AS YOU WANTED) */
+/* Bangladesh check */
 async function checkLocation(lat,lng){
 
-    const res = await fetch(`http://localhost:80/dashboard/proxy/proxy.php?lat=${lat}&lng=${lng}`);
-    const data = await res.json();
+    try{
 
-    if(!data.address || data.address.country_code !== "bd"){
-        resetMarker();
-        alert("Only Bangladesh allowed");
+        const res = await fetch(
+            `http://localhost:80/dashboard/proxy/proxy.php?lat=${lat}&lng=${lng}`
+        );
+
+        const data = await res.json();
+
+        if(
+            !data.address ||
+            data.address.country_code !== 'bd'
+        ){
+            alert("Only Bangladesh rescue points are allowed.");
+            resetMarker();
+            return false;
+        }
+
+        let locationText = "";
+
+        if(data.address?.suburb)
+            locationText += data.address.suburb + ", ";
+
+        if(data.address?.city)
+            locationText += data.address.city + ", ";
+
+        else if(data.address?.state_district)
+            locationText += data.address.state_district + ", ";
+
+        if(data.address?.country)
+            locationText += data.address.country;
+
+        document.getElementById("Location_shown")
+            .innerText = locationText;
+
+        return true;
+
+    }catch(err){
+
+        console.error(err);
         return false;
     }
-
-    return true;
 }
 
-/* MAP EVENTS */
+/* initial values */
+updateLocation(defaultLat, defaultLng);
+
+/* map click */
 map.on('click', async (e) => {
-    const ok = await checkLocation(e.lngLat.lat, e.lngLat.lng);
+
+    const ok = await checkLocation(
+        e.lngLat.lat,
+        e.lngLat.lng
+    );
+
     if(!ok) return;
 
     marker.setLngLat(e.lngLat);
-    updateLocation(e.lngLat.lat, e.lngLat.lng);
+
+    updateLocation(
+        e.lngLat.lat,
+        e.lngLat.lng
+    );
 });
 
+/* drag */
 marker.on('dragend', async () => {
+
     const pos = marker.getLngLat();
-    const ok = await checkLocation(pos.lat, pos.lng);
+
+    const ok = await checkLocation(
+        pos.lat,
+        pos.lng
+    );
+
     if(!ok) return;
 
     updateLocation(pos.lat, pos.lng);
@@ -234,76 +368,117 @@ marker.on('dragend', async () => {
 
 /* ================= SEARCH ================= */
 
-const searchBtn = document.getElementById("searchManagerBtn");
-const managerSearch = document.getElementById("managerSearch");
-const searchResults = document.getElementById("searchResults");
+const searchManagerBtn =
+    document.getElementById('searchManagerBtn');
 
-let timer = null;
+const managerSearch =
+    document.getElementById("managerSearch");
 
-/* BUTTON */
-searchBtn.onclick = () => fetchEmployees(managerSearch.value);
+const searchResults =
+    document.getElementById("searchResults");
 
-/* LIVE */
+let typingTimer = null;
+
+/* button search */
+searchManagerBtn.onclick = async () => {
+    fetchEmployees(managerSearch.value);
+};
+
+/* live typing search */
 managerSearch.addEventListener("input", () => {
 
-    clearTimeout(timer);
+    clearTimeout(typingTimer);
 
-    const q = managerSearch.value.trim();
+    const query = managerSearch.value.trim();
 
-    if(q.length < 2){
+    if(query.length < 2){
+
         searchResults.style.display = "none";
+
         return;
     }
 
-    timer = setTimeout(() => fetchEmployees(q), 300);
+    typingTimer = setTimeout(() => {
+
+        fetchEmployees(query);
+
+    }, 300);
 });
 
 async function fetchEmployees(query){
 
-    const body = `name=${encodeURIComponent(query)}&submit=submit`;
+    const body =
+        `name=${encodeURIComponent(query)}&submit=submit`;
 
-    const res = await fetch(
-        "http://localhost:80/dashboard/admin_dashboard/searchEmployees.php",
-        {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/x-www-form-urlencoded"
-            },
-            body
-        }
-    );
+    try {
 
-    const data = await res.json();
-    renderEmployees(data);
+        const res = await fetch(
+            "http://localhost:80/dashboard/admin_dashboard/searchEmployees.php",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+
+                body: body
+            }
+        );
+
+        const data = await res.json();
+
+        renderEmployees(data);
+
+    }
+    catch (error) {
+
+        console.error(error);
+    }
 }
 
-function renderEmployees(data){
+/* ================= RENDER ================= */
+
+function renderEmployees(data) {
 
     searchResults.innerHTML = "";
 
-    if(!data || data.length === 0){
-        searchResults.innerHTML = `<div class="search-item">No employee found</div>`;
+    if (!data || data.length === 0) {
+
+        searchResults.innerHTML = `
+            <div class="search-item">
+                <h6>No employee found</h6>
+            </div>
+        `;
+
         searchResults.style.display = "block";
+
         return;
     }
 
     data.forEach(emp => {
 
         const div = document.createElement("div");
+
         div.className = "search-item";
 
         div.innerHTML = `
-            <strong>${emp.emp_name}</strong><br>
+            <h6>${emp.emp_name}</h6>
             <small>${emp.email}</small>
         `;
 
         div.onclick = () => {
 
             managerSearch.value = emp.emp_name;
-            document.getElementById("manager_id").value = emp.emp_id;
 
-            document.getElementById("selectedManagerBox").style.display = "block";
-            document.getElementById("selectedManagerName").innerText = emp.emp_name;
+            document.getElementById("manager_id").value =
+                emp.emp_id;
+                
+            document.getElementById("selectedManagerBox")
+                .style.display = "block";
+
+            document.getElementById("selectedManagerName")
+                .innerText = emp.emp_name;
 
             searchResults.style.display = "none";
         };
@@ -316,41 +491,67 @@ function renderEmployees(data){
 
 /* close dropdown */
 document.addEventListener("click", (e) => {
-    if(!managerSearch.contains(e.target) && !searchResults.contains(e.target)){
+
+    if(
+        !managerSearch.contains(e.target) &&
+        !searchResults.contains(e.target)
+    ){
         searchResults.style.display = "none";
     }
+
 });
 
 
-/* ================= SAVE POST (NEW) ================= */
+/* ================= SAVE ================= */
 
-document.getElementById("rescueForm").addEventListener("submit", async (e) => {
+document.getElementById("rescueForm")
+.addEventListener("submit", async (e) => {
 
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const payload = new URLSearchParams({
 
-    try {
+        name:
+            document.getElementById("rescuePointName").value,
+
+        lat:
+            document.getElementById("lat").value,
+
+        lang:
+            document.getElementById("lang").value,
+
+        manager_id:
+            document.getElementById("manager_id").value
+    });
+
+    try{
 
         const res = await fetch(
             "http://localhost:80/dashboard/admin_dashboard/createRescuePoint.php",
             {
                 method:"POST",
-                body:formData
+
+                headers:{
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+
+                body:payload
             }
         );
 
         const data = await res.json();
 
-        alert(data.msg || "Saved successfully");
-
         console.log(data);
 
-    } catch(err){
+        alert(data.msg || "Rescue point created");
+
+    }catch(err){
+
         console.error(err);
+
         alert("Failed to save rescue point");
     }
-
 });
 
 </script>

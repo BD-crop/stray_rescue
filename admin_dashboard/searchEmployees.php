@@ -1,4 +1,10 @@
 <?php
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+
+    error_reporting(E_ALL);
+
+
     include_once __DIR__."/../PDO/PDO.php";
     include_once __DIR__."/../template/admin_check.php";
     
@@ -38,9 +44,10 @@
     $name = $_POST['name']; 
     $employees =$obj->get_all_employee(1 , $name);
     
+    
+    foreach($employees as $employee){
 
-    foreach($emplyee as $employees){
-        $employees['emp_id'] = $obj ->BIN_TO_UUID( $employees['emp_id']) ;
+        $employee['emp_id'] = "12" ;
     }
 
 

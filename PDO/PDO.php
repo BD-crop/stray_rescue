@@ -158,40 +158,46 @@ class PDO_class
 
     }
 
-    public function same_place(){
-        try{
+public function same_place(){
 
-            $lat = $_POST['lat'];
-            $lang = $_POST['lang'];
-            
-            $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
+    try{
 
-            
-            $stmt ="
-                select Count(*) from rescue_point 
-                where
-                rescue_point_location_latitude = :lat and
-                rescue_point_location_longtitude = :lang   ; 
-            ";
+        $lat  = $_POST['lat'];
+        $lang = $_POST['lang'];
 
-            $stmt->bindValue(':lat', (float) $lat);
-            $stmt->bindValue(':lang', (float) $lang);
+        $sql = "
+            SELECT COUNT(*)
+            FROM rescue_point
+            WHERE
+                rescue_point_location_latitude = :lat
+            AND
+                rescue_point_location_longtitude = :lang
+        ";
 
-            $stmt = $this->pdo->prepare($stmt); 
-            $stmt->execute([$lat , $lang]);    
+        $stmt = $this->pdo->prepare($sql);
 
-            $count = $stmt->fetchColumn();
-            if($count == 0){    
-                return false;
-            }else{  
-                return true;
-            }
-        }catch (PDOException $e) {
-            exit("". $e->getMessage());
-        }
+        $stmt->bindValue(
+            ':lat',
+            (float)$lat
+        );
 
+        $stmt->bindValue(
+            ':lang',
+            (float)$lang
+        );
+
+        $stmt->execute();
+
+        $count = $stmt->fetchColumn();
+
+        return $count > 0;
+
+    }catch (PDOException $e) {
+
+        exit($e->getMessage());
     }
-    
+}
+
     public function get_rescue_point_id_by_name($name){
         try{
             $this->pdo_initializer();
@@ -208,45 +214,93 @@ class PDO_class
         }
     }
 
-    public function create_rescue_point(){
-        try {
-            $this->pdo_initializer();
+public function create_rescue_point(){
 
-            if($this->name_already_exists()){
-                $message;
-                $message['msg'] ="Similar rescue point name already exists ";
-                exit(   json_encode($message , JSON_PRETTY_PRINT));
-            }
+    try {
 
-            if($this->same_place()){
-                $message;
-                $message['msg'] ="similar rescue point location already exists ";
-                exit(   json_encode($message , JSON_PRETTY_PRINT));
-            }
+        $this->pdo_initializer();
 
+        if($this->name_already_exists()){
 
-            $stmt = $this->pdo->prepare("
-                insert into 
-                rescue_point(
-                rescue_point_name , 
+            $message = [];
+
+            $message['msg'] =
+                "Similar rescue point name already exists";
+
+            exit(json_encode($message, JSON_PRETTY_PRINT));
+        }
+
+        if($this->same_place()){
+
+            $message = [];
+
+            $message['msg'] =
+                "Similar rescue point location already exists";
+
+            exit(json_encode($message, JSON_PRETTY_PRINT));
+        }
+
+        $stmt = $this->pdo->prepare("
+            INSERT INTO rescue_point(
+                rescue_point_name,
                 rescue_point_location_latitude,
                 rescue_point_location_longtitude,
                 supervisor_id
-                )
-                values 
-                (?,?,?,?);
-            ");
+            )
+            VALUES(
+                :name,
+                :lat,
+                :lang,
+                :supervisor_id
+            );
+        ");
 
-            $bin = $this->UUID_TO_BIN($_POST['id']);
+        $bin = $this->UUID_TO_BIN($_POST['manager_id']);
 
-            $stmt->execute([$_POST['name'] , $_POST['lat'] , $_POST['lang'] , $bin]);
+        $stmt->bindValue(
+            ':name',
+            $_POST['name'],
+            PDO::PARAM_STR
+        );
 
-            echo "Affected rows: " . $stmt->rowCount();
+        $stmt->bindValue(
+            ':lat',
+            (float)$_POST['lat']
+        );
 
-        } catch (PDOException $e) {
-            exit("Connection failed: " . $e->getMessage());
-        }
+        $stmt->bindValue(
+            ':lang',
+            (float)$_POST['lang']
+        );
+
+        $stmt->bindValue(
+            ':supervisor_id',
+            $bin,
+            PDO::PARAM_LOB
+        );
+
+        $stmt->execute();
+
+        $messa = [];
+
+        $messa['id'] =
+            $this->get_rescue_point_id_by_name($_POST['name']);
+
+        $messa['msg'] =
+            "Rescue point created successfully";
+
+        exit(json_encode($messa, JSON_PRETTY_PRINT));
+
+    } catch (PDOException $e) {
+
+        exit(
+            json_encode(
+                ['msg' => $e->getMessage()],
+                JSON_PRETTY_PRINT
+            )
+        );
     }
+}
 
     //email verification
 
@@ -588,32 +642,61 @@ class PDO_class
     }
 
     // employee management
-    public function get_all_employee($rank , $name)
-    {
-        try {
-            $stmt = "select emp_id ,emp_profile_picture_link, emp_name , email , emp_rank from Employee where emp_rank > ? and emp_name like ? ;";
-            $this->pdo_initializer();
+    public function get_all_employee($rank, $name)
+{
+    try {
 
+        $stmt = "
+            SELECT
 
-            $s = str_split($name);
-            $temp = "";
-            foreach ($s as $char) {
-                $temp .= "%" . $char;
-            }
-            $temp .= "%";
-            
+                LOWER(CONCAT(
+                    SUBSTR(HEX(emp_id), 1, 8), '-',
+                    SUBSTR(HEX(emp_id), 9, 4), '-',
+                    SUBSTR(HEX(emp_id), 13, 4), '-',
+                    SUBSTR(HEX(emp_id), 17, 4), '-',
+                    SUBSTR(HEX(emp_id), 21)
+                )) AS emp_id,
 
-            $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$rank , $temp]);
-            
-            $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                emp_profile_picture_link,
+                emp_name,
+                email,
+                emp_rank
 
-            return $employees;
+            FROM Employee
 
-        } catch (PDOException $e) {
-            exit(json_encode($e->message(), JSON_PRETTY_PRINT));
+            WHERE emp_rank > ?
+            AND emp_name LIKE ?
+        ";
+
+        $this->pdo_initializer();
+
+        /* fuzzy search */
+        $s = str_split($name);
+
+        $temp = "";
+
+        foreach ($s as $char) {
+            $temp .= "%" . $char;
         }
+
+        $temp .= "%";
+
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([$rank, $temp]);
+
+        $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $employees;
+
+    } catch (PDOException $e) {
+
+        exit(json_encode(
+            ["msg" => $e->getMessage()],
+            JSON_PRETTY_PRINT
+        ));
     }
+}
 
     public function find_employee_level(){
         $stmt = 'select emp_rank from Employee where emp_id = ?;';

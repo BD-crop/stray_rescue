@@ -1,9 +1,34 @@
 <?php
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
 
+    error_reporting(E_ALL);
     include_once __DIR__."/../PDO/PDO.php";
     include_once __DIR__."/../template/admin_check.php";
 
     $obj =PDO_class::initializer();
+
+    if(!isset($_POST['name'])){
+        $msg;
+        $msg['msg'] ="no name given";
+
+        exit(json_encode($msg , JSON_PRETTY_PRINT));
+    }
+
+    if(!isset($_POST['manager_id'])){
+        $msg;
+        $msg['msg'] ="no name given";
+
+        exit(json_encode($msg , JSON_PRETTY_PRINT));
+
+    }
+
+    if(!(isset($_POST["lat"]) && isset($_POST['lang']))){
+        $msg;
+        $msg['msg'] = "no location is given";
+
+        exit(json_encode($msg , JSON_PRETTY_PRINT));
+    }
 
     if(!(check_if_employee()))
     {
@@ -31,7 +56,7 @@
         $msg['msg'] = 'wrong format please correct it';
     }
 
-
+    $obj -> create_rescue_point();
 
 
 
