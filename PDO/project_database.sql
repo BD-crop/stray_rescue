@@ -9,7 +9,7 @@ create table if not exists email_verification(
     email_id varchar(100),
     table_name varchar(100) ,
     is_verified varchar(1) default 'N',
-
+    
     
     primary key (email_verification_id)
 );
@@ -29,7 +29,7 @@ create table if not exists Users(
 create table if not exists Employee(
 	emp_id BINARY(16) primary key,
     emp_bio text default "",
-    emp_name varchar(100) not null,
+    emp_name char(100) not null,
     emp_rank  int default 4,
     email varchar(100) not null Unique,
     password varchar(100) not null,
@@ -41,16 +41,26 @@ create table if not exists Employee(
     foreign key (immediate_supervisor_id) references Employee(emp_id)
 );
 
+
+
+
 create table if not exists rescue_point(
     rescue_point_name varchar(200) not null Unique, 
 	rescue_point_id BINARY(16) primary key,
     rescue_point_location_latitude decimal(16,8) ,
     rescue_point_location_longtitude decimal(16,8),
     supervisor_id BINARY(16) ,
+    creation_date timestamp default CURRENT_TIMESTAMP,
     foreign key (supervisor_id) references Employee(emp_id)
-
 );
 
+
+create table if not exists rescue_point_images(
+    rescue_point_id BINARY(16),
+    image_link   varchar(200) not null ,
+    foreign key(rescue_point_id)references rescue_point(rescue_point_id),
+    primary key(rescue_point_id , image_link)
+);
 
 alter table Employee add column if not exists rescue_point_id BINARY(16) references rescue_point(rescue_point_id);
 
@@ -96,11 +106,14 @@ CREATE TABLE IF NOT EXISTS rescued_event (
 
 CREATE TABLE IF NOT EXISTS animals (
     animal_id BINARY(16) PRIMARY KEY,
+    rescue_point_id Binary(16),
     species_type VARCHAR(100) NOT NULL,
     gender_type CHAR(1) DEFAULT NULL,
     age DOUBLE DEFAULT NULL,
     health_status TEXT DEFAULT NULL,
-    activity_level VARCHAR(50) DEFAULT NULL
+    activity_level VARCHAR(50) DEFAULT NULL,
+
+    foreign key (rescue_point_id) references rescue_point(rescue_point_id)
 );
 
 
@@ -168,7 +181,6 @@ create table if not exists comment_registry_adoption_post(
     foreign key (adoption_post_id) references adoption_post(adoption_post_id),
     foreign key (user_id) references Users(user_id) ,
     foreign key (replying_to) references comment_registry_adoption_post(comment_id)
-
 );
 
 
@@ -218,10 +230,7 @@ BEFORE INSERT ON animals
 FOR EACH ROW
 SET NEW.animal_id = UNHEX(REPLACE(UUID(), '-', ''));
 
-CREATE TRIGGER if not exists before_insert_adoption_post
-BEFORE INSERT ON adoption_post
-FOR EACH ROW
-SET NEW.adoption_post_id = UNHEX(REPLACE(UUID(), '-', ''));
+
 
 CREATE TRIGGER if not exists before_insert_adoption_queue
 BEFORE INSERT ON adoption_queue
@@ -238,6 +247,24 @@ BEFORE INSERT ON comment_registry_adoption_post
 FOR EACH ROW
 SET NEW.comment_id = UNHEX(REPLACE(UUID(), '-', ''));
 
+
+
+-- indexes for tables
+-- Employee
+CREATE INDEX if not exists idx_emp_rank ON Employee(emp_rank);
+CREATE INDEX if not exists  idx_employee_name ON Employee(emp_name);
+
+CREATE INDEX if not exists idx_rescue_point_geo ON rescue_point(
+    rescue_point_location_latitude,
+    rescue_point_location_longtitude
+);
+
+CREATE INDEX if not exists  idx_rescue_post_sos ON rescue_post(sos_level);
+
+CREATE INDEX if not exists  idx_animal_species ON animals(species_type);
+
+CREATE INDEX  if not exists idx_rescue_point_name 
+ON rescue_point(rescue_point_name);
 
 
 -- testing sql queries
@@ -276,3 +303,83 @@ insert ignore into Employee(emp_name , email , password , emp_rank ) values(
 insert ignore into volunteers(volunteer_name , email , password ) values(
     'c' ,'c' ,'c'
 );
+
+
+
+-- functions
+
+
+-- levenstein string distance function for finding distance between two strings
+
+
+-- DELIMITER $$
+
+-- CREATE FUNCTION levenshtein(s1 VARCHAR(255), s2 VARCHAR(255))
+-- RETURNS INT
+-- DETERMINISTIC
+-- BEGIN
+--     DECLARE s1_len, s2_len, i, j, cost INT;
+--     DECLARE lastdiag, olddiag INT;
+--     DECLARE s1_char CHAR;
+--     DECLARE cv0 VARBINARY(256);
+--     DECLARE cv1 VARBINARY(256);
+
+--     SET s1_len = CHAR_LENGTH(s1);
+--     SET s2_len = CHAR_LENGTH(s2);
+
+--     IF s1 = s2 THEN
+--         RETURN 0;
+--     END IF;
+
+--     IF s1_len = 0 THEN
+--         RETURN s2_len;
+--     END IF;
+
+--     IF s2_len = 0 THEN
+--         RETURN s1_len;
+--     END IF;
+
+--     SET j = 0;
+--     SET cv1 = '';
+
+--     WHILE j <= s2_len DO
+--         SET cv1 = CONCAT(cv1, CHAR(j));
+--         SET j = j + 1;
+--     END WHILE;
+
+--     SET i = 1;
+
+--     WHILE i <= s1_len DO
+--         SET s1_char = SUBSTRING(s1, i, 1);
+--         SET cv0 = CHAR(i);
+--         SET lastdiag = i - 1;
+
+--         SET j = 1;
+
+--         WHILE j <= s2_len DO
+--             IF s1_char = SUBSTRING(s2, j, 1) THEN
+--                 SET cost = 0;
+--             ELSE
+--                 SET cost = 1;
+--             END IF;
+
+--             SET olddiag = ORD(SUBSTRING(cv1, j, 1));
+
+--             SET lastdiag = LEAST(
+--                 ORD(SUBSTRING(cv1, j + 1, 1)) + 1,
+--                 ORD(SUBSTRING(cv0, j, 1)) + 1,
+--                 olddiag + cost
+--             );
+
+--             SET cv0 = CONCAT(cv0, CHAR(lastdiag));
+--             SET j = j + 1;
+--         END WHILE;
+
+--         SET cv1 = cv0;
+--         SET i = i + 1;
+--     END WHILE;
+
+--     RETURN lastdiag;
+-- END$$
+
+-- DELIMITER ;

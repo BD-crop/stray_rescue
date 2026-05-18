@@ -1,4 +1,9 @@
 <?php
+
+//  ini_set('display_errors', 1);
+//  ini_set('display_startup_errors', 1);
+//  error_reporting(E_ALL); 
+
 $lat = $_GET['lat'] ?? '';
 $lng = $_GET['lng'] ?? '';
 
@@ -17,6 +22,14 @@ $options = [
 ];
 
 $response = file_get_contents($url, false, stream_context_create($options));
+
+if ($response === false) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Failed to fetch location data']);
+    exit;
+}
+
+
 
 header('Content-Type: application/json');
 echo $response;
