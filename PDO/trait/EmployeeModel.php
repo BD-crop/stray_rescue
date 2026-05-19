@@ -253,7 +253,7 @@ trait EmployeeModel
         $stmt = $this->pdo->prepare($stmt);
         $stmt->execute([$this->UUID_TO_BIN($id)]);
         $count = $stmt->fetchColumn();
-
+        
         // if(!$count){
         //     http_response_code(400);
         //     $msg ;
