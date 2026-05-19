@@ -17,7 +17,7 @@
 <body>
     
     <ul>
-        <li ><a href="./Map.php">Map</a></li>
+        <li ><a href="./Map/index.php">Map</a></li>
         <li><a href="./shop/shop.php">Shop</a></li>
 
         <?php

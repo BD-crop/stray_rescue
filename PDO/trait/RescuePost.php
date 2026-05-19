@@ -83,7 +83,24 @@ trait RescuePost
     {
         $this->pdo_initializer();
 
-        $stmt = $this->pdo->prepare('SELECT * FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset');
+        $stmt = $this->pdo->prepare("SELECT 
+        LOWER(CONCAT(
+                        SUBSTR(HEX(rescue_post_id), 1, 8), '-',
+                        SUBSTR(HEX(rescue_post_id), 9, 4), '-',
+                        SUBSTR(HEX(rescue_post_id), 13, 4), '-',
+                        SUBSTR(HEX(rescue_post_id), 17, 4), '-',
+                        SUBSTR(HEX(rescue_post_id), 21)
+                    )) as rescue_point_id,
+                    rescue_post_image_link,
+                    rescue_post,
+                    animal_species_type,
+                    animal_gender_type,
+                    animal_age,
+                    post_loc_latitude,
+                    post_loc_longtitude,
+                    post_time_stamp,
+                    sos_level
+                    FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset");
         $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int) ($offset * $limit), PDO::PARAM_INT);
 
