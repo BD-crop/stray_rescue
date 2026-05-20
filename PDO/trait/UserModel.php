@@ -1,6 +1,23 @@
 <?php
 trait UserModel
 {
+    public function update_user(){
+        $sql="UPDATE Users set user_profile_picture_link = ? , user_bio= ? where user_id = ?;";
+        $this->initializer();
+
+
+        $sql = $this->pdo->prepare($sql);
+        
+        $image_path = $this->image_upload();
+
+        if ($image_path === "") {
+            $image_path = "https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png";
+        }
+        
+        $sql->execute( [$image_path, $_POST['add_bio'] ,  $this->UUID_TO_BIN($_POST['id'])]);
+    }
+
+
     public function user_insert($name, $email, $password)
     {
         try {
@@ -24,7 +41,7 @@ trait UserModel
             $image_path = $this->image_upload();
 
             if ($image_path === "") {
-                $image_path = "default_image.jpg";
+                $image_path = "https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png";
             }
 
             $stmt = "UPDATE Users SET user_profile_picture_link = ?, user_bio = ?git  WHERE user_id = ?";

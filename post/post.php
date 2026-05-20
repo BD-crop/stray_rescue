@@ -40,7 +40,6 @@ body {
     font-family:Arial;
 }
 
-/* MAIN WRAPPER */
 .wrapper {
     display:flex;
     gap:20px;
@@ -49,7 +48,6 @@ body {
     padding:20px;
 }
 
-/* CARD */
 .card-custom {
     flex:1;
     background:rgba(255,255,255,0.05);
@@ -82,7 +80,6 @@ body {
     margin-bottom:10px;
 }
 
-/* MAP */
 #map {
     flex:1;
     height:500px;
@@ -90,7 +87,6 @@ body {
     overflow:hidden;
 }
 
-/* RESPONSIVE */
 @media(max-width: 900px) {
     .wrapper {
         flex-direction:column;
@@ -109,7 +105,7 @@ body {
 
 <div class="wrapper">
 
-    <!-- CARD -->
+
     <div class="card-custom">
 
         <img src="<?php echo $data['rescue_post_image_link']; ?>" class="card-img">

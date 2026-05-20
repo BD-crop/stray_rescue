@@ -6,6 +6,12 @@ include_once __DIR__ . "/../PDO/PDO.php";
 session_start();
 
 if (isset($_SESSION['id'])) {
+
+    if(isset($_POST['submit'])){
+        echo $_POST['id'];
+        PDO_class::initializer()->update_user();
+    }
+
     $arr;
     $arr['id']   = $_SESSION['id'];
     $arr['type'] = $_SESSION['type'];
@@ -55,6 +61,12 @@ if (isset($_SESSION['id'])) {
         body {
             font-family: Arial;
             padding: 20px;
+
+        }
+
+        .body_main{
+            display:flex;
+            justify-content:space-between;
         }
 
         .card {
@@ -84,9 +96,27 @@ if (isset($_SESSION['id'])) {
 
 <h2>My Profile</h2>
 
+    <div class="body_main">
+        <div >
+            <form action="" method="POST" enctype="multipart/form-data">
+                <input type="hidden" id="id_" name ="id" >  
+                <label for="add_bio"> Add bio</label>
+                <input type="text" name="add_bio" id="add_bio">
+                <br>
+                <label for="fileToUpload"> Upload a file to Upload</label>
+                <input type="file" name="fileToUpload" id="fileToUpload">
+                <br>
+                <input type="submit" name="submit">
+            </form>
+
+        </div>
 
 
-<div id="output"></div>
+        <div id="output"></div>
+
+
+
+    </div>
 
 <script>
 ( function() {
@@ -114,7 +144,7 @@ if (isset($_SESSION['id'])) {
                 <img src="${data.image}" alt="profile image">
             </div>
         `;
-
+        id_.value=data.id;
     
 })();
 </script>

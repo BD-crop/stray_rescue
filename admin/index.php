@@ -1,6 +1,5 @@
 <?php
-    include_once __DIR__ ."./auth.php";
-    session_start();
+    include __DIR__ ."./auth.php";
 
 
 
