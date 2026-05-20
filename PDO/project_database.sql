@@ -75,9 +75,8 @@ create table if not exists rescue_post(
     post_loc_longtitude decimal(16 , 8) default null,
     post_time_stamp timestamp default CURRENT_TIMESTAMP,
 	user_id BINARY(16),
-    sos_level int default 1,
+    sos_level int default 1, -- 1 --> normal animal , 2 -->  help need   , 3 - imminently help needed 
     foreign key(user_id) references Users(user_id)
-    
 );
 
 

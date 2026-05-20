@@ -66,13 +66,21 @@ trait RescuePost
         return "";
     }
 
-    public function total_rescue_posts()
+    public function total_rescue_posts($limit=PHP_INT_MAX , $offset =0)
     {
-        $stmt = 'select COUNT(*) from rescue_post';
+        $stmt = 'with view_cte as (
+            select * from rescue_post limit :offset , :limit
+        ) select count(*) from view_cte;';
+
+
+
 
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
-        $stmt->execute([]);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
         $count = $stmt->fetchColumn();
 
         return $count;
@@ -100,14 +108,14 @@ trait RescuePost
                     post_loc_longtitude,
                     post_time_stamp,
                     sos_level
-                    FROM rescue_post ORDER BY post_time_stamp DESC LIMIT :limit OFFSET :offset");
+                    FROM rescue_post ORDER BY post_time_stamp asc LIMIT :limit OFFSET :offset");
         $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int) ($offset * $limit), PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) ($offset), PDO::PARAM_INT);
 
         $stmt->execute();
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $count = $this->total_rescue_posts();
+        $count = $this->total_rescue_posts($limit , $offset);
 
         return ['count' => $count, 'posts' => $posts];
     }
