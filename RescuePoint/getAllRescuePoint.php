@@ -15,7 +15,7 @@
     $obj = PDO_class::initializer();
 
     exit(json_encode( $obj -> get_all_points(), JSON_PRETTY_PRINT));
-
+    
     
 
 

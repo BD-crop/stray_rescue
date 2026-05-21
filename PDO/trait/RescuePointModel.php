@@ -2,7 +2,7 @@
 
 trait RescuePointModel
 {
-    public function get_all_points()
+    public function get_all_points($offset = 0 , $limit = 10 )
     {
         try {
             $stmt = "
@@ -24,10 +24,14 @@ trait RescuePointModel
                         emp_profile_picture_link
 
                     FROM rescue_point
-                    inner join  Employee on Employee.emp_id = rescue_point.supervisor_id;
+                    inner join  Employee on Employee.emp_id = rescue_point.supervisor_id 
+                    limit $offset , $limit;
                 ";
-
+    
             $stmt = $this->pdo->prepare($stmt);
+            $stmt->bindValue(":offset", $offset, PDO::PARAM_INT);
+            $stmt->bindValue(":limit", $limit, PDO::PARAM_INT);
+
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;

@@ -9,8 +9,6 @@ create table if not exists email_verification(
     email_id varchar(100),
     table_name varchar(100) ,
     is_verified varchar(1) default 'N',
-    
-    
     primary key (email_verification_id)
 );
 
@@ -79,6 +77,45 @@ create table if not exists rescue_post(
     foreign key(user_id) references Users(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS animals (
+    animal_id BINARY(16) PRIMARY KEY,
+    rescue_point_id Binary(16),
+    species_type VARCHAR(100) NOT NULL,
+    gender_type CHAR(1) DEFAULT NULL,
+    age DOUBLE DEFAULT NULL,
+    health_status TEXT DEFAULT NULL,
+    activity_level VARCHAR(50) DEFAULT NULL,
+
+    foreign key (rescue_point_id) references rescue_point(rescue_point_id)
+);
+
+
+create table if not exists animal_history(
+    rescue_post_id BINARY(16),
+    history_id BINARY(16) primary key,
+    level TINYINT not null ,
+    foreign key (rescue_post_id) references rescue_post(rescue_post_id),
+    created_at timestamp default CURRENT_TIMESTAMP
+
+)
+create table if not exists animal_history_image_upload(
+    history_id BINARY(16) ,
+    image_link varchar(200) not null,
+    foreign key(history_id) references animal_history(history_id),
+    primary key (history_id , image_link),
+    created_at timestamp default CURRENT_TIMESTAMP
+)
+
+
+create table if not exists animal_history_text_upload(
+    history_id BINARY(16),
+    text_upload_id BINARY(16) ,
+    level_text text ,
+    created_at timestamp default CURRENT_TIMESTAMP
+
+    foreign key (history_id) references animal_history(history_id),
+    primary key(history_id , text_upload_id)
+)
 
 create table if not exists volunteers(
     volunteer_id BINARY(16) primary key,
@@ -101,20 +138,6 @@ CREATE TABLE IF NOT EXISTS rescued_event (
         REFERENCES volunteers (volunteer_id),
     PRIMARY KEY (rescue_post_id , volunteer_id)
 );
-
-
-CREATE TABLE IF NOT EXISTS animals (
-    animal_id BINARY(16) PRIMARY KEY,
-    rescue_point_id Binary(16),
-    species_type VARCHAR(100) NOT NULL,
-    gender_type CHAR(1) DEFAULT NULL,
-    age DOUBLE DEFAULT NULL,
-    health_status TEXT DEFAULT NULL,
-    activity_level VARCHAR(50) DEFAULT NULL,
-
-    foreign key (rescue_point_id) references rescue_point(rescue_point_id)
-);
-
 
 CREATE TABLE IF NOT EXISTS adoption_post (
     adoption_post_id BINARY(16) PRIMARY KEY ,

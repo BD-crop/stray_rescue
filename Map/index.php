@@ -11,7 +11,8 @@
     <title>Maps</title>
 </head>
 <body>
-    <a href="./RescuePost.php">Post Maps</a>
-    <a href="./RescuePoint.php">Rescue Points</a>
+    <a href="./RescuePost.php">Post Maps</a><br>
+    <a href="./RescuePoint.php">Rescue Points</a><br>
+    
 </body>
 </html>
