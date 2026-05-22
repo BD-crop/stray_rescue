@@ -136,6 +136,227 @@ trait EmployeeModel
             return false;
         }
     }
+
+
+    public function change_employee_rank($emp_id ,$event_type, $new_rank , $promoted_by ,$reason = "Demoted"){
+            /*
+            START TRANSACTION
+                INSERT INTO Employee_history(emp_id , event_type , animal_id ,
+                rank_assigned_by , supervisor_id , rescue_point_id , emp_rank , salary,
+                reason)
+                values (?,?,NULL, ?,?,?,?,?,?);
+                Update Employee SET emp_rank = ? WHERE emp_id = ? ;
+            COMMIT;
+            */    
+        try {
+            $this->pdo_initalizer();    
+            $this->pdo->beginTransaction();
+            $result = $this->getEmployeeHistoryLatest($emp_id);
+
+            $stmt = "INSERT INTO Employee_history(emp_id , event_type , animal_id ,
+                rank_assigned_by , supervisor_id , rescue_point_id , emp_rank , salary,
+                reason)
+                values (?,?,NULL, ?,?,?,?,?,?);";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([
+            $emp_id ,$event_type ,$promoted_by , $result['supervisor_id'] , $result['rescue_point_id'] ,
+                $new_rank , $result['salary'] , $reason
+            ]);
+            
+            $stmt = "Update Employee SET emp_rank = ? WHERE emp_id = ? ;";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$new_rank , $emp_id]);
+            
+            $this->pdo->commit();
+        }catch(PDOException $e){
+            if($this->pdo->inTransaction()){
+                $this->pdo->rollBack(); 
+
+            }
+        }
+    }
+
+    public function change_employee_salary($emp_id ,$salary , $promoted_by ,$reason = "Salary Changed"){
+        try {
+            $this->pdo_initalizer();    
+            $this->pdo->beginTransaction();
+            $result = $this->getEmployeeHistoryLatest($emp_id);
+            
+            $stmt = "INSERT INTO Employee_history(emp_id , event_type , animal_id ,
+                rank_assigned_by , supervisor_id , rescue_point_id , emp_rank , salary,
+                reason)
+                values (?,4,NULL, ?,?,?,?,?,?);";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([
+            $emp_id  ,$promoted_by , $result['supervisor_id'] , $result['rescue_point_id'] ,
+                $result['emp_rank'] , $salary , $reason
+            ]);
+            
+            $stmt = "Update Employee SET salary = ? WHERE emp_id = ? ;";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$salary , $emp_id]);
+            
+            $this->pdo->commit();
+        }catch(PDOException $e){
+            if($this->pdo->inTransaction()){
+                $this->pdo->rollBack(); 
+            }
+        }
+    }
+
+    public function assign_employee_supervisor($emp_id , $super_visor_id , $promoted_by ,$reason = "Change Employee Supervisor"){
+        try{
+            
+            $this->pdo_initalizer();    
+            $this->pdo->beginTransaction();
+            $result = $this->getEmployeeHistoryLatest($emp_id);
+
+
+
+            $stmt = "INSERT INTO Employee_history(emp_id , event_type , animal_id ,
+                rank_assigned_by , supervisor_id , rescue_point_id , emp_rank , salary,
+                reason)
+                values (?,5,NULL, ?,?,?,?,?,?);";
+            $stmt = $this->pdo->prepare($stmt);
+            
+            $stmt->execute([
+                $emp_id  ,$promoted_by , $super_visor_id , $result['rescue_point_id'] ,
+                $result['emp_rank'] , $result['salary'] , $reason
+            ]);
+            
+            $stmt = "Update Employee SET immediate_supervisor_id = ? WHERE emp_id = ? ;";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$super_visor_id , $emp_id]);
+            
+            $this->pdo->commit();
+
+        }catch(PDOException $e){
+            if($this->pdo->inTransaction()){
+                $this->pdo->rollBack();
+            }
+        }
+    }
+
+    public function remove_employee_supervisor($emp_id , $promoted_by , $reason = "Removed Employee Supervisor"){
+        try{
+            
+            $this->pdo_initalizer();    
+            $this->pdo->beginTransaction();
+            $result = $this->getEmployeeHistoryLatest($emp_id);
+
+
+
+            $stmt = "INSERT INTO Employee_history(emp_id , event_type , animal_id ,
+                rank_assigned_by , supervisor_id , rescue_point_id , emp_rank , salary,
+                reason)
+                values (?,6,NULL, ?,NULL,?,?,?,?);";
+            $stmt = $this->pdo->prepare($stmt);
+            
+            $stmt->execute([
+                $emp_id  ,$promoted_by, $result['rescue_point_id'] ,
+                $result['emp_rank'] , $result['salary'] , $reason
+            ]);
+            
+            $stmt = "Update Employee SET immediate_supervisor_id = NULL WHERE emp_id = ? ;";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([ $emp_id]);
+            
+            $this->pdo->commit();
+
+        }catch(PDOException $e){
+            if($this->pdo->inTransaction()){
+                $this->pdo->rollBack();
+            }
+        }
+    }
+
+    public function change_rescue_point($emp_id ,$type, $promoted_by , $rescue_point, $reason = "Assigned At a point"){
+        try{
+            
+            $this->pdo_initalizer();    
+            $this->pdo->beginTransaction();
+            $result = $this->getEmployeeHistoryLatest($emp_id);
+
+            $stmt = "INSERT INTO Employee_history(emp_id , event_type , animal_id ,
+                rank_assigned_by , supervisor_id , rescue_point_id , emp_rank , salary,
+                reason)
+                values (?,?,NULL, ?,?,?,?,?,?);";
+                
+            $stmt = $this->pdo->prepare($stmt);
+            
+            $stmt->execute([
+                $emp_id ,$type  ,$promoted_by, $rescue_point ,
+                $result['emp_rank'] , $result['salary'] , $reason
+            ]);
+            
+            $stmt = "Update Employee SET rescue_point_id = ? WHERE emp_id = ? ;";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([ $rescue_point , $emp_id]);
+            
+            $this->pdo->commit();
+
+        }catch(PDOException $e){
+            if($this->pdo->inTransaction()){
+                $this->pdo->rollBack();
+            }
+        }
+    }
+
+    public function assign_an_animal($emp_id , $promoted_by , $animal_id ,$reason="A new animal assigned"){
+        try{    
+            $this->pdo_initalizer();    
+            $this->pdo->beginTransaction();
+            $result = $this->getEmployeeHistoryLatest($emp_id);
+
+            $stmt = "INSERT INTO Employee_history(emp_id , event_type , animal_id ,
+                rank_assigned_by , supervisor_id , rescue_point_id , emp_rank , salary,
+                reason)
+                values (?,9 ,?, ?,?,?,?,?,?);";
+                
+            $stmt = $this->pdo->prepare($stmt);
+            
+            $stmt->execute([
+                $emp_id ,$animal_id    ,$promoted_by,$result['supervisor_id'], $result['rescue_point_id'] ,
+                $result['emp_rank'] , $result['salary'] , $reason
+            ]);
+            
+            $stmt = "Update animals SET emp_id = ? WHERE animal_id = ? ;";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([ $emp_id , $animal_id ]);
+            
+            $this->pdo->commit();
+
+        }catch(PDOException $e){
+            if($this->pdo->inTransaction()){
+                $this->pdo->rollBack();
+            }
+        }
+    }
+
+    public function getEmployeeHistoryLatest($emp_id){
+        try {
+            $stmt = "SELECT emp_id , created_at , event_type , animal_id , 
+            rank_assigned_by , supervisor_id , rescue_point_id , emp_rank  , salary 
+            from  Employee_history where emp_id = ? ;";
+
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$emp_id]);    
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+
+        }catch(PDOException $e){
+            exit($e->getMessage());
+        }
+    }
+
+
+
+
+
+    public function deleteEmployeeForce($id){
+
+    }
+
     
     public function getEmployee_id($email){
         $stmt = $this->pdo->prepare(
@@ -157,39 +378,19 @@ trait EmployeeModel
         return $stmt->fetchColumn();
     }
 
-    public function updateEmployeeForce($id , $rank){
-
-    }
-
-    public function deleteEmployeeForce($id){
-
-    }
-
-    public function assignSupervisor($id , $emp_id){
-
-    }
-
 
     public function get_admin_profile($id)
     {
-        $stmt = 'SELECT emp_id , emp_name , email , emp_profile_picture_link , emp_bio from Employee where emp_id = ? limit 1';
-
-        $this->pdo_initializer();
-        $stmt = $this->pdo->prepare($stmt);
-
-        $stmt->execute([$id]);
-
-        $res = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $res;
+        return $this->get_emoployee_info($id);
     }
+
     public function update_bio_employee($id)
     {
         try {
             $image_path = $this->image_upload();
 
             if ($image_path === "") {
-                $image_path = "default_image.jpg";
+                $image_path = 'https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png' ;
             }
 
             $stmt = "UPDATE Employee SET emp_profile_picture_link = ? , emp_bio = ? WHERE emp_id = ?";
@@ -257,8 +458,7 @@ trait EmployeeModel
                     email,
                     emp_rank,
                     salary,
-                    joing_date,
-                    rank_assign_date
+                    joing_date
                     from Employee 
                     where emp_name like concat(substr(:name , 1 ,1 ),'%') 
                 )
@@ -269,7 +469,6 @@ trait EmployeeModel
                     emp_rank,
                     salary ,
                     joing_date,
-                    rank_assign_date,
                     rank() over(order by ".$rank_by." asc) as rank,
                     levenshtein(emp_name , :name) as distance
                 FROM employee_cte
@@ -315,7 +514,6 @@ trait EmployeeModel
                     emp_rank,
                     salary,
                     joing_date,
-                    rank_assign_date,
                     levenshtein(emp_name, :name) AS distance                    
                 FROM Employee
                 where emp_rank >= :rank && emp_name like concat(:name , '%')
@@ -367,28 +565,37 @@ trait EmployeeModel
 
     public function get_employee_info($id)
     {
-        $stmt = 'select
-            E1.emp_id ,
-            E1.emp_bio ,
-            E1.emp_name,
-            E1.emp_rank ,
-            E1.email ,
-            E1.salary ,
-            E1.joing_date ,
-            E1.emp_profile_picture_link ,
-            E1.rank_assign_date ,
-            E1.immediate_supervisor_id as supervisor_id ,
-
-            E2.emp_name as supervisor_name ,
-            E2.email as supervisor_email ,
-            E2.emp_profile_picture_link as supervisor_profile_image
-
-            from Employee as E1
-
-            left join Employee as E2
-            on E1.immediate_supervisor_id = E2.emp_id
-
-            where E1.emp_id = ? ;';
+        /*
+            SELECT E1.emp_id as emp_id , E1.emp_bio as emp_bio , E1.emp_name as emp_name, 
+            E1.emp_rank as emp_rank , E1.salary  as salary,
+            E1.joing_date as joing_date ,E1.emp_profile_picture_link as emp_profile_picture_link,
+             E1.immediate_supervisor_id as supervisor_id
+            ,count(DISTINCT history.animal_id) as total_animal 
+            from Employee as E1 
+            left join Employee as E2 on E1.immediate_supervisor_id = E2.emp_id
+            left join Employee_history as history on history.emp_id = E1.emp_id
+            where E1.emp_id = ? 
+            GROUP BY
+            E1.emp_id , E1.emp_bio, E1.emp_name , E1.emp_rank, E1.salary ,E1.joing_date
+            , E1.emp_profile_picture_link , E1.immediate_supervisor_id
+            ;
+            
+        */ 
+        //first finding out the employee personal data
+        $stmt = "
+            SELECT E1.emp_id as emp_id , E1.emp_bio as emp_bio , E1.emp_name as emp_name, 
+            E1.emp_rank as emp_rank , E1.salary  as salary,
+            E1.joing_date as joing_date ,E1.emp_profile_picture_link as emp_profile_picture_link,
+             E1.immediate_supervisor_id as supervisor_id
+            ,count(DISTINCT history.animal_id) as total_animal_cared 
+            from Employee as E1 
+            left join Employee as E2 on E1.immediate_supervisor_id = E2.emp_id
+            left join Employee_history as history on history.emp_id = E1.emp_id
+            where E1.emp_id = ? 
+            GROUP BY
+            E1.emp_id , E1.emp_bio, E1.emp_name , E1.emp_rank, E1.salary ,E1.joing_date
+            , E1.emp_profile_picture_link , E1.immediate_supervisor_id;
+        ";
 
         $this->pdo_initializer();
 
@@ -410,13 +617,72 @@ trait EmployeeModel
         $result['salary']                   = $res['salary'];
         $result['joing_date']               = $res['joing_date'];
         $result['emp_profile_picture_link'] = $res['emp_profile_picture_link'];
-        $result['rank_assign_date']         = $res['rank_assign_date'];
         $result['supervisor_id']            = $res['supervisor_id'];
         $result['supervisor_name']          = $res['supervisor_name'];
         $result['supervisor_email']         = $res['supervisor_email'];
         $result['supervisor_profile_image'] = $res['supervisor_profile_image'];
 
+
+        //getting back the animal_info
+        $stmt = "select animal_id , rescue_point_id , species_type ,gender_type 
+                , age , health_status , activity_level from animals where emp_id = ?";
+
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([
+            $id
+        ]);
+        $result['animals'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result['current_managing_animals'] = count($result['animals']);
+        
+       // window function 
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                emp_id,
+                created_at,
+                event_type,
+
+                CASE 
+                    WHEN event_type = 9 THEN animal_id
+                    ELSE 'No animal assigned'
+                END AS animal_id,
+
+                rank_assigned_by,
+
+                supervisor_id AS CURR_SUPERVISOR,
+                LAG(supervisor_id) OVER (
+                    PARTITION BY emp_id 
+                    ORDER BY created_at
+                ) AS PREV_SUPERVISOR,
+
+                rescue_point_id,
+
+                emp_rank AS CURR_RANK,
+                LAG(emp_rank) OVER (
+                    PARTITION BY emp_id 
+                    ORDER BY created_at
+                ) AS PREV_RANK,
+
+                salary AS CURR_SALARY,
+                LAG(salary) OVER (
+                    PARTITION BY emp_id 
+                    ORDER BY created_at
+                ) AS PREV_SALARY,
+
+                reason
+
+            FROM Employee_history
+            where emp_id = ?
+            ;
+        ");
+        $stmt = $this->pdo->prepare($stmt); 
+        $stmt->execute([$id]);
+        $result['history'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result['history_count'] = count($result['history']);
+        
         return $result;
+    
+    
     }
 
 }

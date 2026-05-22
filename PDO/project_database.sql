@@ -35,7 +35,6 @@ create table
         joing_date timestamp default CURRENT_TIMESTAMP,
         emp_profile_picture_link varchar(200) not null default 'https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png',
         immediate_supervisor_id CHAR(36),
-        rank_assign_date timestamp default CURRENT_TIMESTAMP,
         foreign key (immediate_supervisor_id) references Employee (emp_id),
         rescue_point_id CHAR(36)
     );
@@ -50,12 +49,14 @@ CREATE TABLE
                                                     -- if event_type = 1 , Employee_created
                                                     -- if event_type = 2 , promoted
                                                     -- if event_type = 3 , demoted
-                                                    -- if event_type = 4 , salary increased
+                                                    -- if event_type = 4 , salary Change
                                                     -- if event_type = 5 , supervisor_assigned
                                                     -- if event_type = 6 , supervisor_removed
                                                     -- if event_type = 7 , assigned_at a point
-                                                    -- if event_type = 8 , profile updated
-                                                    -- if event_type = 9 , resigned
+                                                    -- if event_type = 8 , remove from a rescue point
+                                                    -- if event_type = 9 , assigned an animal
+                                                    -- if event_type = 10 , resigned
+    animal_id CHAR(16),
     rank_assigned_by CHAR(36),
     supervisor_id CHAR(36),
     rescue_point_id CHAR(36),
@@ -63,7 +64,7 @@ CREATE TABLE
     salary decimal (16 , 8),
     reason text,
 
-
+    
     primary key (emp_id , created_at)
 );
 
@@ -115,6 +116,7 @@ create table
 
 CREATE TABLE
     IF NOT EXISTS animals (
+        name varchar(100),
         animal_id CHAR(36) PRIMARY KEY,
         rescue_point_id CHAR(36),
         species_type VARCHAR(100) NOT NULL,
@@ -122,8 +124,13 @@ CREATE TABLE
         age DOUBLE DEFAULT NULL,
         health_status TEXT DEFAULT NULL,
         activity_level VARCHAR(50) DEFAULT NULL,
-        foreign key (rescue_point_id) references rescue_point (rescue_point_id)
+        emp_id CHAR(16),
+        foreign key (rescue_point_id) references rescue_point (rescue_point_id),
+        foreign key (emp_id) references Employee(emp_id)
     );
+
+ALTER TABLE Employee_history ADD constraint animal_constraint
+foreign key (animal_id) references animals(animal_id);
 
 create table
     if not exists animal_history (

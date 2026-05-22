@@ -89,8 +89,6 @@
 
 
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,6 +103,119 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins', sans-serif;
+        }
+
+        body{
+            background:#f4f7fb;
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:20px;
+        }
+
+        .signup-card{
+            width:100%;
+            max-width:450px;
+            background:white;
+            padding:40px;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .logo{
+            font-size:48px;
+            text-align:center;
+            margin-bottom:10px;
+        }
+
+        .title{
+            text-align:center;
+            font-size:30px;
+            font-weight:700;
+            color:#222;
+        }
+
+        .subtitle{
+            text-align:center;
+            color:#777;
+            margin-bottom:30px;
+            font-size:14px;
+        }
+
+        .form-label{
+            font-weight:500;
+            color:#333;
+            margin-bottom:8px;
+        }
+
+        .form-control,
+        .form-select{
+            border-radius:12px;
+            padding:12px;
+            border:1px solid #dcdcdc;
+        }
+
+        .form-control:focus,
+        .form-select:focus{
+            box-shadow:none;
+            border-color:#4f8cff;
+        }
+
+        .signup-btn{
+            width:100%;
+            border:none;
+            background:#4f8cff;
+            color:white;
+            padding:14px;
+            border-radius:12px;
+            font-weight:600;
+            transition:0.3s;
+        }
+
+        .signup-btn:hover{
+            background:#3c76e0;
+        }
+
+        .bottom-link{
+            text-align:center;
+            margin-top:20px;
+            color:#666;
+            font-size:14px;
+        }
+
+        .bottom-link a{
+            text-decoration:none;
+            font-weight:600;
+            color:#4f8cff;
+        }
+
+        .message-box{
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:20px;
+            font-size:14px;
+            font-weight:500;
+        }
+
+        .success{
+            background:#d1f7df;
+            color:#0f7a38;
+        }
+
+        .error{
+            background:#ffe0e0;
+            color:#b42323;
+        }
+
+    </style>
 
 </head>
 <body>

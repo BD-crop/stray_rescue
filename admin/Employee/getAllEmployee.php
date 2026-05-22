@@ -105,7 +105,6 @@
             <option value="emp_rank">Employee Rank</option>
             <option value="salary">Salary</option>
             <option value="joing_date">Joining date</option>
-            <option value ="rank_assign_date" >Rank assigned</option>
         </select>
 
         <input type="text" id="searchInput" placeholder="Search employee name...">
