@@ -36,9 +36,9 @@ class PDO_class
     public function __construct()
     {
         try {
-            $this->pdo   = new PDO($this->dsn2, $this->user, $this->password);
-            $sql_content = file_get_contents(__DIR__ . "/project_database.sql");
-            $this->pdo->exec($sql_content);
+            // $this->pdo   = new PDO($this->dsn2, $this->user, $this->password);
+            // $sql_content = file_get_contents(__DIR__ . "/project_database.sql");
+            // $this->pdo->exec($sql_content);
 
             $this->pdo = new PDO($this->dsn, $this->user, $this->password);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

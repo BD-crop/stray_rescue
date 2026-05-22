@@ -1,35 +1,161 @@
 <?php
 
+
 trait EmployeeModel
 {
-    public function createEmployeeForce($name , $email ,
-     $emp_rank , $password , $salary , $emp_profile_picture_link , $immediate_supervisor_id){
-        try{
-                    $this->initializer();
-
-            $stmt = $this->pdo->prepare("INSERT INTO Employee(emp_name , email , emp_rank , password ,
-                                        salary , emp_profile_picture_link , immediate_supervisor_id)
-                                        values (?,?,?,?,?,?,?);");
-
-            $stmt -> execute([$name , $email , $emp_rank , $password ,$salary , 
-            $emp_profile_picture_link , $this->UUID_TO_BIN( $immediate_supervisor_id) ]);
-
+    public function createEmployeeForce(
+        $name, $email, $emp_rank, $password,
+        $salary, $emp_profile_picture_link,
+        $immediate_supervisor_id, $created_by
+    ){
+        try {
+            /*
+                START TRANSACTION
+                    INSERT INTO Employee(emp_name , email , emp_rank , 
+                    password,salary ,emp_profile_picture_link ,immediate_supervisor_id)
+                    values (?,?,?,?,?,?,?);
+                    INSERT INTO 
+                    Employee_history(event_type, rank_assigned_by, supervisor_id,
+                    rescue_point_id, emp_rank, salary, reason) values (?,?,?,?,?,?,?);
+                    INSERT INTO
+                    email_verification(
+                    email_verification_id, email_id, table_name, is_verified)
+                    values (?,?,?,'Y');
+                COMMIT;
             
-            $stmt = $this->pdo->prepare("insert into email_verification( email_verification_id ,email_id,table_name)
-                        values(UNHEX(REPLACE(? , '-','')),?,?);");
-            
-            
-            $uuid_id = $this->UUID_GENERATOR();
+            */ 
 
-            $stmt->execute([$uuid_id, $email, "Employee"]);
+
+
+            $this->pdo_initializer();
+            $this->pdo->beginTransaction();
+
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO Employee
+                (
+                    emp_name,
+                    email,
+                    emp_rank,
+                    password,
+                    salary,
+                    emp_profile_picture_link,
+                    immediate_supervisor_id
+                )
+                VALUES
+                (
+                    :emp_name,
+                    :email,
+                    :emp_rank,
+                    :password,
+                    :salary,
+                    :emp_profile_picture_link,
+                    :immediate_supervisor_id
+                )"
+            );
+            // production -->   $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
+
+            $stmt->execute([
+                ':emp_name' => $name,
+                ':email' => $email,
+                ':emp_rank' => $emp_rank,
+                ':password' => $password,
+                ':salary' => $salary,
+                ':emp_profile_picture_link' => $emp_profile_picture_link,
+                ':immediate_supervisor_id' => $immediate_supervisor_id
+            ]);
+
+            $emp_id = $this->getEmployee_id($email);
+
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO Employee_history
+                (
+                    emp_id,
+                    event_type,
+                    rank_assigned_by,
+                    supervisor_id,
+                    rescue_point_id,
+                    emp_rank,
+                    salary,
+                    reason
+                )
+                VALUES
+                (
+                    :emp_id,
+                    1,
+                    :rank_assigned_by,
+                    :supervisor_id,
+                    NULL,
+                    :emp_rank,
+                    :salary,
+                    :reason
+                )"
+            );
+
+            $stmt->execute([
+                ':emp_id' => $emp_id,
+                ':rank_assigned_by' => $created_by,
+                ':supervisor_id' => $immediate_supervisor_id,
+                ':emp_rank' => $emp_rank,
+                ':salary' => $salary,
+                ':reason' => "Employee Created"
+            ]);
+
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO email_verification
+                (
+                    email_verification_id,
+                    email_id,
+                    table_name,
+                    is_verified
+                )
+                VALUES
+                (
+                    :email_verification_id,
+                    :email_id,
+                    :table_name,
+                    'Y'
+                )"
+            );
+
+            $stmt->execute([
+                ':email_verification_id' => $this->UUID_GENERATOR(),
+                ':email_id' => $email,
+                ':table_name' => "Employee"
+            ]);
+
+            $this->pdo->commit();
 
             return true;
-        }catch(PDOException $e){
+
+        } catch(PDOException $e) {
+
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
             return false;
         }
+    }
+    
+    public function getEmployee_id($email){
+        $stmt = $this->pdo->prepare(
+            "select emp_id from Employee where email= :email ;");
 
+            $stmt->bindValue(":email", $email , PDO::PARAM_STR);
+            $stmt->execute();
+          
+        return $stmt->fetchColumn();
+    }
 
-    }   
+    public function getEmployee_supervisor_id($email){
+        $stmt = $this->pdo->prepare(
+            "SELECT immediate_supervisor_id from Employee where email = :email ;" );
+        
+            $stmt->bindValue(":email", $email , PDO::PARAM_STR);
+            $stmt->execute();
+        
+        return $stmt->fetchColumn();
+    }
 
     public function updateEmployeeForce($id , $rank){
 
@@ -43,7 +169,6 @@ trait EmployeeModel
 
     }
 
-    
 
     public function get_admin_profile($id)
     {
@@ -52,7 +177,7 @@ trait EmployeeModel
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
 
-        $stmt->execute([$this->UUID_TO_BIN($id)]);
+        $stmt->execute([$id]);
 
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -71,7 +196,7 @@ trait EmployeeModel
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$image_path, $_POST['bio'], $this->UUID_TO_BIN($id)]);
+            $stmt->execute([$image_path, $_POST['bio'],$id]);
 
             $_SESSION['image'] = $image_path;
             $_SESSION['bio']   = $_POST['bio'];
@@ -82,19 +207,8 @@ trait EmployeeModel
     }
     public function admin_insert($name, $email, $password)
     {
-        try {
-
-            $stmt = $this->pdo->prepare("insert into Employee(emp_name,email , password )
-                    values(?,?,?);");
-// production -->   $stmt->execute([$name, $email, password_hash($password, PASSWORD_BCRYPT)]);
-            $stmt->execute([$name, $email, $password]);
-            $lastUUID = $this->email_verification_insert($email, "Employee");
-
-            send_mail($name, $email, $lastUUID, "Employee");
-
-        } catch (PDOException $e) {
-            exit("Connection failed: " . $e->getMessage());
-        }
+        $this->createEmployeeForce($name , $email, 4 ,$password, 0, 
+        'https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png' ,null , null);
     }
 
     public function get_all_employee($rank, $name , $rank_by)
@@ -148,14 +262,7 @@ trait EmployeeModel
                     from Employee 
                     where emp_name like concat(substr(:name , 1 ,1 ),'%') 
                 )
-                    SELECT
-                    LOWER(CONCAT(
-                        SUBSTR(HEX(emp_id), 1, 8), '-',
-                        SUBSTR(HEX(emp_id), 9, 4), '-',
-                        SUBSTR(HEX(emp_id), 13, 4), '-',
-                        SUBSTR(HEX(emp_id), 17, 4), '-',
-                        SUBSTR(HEX(emp_id), 21)
-                    )) AS emp_id,
+                    SELECT emp_id,
                     emp_profile_picture_link,
                     emp_name,
                     email,
@@ -201,13 +308,7 @@ trait EmployeeModel
             $stmt = "
 
                 SELECT
-                    LOWER(CONCAT(
-                        SUBSTR(HEX(emp_id), 1, 8), '-',
-                        SUBSTR(HEX(emp_id), 9, 4), '-',
-                        SUBSTR(HEX(emp_id), 13, 4), '-',
-                        SUBSTR(HEX(emp_id), 17, 4), '-',
-                        SUBSTR(HEX(emp_id), 21)
-                    )) AS emp_id,
+                    emp_id,
                     emp_profile_picture_link,
                     emp_name,
                     email,
@@ -251,7 +352,7 @@ trait EmployeeModel
 
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
-        $stmt->execute([$this->UUID_TO_BIN($id)]);
+        $stmt->execute([$id]);
         $count = $stmt->fetchColumn();
         
         // if(!$count){
@@ -294,14 +395,14 @@ trait EmployeeModel
         $stmt = $this->pdo->prepare($stmt);
 
         $stmt->execute([
-            $this->UUID_TO_BIN($id),
+            $id
         ]);
 
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
         $result = [];
 
-        $result['emp_id']                   = $this->BIN_TO_UUID($res['emp_id']);
+        $result['emp_id']                   = $res['emp_id'];
         $result['emp_bio']                  = $res['emp_bio'];
         $result['emp_name']                 = $res['emp_name'];
         $result['emp_rank']                 = $res['emp_rank'];
@@ -310,7 +411,7 @@ trait EmployeeModel
         $result['joing_date']               = $res['joing_date'];
         $result['emp_profile_picture_link'] = $res['emp_profile_picture_link'];
         $result['rank_assign_date']         = $res['rank_assign_date'];
-        $result['supervisor_id']            = $this->BIN_TO_UUID($res['supervisor_id']);
+        $result['supervisor_id']            = $res['supervisor_id'];
         $result['supervisor_name']          = $res['supervisor_name'];
         $result['supervisor_email']         = $res['supervisor_email'];
         $result['supervisor_profile_image'] = $res['supervisor_profile_image'];

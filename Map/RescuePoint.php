@@ -1,13 +1,13 @@
 <?php
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+
     include_once __DIR__ . "/../PDO/PDO.php";
 
     $obj = PDO_class::initializer();
 
-    $offset = isset($_GET['offset']) ? (int) $offset : 0;
 
-    $res = $obj->see_rescue_posts(0, 100000);
+
+    $res = $obj->get_all_points(0, 100000);
+
 
     $res_json = json_encode($res);
 ?>
@@ -251,9 +251,9 @@ function map_updater(res) {
     }
 
     const posts = {};
-
-    data.posts.forEach(d => {
-        const key = `${d.post_loc_latitude},${d.post_loc_longtitude}`;
+    console.log()
+    data.result.forEach(d => {
+        const key = `${d.rescue_point_location_latitude},${d.rescue_point_location_longtitude}`;
         if (!posts[key]) posts[key] = [];
         posts[key].push(d);
     });
@@ -267,8 +267,8 @@ function map_updater(res) {
 
         const group = posts[key];
 
-        const lat = parseFloat(group[0].post_loc_latitude);
-        const lng = parseFloat(group[0].post_loc_longtitude);
+        const lat = parseFloat(group[0].rescue_point_location_latitude);
+        const lng = parseFloat(group[0].rescue_point_location_longtitude);
 
         if (isNaN(lat) || isNaN(lng)) continue;
 
@@ -289,16 +289,12 @@ function map_updater(res) {
 
                 ${group.map(datas => `
                     <div>
-                        <h6>${datas.rescue_post}</h6>
+                        <h6>${datas.rescue_point_name}</h6>
 
-                        <div><b>Species:</b> ${datas.animal_species_type}</div>
-                        <div><b>Gender:</b> ${datas.animal_gender_type}</div>
-                        <div><b>Age:</b> ${datas.animal_age}</div>
-                        <div><b>Time:</b> ${datas.post_time_stamp}</div>
-
-                        <img class="popup-img"
-                             src="${datas.rescue_post_image_link}">
-
+                        <div><b>latitude:</b> ${datas.rescue_point_location_latitude}</div>
+                        <div><b>longitude:</b> ${datas.rescue_point_location_longtitude}</div>
+                        <div><b>SuperVisor :</b> ${datas.emp_name}</div>
+                        <div><b>SuperVisor email:</b> ${datas.email}</div>
                         <hr>
                         <a href="../post/post.php?post_id=${datas.rescue_point_id}">see this post</a>
                     </div>
@@ -368,9 +364,6 @@ function map_updater(res) {
 };
 
 map_updater(<?php echo $res_json; ?>);
-// count_controller.addEventListener("change" ,()=>{
-//     console.log(count_controller.value);
-// });
 
 const slider = document.getElementById('slider');
 
@@ -387,7 +380,7 @@ noUiSlider.create(slider, {
 
 
 async function fetchPosts( x ,  y){
-    let data = await fetch(`http://localhost:80/dashboard/Map/fetchRes.php?offset=${x-1}&limit=${y-x+1}`);
+    let data = await fetch(`../RescuePoint/getAllRescuePoint.php?offset=${x-1}&limit=${y-x+1}`);
 
     let res = await data.json();
 

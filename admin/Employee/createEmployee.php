@@ -1,7 +1,8 @@
 <?php
 
-include_once __DIR__ . '/../PDO/PDO.php';
-include_once __DIR__ . "/auth.php";
+
+include_once __DIR__ . "/../auth.php";
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -45,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password,
         $salary,
         $emp_profile_picture_link,
-        $supervisor
+        $supervisor,
+        $_SESSION['id']
     );
 
     header("Location: createEmployee.php?msg=" . urlencode("Success"));
@@ -201,7 +203,7 @@ async function fetchEmployees(query) {
 
     try {
         const res = await fetch(
-            "http://localhost:80/dashboard/admin/searchEmployeesEX.php",
+            "http://localhost:80/dashboard/admin/Employee/searchEmployeesEX.php",
             {
                 method: "POST",
                 headers: {
@@ -212,6 +214,7 @@ async function fetchEmployees(query) {
         );
 
         const data = await res.json();
+        console.log(data);
         renderEmployees(data);
 
     } catch (err) {

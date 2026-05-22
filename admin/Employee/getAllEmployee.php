@@ -1,7 +1,5 @@
 <?php
-    include_once __DIR__ ."/auth.php";
-
-
+    include_once __DIR__ ."/../auth.php";
 
 ?>
 
@@ -135,7 +133,7 @@ async function fetchEmployees() {
         tableContainer.innerHTML = `<div class="loading">Loading...</div>`;
 
         const response = await fetch(
-            `http://localhost:80/dashboard/admin/seeIndividualLocation.php?rank=${rank}&name=${encodeURIComponent(name)}&rank_by=${encodeURIComponent(rank_by1)}`
+            `./searchEmployees.php?rank=${rank}&name=${encodeURIComponent(name)}&rank_by=${encodeURIComponent(rank_by1)}`
         );
 
         const data = await response.json();

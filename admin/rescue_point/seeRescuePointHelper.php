@@ -1,6 +1,5 @@
 <?php
-    include_once __DIR__."/auth.php";
-    include_once __DIR__."/../PDO/PDO.php";
+    include_once __DIR__."/../auth.php";
     
     if(!isset($_GET['name']) && !isset($_GET['rankBy']) && !isset($_GET['order'])){
         $msg;    

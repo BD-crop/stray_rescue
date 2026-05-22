@@ -13,13 +13,18 @@ trait UtilityModel
 
             $stmt->execute([$email]);
 
-            $id = $this->BIN_TO_UUID($stmt->fetchColumn());
+            $id = $stmt->fetchColumn();
 
             return $id;
         } catch (PDOException $e) {
             exit("Connection failed: " . $e->getMessage());
         }
     }
+
+    public function get_raw_id($id, $table_name){
+
+    }
+
     public function email_verification($email_verification_id)
     {
         try {
@@ -31,7 +36,7 @@ trait UtilityModel
                 WHERE email_verification_id = ?
             ");
 
-            $bin = $this->UUID_TO_BIN($email_verification_id);
+            $bin = $email_verification_id;
 
             $stmt->execute([$bin]);
 
@@ -115,7 +120,7 @@ trait UtilityModel
         try {
             $this->initializer();
             $stmt = $this->pdo->prepare("insert into email_verification( email_verification_id ,email_id,table_name)
-                    values(UNHEX(REPLACE(? , '-','')),?,?);");
+                    values(? ,?,?);");
 
             $uuid_id = $this->UUID_GENERATOR();
 
@@ -129,64 +134,64 @@ trait UtilityModel
         return null;
     }
 
-public function image_upload()
-{
-    if (!isset($_FILES['fileToUpload'])) {
-        return "";
-    }
+    public function image_upload()
+    {
+        if (!isset($_FILES['fileToUpload'])) {
+            return "";
+        }
 
-    $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/dashboard/upload_images/";
+        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/dashboard/upload_images/";
 
-    if (!is_dir($target_dir)) {
-        if (!mkdir($target_dir, 0777, true)) {
+        if (!is_dir($target_dir)) {
+            if (!mkdir($target_dir, 0777, true)) {
+                exit(json_encode([
+                    "msg" => "Failed to create upload directory",
+                    "path" => $target_dir
+                ]));
+            }
+        }
+
+        $file = $_FILES['fileToUpload'];
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
             exit(json_encode([
-                "msg" => "Failed to create upload directory",
-                "path" => $target_dir
+                "msg" => "File upload error",
+                "code" => $file['error']
             ]));
         }
+
+        $imageFileType = strtolower(
+            pathinfo($file['name'], PATHINFO_EXTENSION)
+        );
+
+        $allowed_file_types = ['png', 'jpeg', 'jpg', 'webp'];
+
+        if (!in_array($imageFileType, $allowed_file_types)) {
+            exit(json_encode([
+                "msg" => "Wrong file type"
+            ]));
+        }
+
+        if ($file['size'] > 5000000) {
+            exit(json_encode([
+                "msg" => "Image file exceeds 5MB"
+            ]));
+        }
+
+        $local_path = uniqid('', true) . "." . $imageFileType;
+
+        $uniqueFileName = $target_dir . $local_path;
+
+        $global_path = "http://localhost/dashboard/upload_images/" . $local_path;
+
+        if (!move_uploaded_file($file['tmp_name'], $uniqueFileName)) {
+            exit(json_encode([
+                "msg" => "Failed to move uploaded file"
+            ]));
+        }
+
+        return $global_path;
     }
-
-    $file = $_FILES['fileToUpload'];
-
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        exit(json_encode([
-            "msg" => "File upload error",
-            "code" => $file['error']
-        ]));
-    }
-
-    $imageFileType = strtolower(
-        pathinfo($file['name'], PATHINFO_EXTENSION)
-    );
-
-    $allowed_file_types = ['png', 'jpeg', 'jpg', 'webp'];
-
-    if (!in_array($imageFileType, $allowed_file_types)) {
-        exit(json_encode([
-            "msg" => "Wrong file type"
-        ]));
-    }
-
-    if ($file['size'] > 5000000) {
-        exit(json_encode([
-            "msg" => "Image file exceeds 5MB"
-        ]));
-    }
-
-    $local_path = uniqid('', true) . "." . $imageFileType;
-
-    $uniqueFileName = $target_dir . $local_path;
-
-    $global_path = "http://localhost/dashboard/upload_images/" . $local_path;
-
-    if (!move_uploaded_file($file['tmp_name'], $uniqueFileName)) {
-        exit(json_encode([
-            "msg" => "Failed to move uploaded file"
-        ]));
-    }
-
-    return $global_path;
-}
     public function UUID_GENERATOR()
     {
         $stmt = 'SELECT UUID();';
@@ -201,22 +206,5 @@ public function image_upload()
 
     }
 
-    public function UUID_TO_BIN($key)
-    {
-        return hex2bin(str_replace('-', '', $key));
-    }
 
-    public function BIN_TO_UUID($bin)
-    {
-        $hex = bin2hex($bin);
-
-        return sprintf(
-            '%s-%s-%s-%s-%s',
-            substr($hex, 0, 8),
-            substr($hex, 8, 4),
-            substr($hex, 12, 4),
-            substr($hex, 16, 4),
-            substr($hex, 20)
-        );
-    }
 }

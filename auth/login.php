@@ -107,6 +107,7 @@ if (isset($_POST['submit'])) {
         $_POST['type']
     );
 
+
     $msg = urlencode("Login successful");
     header("Location: login.php?msg=$msg");
     exit();

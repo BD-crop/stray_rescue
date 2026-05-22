@@ -14,7 +14,7 @@ trait UserModel
             $image_path = "https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png";
         }
         
-        $sql->execute( [$image_path, $_POST['add_bio'] ,  $this->UUID_TO_BIN($_POST['id'])]);
+        $sql->execute( [$image_path, $_POST['add_bio'] ,  $_POST['id']]);
     }
 
 
@@ -48,7 +48,7 @@ trait UserModel
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$image_path, $_POST['bio'], $this->UUID_TO_BIN($id)]);
+            $stmt->execute([$image_path, $_POST['bio'], $id]);
 
             $_SESSION['image'] = $image_path;
             $_SESSION['bio']   = $_POST['bio'];
@@ -65,7 +65,7 @@ trait UserModel
         $this->pdo_initializer();
         $stmt = $this->pdo->prepare($stmt);
 
-        $stmt->execute([$this->UUID_TO_BIN($id)]);
+        $stmt->execute([$id]);
 
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
 

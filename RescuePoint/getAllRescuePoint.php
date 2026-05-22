@@ -10,12 +10,13 @@
         exit(json_encode($msg , JSON_PRETTY_PRINT));
     }
 
+    
 
     
     $obj = PDO_class::initializer();
 
-    exit(json_encode( $obj -> get_all_points(), JSON_PRETTY_PRINT));
-    
+    exit(json_encode( $obj -> get_all_points((int) $_GET['offset'] , (int) $_GET['limit']), JSON_PRETTY_PRINT));
+
     
 
 

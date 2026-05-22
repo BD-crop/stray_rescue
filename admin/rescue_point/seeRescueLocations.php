@@ -1,13 +1,6 @@
 <?php
-    include_once __DIR__."/auth.php";
+    include_once __DIR__."/../auth.php";
     
-
-
-
-
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -90,6 +83,7 @@
         color: #666;
     }
 </style>
+
 </head>
 
 <body>
@@ -140,7 +134,7 @@ async function fetchPoint() {
         tableContainer.innerHTML = `<div class="loading">Loading...</div>`;
 
         const response = await fetch(
-            `http://localhost:80/dashboard/admin/seeRescuePointHelper.php?rankBy=${encodeURIComponent(rank)}&name=${encodeURIComponent(name)}&order=${encodeURIComponent(order1)}`
+            `./seeRescuePointHelper.php?rankBy=${encodeURIComponent(rank)}&name=${encodeURIComponent(name)}&order=${encodeURIComponent(order1)}`
         );
 
 

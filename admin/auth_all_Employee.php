@@ -7,17 +7,11 @@
         exit();
     }
 
-
     $obj = PDO_class::initializer();
     
     $level = $obj->find_employee_level();
-    if(isset($level) && $level > 1 ){
-        // header("Echo man this got hit");
+    if(isset($level) && $level > 4  && $level  < 0){
         header("Location: ./../index.php");
         exit();
     }
-
-    
-
-
 ?>

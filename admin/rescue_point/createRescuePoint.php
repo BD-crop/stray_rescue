@@ -1,7 +1,6 @@
 <?php
 
-    include_once __DIR__ . "/../PDO/PDO.php";
-    include_once __DIR__ . "/auth.php";
+    include_once __DIR__ . "/../auth.php";
     include_once __DIR__ . "/../template/admin_check.php";
 
     if (isset($_POST['submit'])) {
@@ -28,7 +27,7 @@
         }
 
         $msg = urlencode($obj->create_rescue_point());
-        header("Location: seeIndividualLocation.php?msg=$msg");
+        header("Location: seeIndividualLocation.php?id=$msg");
         exit();
     }
 
@@ -326,7 +325,7 @@ async function checkLocation(lat,lng){
         );
 
         const data = await res.json();
-
+        console.log(data);
         if(
             !data.address ||
             data.address.country_code !== 'bd'
@@ -437,12 +436,12 @@ managerSearch.addEventListener("input", () => {
 async function fetchEmployees(query){
 
     const body =
-        `name=${encodeURIComponent(query)}&rank=${encodeURIComponent(2)}&submit=submit`;
+        `name=${encodeURIComponent(query)}&rank=${encodeURIComponent(3)}&submit=submit`;
 
     try {
 
         const res = await fetch(
-            "http://localhost:80/dashboard/admin/searchEmployeesEX.php",
+            "../Employee/searchEmployeesEX.php",
             {
                 method: "POST",
 

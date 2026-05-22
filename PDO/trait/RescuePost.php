@@ -15,12 +15,12 @@ trait RescuePost
 
             $stmt = $this->pdo->prepare($stmt);
 
-            $stmt->execute([$this->UUID_TO_BIN($uniqid_), $global_path, $_POST['post'], $_POST['species_type'], $_POST['gender'], $_POST['age'], $_POST['latitude'], $_POST['longitude'], $this->UUID_TO_BIN($_SESSION['id'])]);
+            $stmt->execute([$uniqid_, $global_path, $_POST['post'], $_POST['species_type'], $_POST['gender'], $_POST['age'], $_POST['latitude'], $_POST['longitude'], $_SESSION['id']]);
 
             return $uniqid_;
 
         } catch (PDOException $e) {
-            exit(json_encode($e->message(), JSON_PRETTY_PRINT));
+            exit(json_encode($e->getMessage(), JSON_PRETTY_PRINT));
         }
 
     }
@@ -31,15 +31,7 @@ trait RescuePost
         try {
             $stmt = "
                 SELECT
-
-                    LOWER(CONCAT(
-                        SUBSTR(HEX(rescue_post_id), 1, 8), '-',
-                        SUBSTR(HEX(rescue_post_id), 9, 4), '-',
-                        SUBSTR(HEX(rescue_post_id), 13, 4), '-',
-                        SUBSTR(HEX(rescue_post_id), 17, 4), '-',
-                        SUBSTR(HEX(rescue_post_id), 21)
-                    )) AS rescue_post_id,
-
+                    rescue_post_id,
                     rescue_post_image_link,
                     rescue_post,
                     animal_species_type,
@@ -55,13 +47,13 @@ trait RescuePost
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$this->UUID_TO_BIN($id)]);
+            $stmt->execute([$id]);
 
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return $data;
         } catch (PDOException $e) {
-            exit(json_encode($e->message(), JSON_PRETTY_PRINT));
+            exit(json_encode($e->getMessage(), JSON_PRETTY_PRINT));
         }
         return "";
     }
@@ -91,14 +83,9 @@ trait RescuePost
     {
         $this->pdo_initializer();
 
-        $stmt = $this->pdo->prepare("SELECT 
-        LOWER(CONCAT(
-                        SUBSTR(HEX(rescue_post_id), 1, 8), '-',
-                        SUBSTR(HEX(rescue_post_id), 9, 4), '-',
-                        SUBSTR(HEX(rescue_post_id), 13, 4), '-',
-                        SUBSTR(HEX(rescue_post_id), 17, 4), '-',
-                        SUBSTR(HEX(rescue_post_id), 21)
-                    )) as rescue_point_id,
+        $stmt = $this->pdo->prepare(
+                    "SELECT 
+                    rescue_point_id,
                     rescue_post_image_link,
                     rescue_post,
                     animal_species_type,
@@ -108,7 +95,10 @@ trait RescuePost
                     post_loc_longtitude,
                     post_time_stamp,
                     sos_level
-                    FROM rescue_post ORDER BY post_time_stamp asc LIMIT :limit OFFSET :offset");
+                    FROM rescue_post 
+                    ORDER BY post_time_stamp asc 
+                    LIMIT :limit OFFSET :offset"
+        );
         $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int) ($offset), PDO::PARAM_INT);
 

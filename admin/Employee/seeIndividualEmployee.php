@@ -2,9 +2,8 @@
 
     session_start();
 
-    include_once __DIR__ . "/auth.php";
-    include_once __DIR__ . "/../PDO/PDO.php";
-    include_once __DIR__ . "/../template/admin_check.php";
+    include_once __DIR__ . "/../auth.php";
+    include_once __DIR__ . "/../../template/admin_check.php";
 
     $obj = PDO_class::initializer();
 
