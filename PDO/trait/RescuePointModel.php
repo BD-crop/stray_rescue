@@ -2,7 +2,6 @@
 
 trait RescuePointModel
 {
-    
     public function total_rescue_points($offset , $limit)
     {
         $stmt = 'with view_cte as (
@@ -162,7 +161,7 @@ trait RescuePointModel
             exit("No point found: " . $e->getMessage());
         }
     }
-    public function name_already_exists()
+    public function name_already_exists($name)
     {
         try {
 
@@ -188,13 +187,30 @@ trait RescuePointModel
 
     }
 
-    public function same_place()
+    public function get_point_ID_by_name($name){
+        try {
+
+            
+            $stmt = "
+                    select rescue_point_id from rescue_point
+                    where
+                    rescue_point_name= ? ;
+                ";
+
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$name]);
+
+            $count = $stmt->fetchColumn();
+            return $count;
+        } catch (PDOException $e) {
+            exit("" . $e->getMessage());
+        }
+    }
+    public function same_place($lat , $lang)
     {
 
         try {
 
-            $lat  = $_POST['lat'];
-            $lang = $_POST['lang'];
 
             $sql = "
                     SELECT COUNT(*)
@@ -244,115 +260,132 @@ trait RescuePointModel
         }
     }
 
-public function create_rescue_point()
-{
-    try {
+    public function create_rescue_point($manager_id , $lat , $lang , $name)
+    {
+        try {
 
-        $this->pdo_initializer();
+            $this->pdo_initializer();
 
-        if ($this->name_already_exists()) {
-            $msg = urlencode("Name already exists");
-            header("Location: http://localhost:80/dashboard/admin/rescue_point/createRescuePoint.php?msg=$msg");
-            exit();
-        }
+            if ($this->name_already_exists($name)) {
+                $msg = "Name already exists";
+                return $msg;
 
-        if ($this->same_place()) {
-            $msg = urlencode("same place already exists");
-            header("Location: http://localhost:80/dashboard/admin/rescue_point/createRescuePoint.php?msg=$msg");
-            exit();
-        }
-        /*
-            START TRANSACTION
+            }
+
+            if ($this->same_place($lat , $lang)) {
+                $msg = "same place already exists";
+                return $msg;
+            }
+            /*
+                START TRANSACTION
+                    INSERT INTO rescue_point(
+                    rescue_point_name,
+                    rescue_point_location_latitude,
+                    rescue_point_location_longtitude,
+                    supervisor_id
+                )
+                VALUES(
+                    :name,
+                    :lat,
+                    :lang,
+                    :supervisor_id
+                );
+
+                COMMIT
+            */
+            $this->pdo->beginTransaction();
+
+
+            $stmt1 = $this->pdo->prepare("
                 INSERT INTO rescue_point(
-                rescue_point_name,
-                rescue_point_location_latitude,
-                rescue_point_location_longtitude,
-                supervisor_id
-            )
-            VALUES(
-                :name,
-                :lat,
-                :lang,
-                :supervisor_id
+                    rescue_point_name,
+                    rescue_point_location_latitude,
+                    rescue_point_location_longtitude,
+                    supervisor_id
+                )
+                VALUES(
+                    :name,
+                    :lat,
+                    :lang,
+                    :supervisor_id
+                );
+            ");
+
+            $stmt1->bindValue(
+                ':name',
+                $name,
+                PDO::PARAM_STR
             );
-            UPDATE Employee SET emp_rank = 2 WHERE emp_id = :supervisor_id ;
 
-            COMMIT
-        */
-        $this->pdo->beginTransaction();
-
-        $bin = $_POST['manager_id'];
-
-
-        $stmt1 = $this->pdo->prepare("
-            INSERT INTO rescue_point(
-                rescue_point_name,
-                rescue_point_location_latitude,
-                rescue_point_location_longtitude,
-                supervisor_id
-            )
-            VALUES(
-                :name,
-                :lat,
-                :lang,
-                :supervisor_id
+            $stmt1->bindValue(
+                ':lat',
+                (float) $lat
             );
-        ");
 
-        $stmt1->bindValue(
-            ':name',
-            $_POST['name'],
-            PDO::PARAM_STR
-        );
+            $stmt1->bindValue(
+                ':lang',
+                (float) $lang
+            );
 
-        $stmt1->bindValue(
-            ':lat',
-            (float) $_POST['lat']
-        );
+            $stmt1->bindValue(
+                ':supervisor_id',
+                $manager_id, PDO::PARAM_STR
+            );
 
-        $stmt1->bindValue(
-            ':lang',
-            (float) $_POST['lang']
-        );
 
-        $stmt1->bindValue(
-            ':supervisor_id',
-            $bin
-        );
 
-        $stmt1->execute();
+            $stmt1->execute();
+            $manager = $this->getEmployeeHistoryLatest($manager_id);
 
-        /* UPDATE EMPLOYEE */
 
-        $stmt2 = $this->pdo->prepare("
-            UPDATE Employee
-            SET emp_rank = 2
-            WHERE emp_id = :supervisor_id
-        ");
+            $stmt = $this->pdo->prepare("
+                INSERT INTO Employee_history
+                (
+                    emp_id,
+                    event_type,
+                    rank_assigned_by,
+                    rescue_point_id,
+                    emp_rank,
+                    salary,
+                    reason
+                )
+                VALUES
+                (
+                    :emp_id,
+                    :event_type,
+                    :rank_assigned_by,
+                    :rescue_point_id,
+                    :emp_rank,
+                    :salary,
+                    :reason
+                )
+            ");
 
-        $stmt2->bindValue(
-            ':supervisor_id',
-            $bin,
-            PDO::PARAM_STR
-        );
+            $stmt->bindValue(':emp_id', $manager_id, PDO::PARAM_STR);
+            $stmt->bindValue(':event_type', 11, PDO::PARAM_INT);
+            $stmt->bindValue(':rank_assigned_by', $_SESSION['id'], PDO::PARAM_STR);
+            $stmt->bindValue(':rescue_point_id', $this->get_point_ID_by_name($name), PDO::PARAM_STR);
+            $stmt->bindValue(':emp_rank', $manager['emp_rank'], PDO::PARAM_INT);
+            $stmt->bindValue(':salary', $manager['salary']);
+            $stmt->bindValue(':reason', "Assigned As a Manager", PDO::PARAM_STR);
 
-        $stmt2->execute();
+            $stmt->execute();
 
-        /* COMMIT */
+            $this->add_notification($manager_id , $_SESSION['id'], "Assigned as a manager");
 
-        $this->pdo->commit();
+            $this->pdo->commit();
+            $this->change_employee_rank($manager_id ,2 , 2 , $_SESSION['id'] , "Assigned as a Manager"  );
+            return $this->get_rescue_point_id_by_name($_POST['name']);
 
-        return $this->get_rescue_point_id_by_name($_POST['name']);
+        } catch (PDOException $e) {
 
-    } catch (PDOException $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
 
-        if ($this->pdo->inTransaction()) {
-            $this->pdo->rollBack();
+            exit('Error occurred when creating the Employee: ' . $e->getMessage());
         }
-
-        exit('Error occurred when creating the Employee: ' . $e->getMessage());
     }
-}
 
 
     public function assign_Employee($rescue_point_id , $employee_id){

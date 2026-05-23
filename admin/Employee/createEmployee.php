@@ -11,8 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         empty($_POST['email']) ||
         empty($_POST['emp_rank']) ||
         empty($_POST['password']) ||
-        empty($_POST['salary']) ||
-        empty($_POST['immediate_supervisor_id'])
+        empty($_POST['salary'])
     ) {
         $msg = urlencode('all fields must be present');
         header("Location: createEmployee.php?msg=$msg");
@@ -32,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
         !$name || !$email || !$emp_rank || !$password ||
-        !$salary || !$supervisor || !$emp_profile_picture_link
+        !$salary  || !$emp_profile_picture_link
     ) {
         $msg = urlencode("all fields are required");
         header("Location: createEmployee.php?msg=$msg");
@@ -214,7 +213,6 @@ async function fetchEmployees(query) {
         );
 
         const data = await res.json();
-        console.log(data);
         renderEmployees(data);
 
     } catch (err) {

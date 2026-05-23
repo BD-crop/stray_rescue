@@ -1,4 +1,7 @@
 <?php
+//  ini_set('display_errors', 1);
+//  ini_set('display_startup_errors', 1);
+//  error_reporting(E_ALL);
 
 include_once __DIR__ . "/../PDO/PDO.php";
 
@@ -39,6 +42,7 @@ if (isset($_SESSION['id'])) {
     $data['email'] = $res['email'];
     $data['image'] = $res['emp_profile_picture_link'] ?? $res['user_profile_picture_link'] ?? $res['volunteer_image_link'] ?? null;
     $data['bio']   = $res['user_bio'] ?? $res['emp_bio'] ?? res['volunteer_bio'] ?? null;
+
 
     
 
@@ -147,6 +151,8 @@ if (isset($_SESSION['id'])) {
         id_.value=data.id;
     
 })();
+
+console.log(<?php echo json_encode($res); ?>);
 </script>
 
 </body>

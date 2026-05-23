@@ -2,8 +2,7 @@ create database if not exists stray_rescue;
 
 use stray_rescue;
 
-create table
-    if not exists email_verification (
+create table if not exists email_verification (
         email_verification_id CHAR(36),
         email_id varchar(100),
         table_name varchar(100),
@@ -11,8 +10,7 @@ create table
         primary key (email_verification_id)
     );
 
-create table
-    if not exists Users (
+create table if not exists Users (
         user_id CHAR(36) primary key,
         user_name varchar(100) not null,
         email varchar(100) not null Unique,
@@ -22,9 +20,8 @@ create table
         user_bio text default ""
     );
 
-create table
-    if not exists Employee (
-        emp_id CHAR(36) primary key,
+create table if not exists Employee (
+        emp_id CHAR(36) primary key default UUID(),
         emp_bio text default "",
         emp_name char(100) not null,
         emp_rank int default 4,
@@ -34,14 +31,13 @@ create table
         salary decimal(16, 8) default 10000,
         joing_date timestamp default CURRENT_TIMESTAMP,
         emp_profile_picture_link varchar(200) not null default 'https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png',
-        immediate_supervisor_id CHAR(36),
+        immediate_supervisor_id CHAR(36) default NULL,
         foreign key (immediate_supervisor_id) references Employee (emp_id),
-        rescue_point_id CHAR(36)
+        rescue_point_id CHAR(36) default NULL
     );
 
-CREATE TABLE 
-    IF NOT EXISTS Employee_history (
-    
+CREATE TABLE IF NOT EXISTS Employee_history (
+    id int AUTO_INCREMENT PRIMARY KEY, 
     emp_id CHAR(36),
     created_at timestamp default CURRENT_TIMESTAMP,
     event_type int ,
@@ -56,31 +52,28 @@ CREATE TABLE
                                                     -- if event_type = 8 , remove from a rescue point
                                                     -- if event_type = 9 , assigned an animal
                                                     -- if event_type = 10 , resigned
-    animal_id CHAR(16),
-    rank_assigned_by CHAR(36),
-    supervisor_id CHAR(36),
-    rescue_point_id CHAR(36),
+                                                    -- if event_type = 11 , assigned as a manager at a rescue point
+    animal_id CHAR(16) default NULL,
+    rank_assigned_by CHAR(36) default NULL,
+    supervisor_id CHAR(36) default NULL,
+    rescue_point_id CHAR(36) default NULL,
     emp_rank INT,
     salary decimal (16 , 8),
-    reason text,
-
-    
-    primary key (emp_id , created_at)
+    reason text
 );
 
 ALTER TABLE Employee_history ADD constraint supervisor_constraint 
 foreign key (rank_assigned_by) references Employee(emp_id);
 
-ALTER TABLE Employee_history ADD constraint employee_conostraint
+ALTER TABLE Employee_history ADD constraint employee_constraint
 foreign key (emp_id) references Employee(emp_id);
 
-create table
-    if not exists rescue_point (
+create table if not exists rescue_point (
         rescue_point_name varchar(200) not null Unique,
         rescue_point_id CHAR(36) primary key,
         rescue_point_location_latitude decimal(16, 8),
         rescue_point_location_longtitude decimal(16, 8),
-        supervisor_id CHAR(36),
+        supervisor_id CHAR(36) default NULL,
         creation_date timestamp default CURRENT_TIMESTAMP,
         foreign key (supervisor_id) references Employee (emp_id)
     );
@@ -90,17 +83,15 @@ foreign key (rescue_point_id) references rescue_point(rescue_point_id);
 
 
 
-create table
-    if not exists rescue_point_images (
-        rescue_point_id CHAR(36),
+create table if not exists rescue_point_images (
+        rescue_point_id CHAR(36) default NULL,
         image_link varchar(200) not null,
         foreign key (rescue_point_id) references rescue_point (rescue_point_id),
         primary key (rescue_point_id, image_link)
     );
 
-create table
-    if not exists rescue_post (
-        rescue_post_id CHAR(36) primary key,
+create table if not exists rescue_post (
+        rescue_post_id CHAR(36)  primary key,
         rescue_post_image_link varchar(200) default null,
         rescue_post text,
         animal_species_type varchar(100) default null,
@@ -109,16 +100,15 @@ create table
         post_loc_latitude decimal(16, 8) default null,
         post_loc_longtitude decimal(16, 8) default null,
         post_time_stamp timestamp default CURRENT_TIMESTAMP,
-        user_id CHAR(36),
+        user_id CHAR(36) default NULL,
         sos_level int default 1, -- 1 --> normal animal , 2 -->  help need   , 3 - imminently help needed 
         foreign key (user_id) references Users (user_id)
     );
 
-CREATE TABLE
-    IF NOT EXISTS animals (
+CREATE TABLE IF NOT EXISTS animals (
         name varchar(100),
         animal_id CHAR(36) PRIMARY KEY,
-        rescue_point_id CHAR(36),
+        rescue_point_id CHAR(36) default NULL,
         species_type VARCHAR(100) NOT NULL,
         gender_type CHAR(1) DEFAULT NULL,
         age DOUBLE DEFAULT NULL,
@@ -132,17 +122,28 @@ CREATE TABLE
 ALTER TABLE Employee_history ADD constraint animal_constraint
 foreign key (animal_id) references animals(animal_id);
 
-create table
-    if not exists animal_history (
-        rescue_post_id CHAR(36),
+
+create table if not exists Rescue_point_Animal_Registry(
+    animal_id CHAR(36) ,
+    rescue_point_id CHAR(36),
+    admitted_at timestamp default CURRENT_TIMESTAMP,
+
+    foreign key(rescue_point_id) references rescue_point(rescue_point_id),
+    foreign key(animal_id) references animals(animal_id),
+    primary key(animal_id , rescue_point_id)
+
+);
+
+
+create table if not exists animal_history (
+        rescue_post_id CHAR(36) default NULL,
         history_id CHAR(36) primary key,
         level TINYINT not null,
         foreign key (rescue_post_id) references rescue_post (rescue_post_id),
         created_at timestamp default CURRENT_TIMESTAMP
     );
 
-create table
-    if not exists animal_history_image_upload (
+create table if not exists animal_history_image_upload (
         history_id CHAR(36),
         image_link varchar(200),
         foreign key (history_id) references animal_history (history_id),
@@ -150,9 +151,8 @@ create table
         created_at timestamp default CURRENT_TIMESTAMP
     );
 
-create table
-    if not exists animal_history_text_upload (
-        history_id CHAR(36),
+create table if not exists animal_history_text_upload (
+        history_id CHAR(36) default NULL,
         text_upload_id CHAR(36),
         level_text text,
         created_at timestamp default CURRENT_TIMESTAMP,
@@ -160,8 +160,7 @@ create table
         primary key (history_id, text_upload_id)
     );
 
-create table
-    if not exists volunteers (
+create table if not exists volunteers (
         volunteer_id CHAR(36) primary key,
         volunteer_bio text default "",
         email varchar(100) not null Unique,
@@ -173,17 +172,15 @@ create table
         volunteer_location_longtitude decimal(16, 8) default null
     );
 
-CREATE TABLE
-    IF NOT EXISTS rescued_event (
-        rescue_post_id CHAR(36),
-        volunteer_id CHAR(36),
+CREATE TABLE IF NOT EXISTS rescued_event (
+        rescue_post_id CHAR(36) default NULL,
+        volunteer_id CHAR(36) default NULL,
         FOREIGN KEY (rescue_post_id) REFERENCES rescue_post (rescue_post_id),
         FOREIGN KEY (volunteer_id) REFERENCES volunteers (volunteer_id),
         PRIMARY KEY (rescue_post_id, volunteer_id)
     );
 
-CREATE TABLE
-    IF NOT EXISTS adoption_post (
+CREATE TABLE IF NOT EXISTS adoption_post (
         adoption_post_id CHAR(36) PRIMARY KEY,
         animal_id CHAR(36) NOT NULL,
         adoption_post_image_count INT NOT NULL DEFAULT 1,
@@ -201,8 +198,7 @@ CREATE TABLE
         FOREIGN KEY (rescue_point_id) REFERENCES rescue_point (rescue_point_id)
     );
 
-CREATE TABLE
-    IF NOT EXISTS adoption_queue (
+CREATE TABLE IF NOT EXISTS adoption_queue (
         queue_id CHAR(36) PRIMARY KEY,
         adoption_post_id CHAR(36) NOT NULL,
         user_id CHAR(36) NOT NULL,
@@ -212,31 +208,37 @@ CREATE TABLE
         FOREIGN KEY (user_id) REFERENCES Users (user_id)
     );
 
-create table
-    if not exists notifications (
+create table if not exists UserNotification (
         notification_id CHAR(36) PRIMARY KEY,
         user_id CHAR(36) NOT NULL,
-        user_type char(100) not null, -- Users , Employee , volunteers
         message TEXT NOT NULL,
         related_post_id CHAR(36) DEFAULT NULL,
         notification_type ENUM ('rescue', 'adoption', 'queue', 'general') DEFAULT 'general',
         is_read BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES Users (user_id)
-    );
+);
 
-create table
-    if not exists like_registry_adoption_post (
+create table if not exists EmployeeNotification(
+        notification_id CHAR(36) PRIMARY KEY default UUID(),
+        emp_id CHAR(36) NOT NULL,
+        message TEXT NOT NULL,
+        created_at TIMESTAMP default CURRENT_TIMESTAMP,
+        created_by CHAR(36),
+        foreign key (created_by) references Employee(emp_id),
+        foreign key (emp_id) references Employee(emp_id)
+);
+
+create table if not exists like_registry_adoption_post (
         adoption_post_id CHAR(36),
         user_id CHAR(36),
         like_type int default 1,
         foreign key (adoption_post_id) references adoption_post (adoption_post_id),
         foreign key (user_id) references Users (user_id),
         primary key (adoption_post_id, like_type)
-    );
+);
 
-create table
-    if not exists comment_registry_adoption_post (
+create table if not exists comment_registry_adoption_post (
         comment_id CHAR(36) primary key,
         adoption_post_id CHAR(36),
         user_id CHAR(36),
@@ -245,7 +247,7 @@ create table
         foreign key (adoption_post_id) references adoption_post (adoption_post_id),
         foreign key (user_id) references Users (user_id),
         foreign key (replying_to) references comment_registry_adoption_post (comment_id)
-    );
+);
 
 -- Triggers
 use stray_rescue;
@@ -254,9 +256,9 @@ CREATE TRIGGER if not exists before_insert_users BEFORE INSERT ON Users FOR EACH
 SET
     NEW.user_id = UUID();
 
-CREATE TRIGGER if not exists before_insert_employee BEFORE INSERT ON Employee FOR EACH ROW
-SET
-    NEW.emp_id = UUID();
+-- CREATE TRIGGER if not exists before_insert_employee BEFORE INSERT ON Employee FOR EACH ROW
+-- SET
+--     NEW.emp_id = UUID();
 
 
 CREATE TRIGGER if not exists before_insert_volunteers BEFORE INSERT ON volunteers FOR EACH ROW
@@ -275,9 +277,7 @@ CREATE TRIGGER if not exists before_insert_adoption_queue BEFORE INSERT ON adopt
 SET
     NEW.queue_id = UUID();
 
-CREATE TRIGGER if not exists before_insert_notifications BEFORE INSERT ON notifications FOR EACH ROW
-SET
-    NEW.notification_id = UUID();
+
 
 CREATE TRIGGER if not exists before_insert_comment_registry_adoption_post BEFORE INSERT ON comment_registry_adoption_post FOR EACH ROW
 SET

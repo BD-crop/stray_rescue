@@ -26,7 +26,8 @@
             exit();
         }
 
-        $msg = urlencode($obj->create_rescue_point());
+        $msg = urlencode($obj->create_rescue_point($_POST['manager_id'] , $_POST['lat'] 
+                                            ,$_POST['lang'] , $_POST['name']));
         header("Location: seeIndividualLocation.php?id=$msg");
         exit();
     }

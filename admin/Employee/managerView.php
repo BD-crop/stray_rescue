@@ -132,7 +132,7 @@ async function fetchEmployees() {
         tableContainer.innerHTML = `<div class="loading">Loading...</div>`;
 
         const response = await fetch(
-            `./searchEmployees.php?rank=${rank}&name=${encodeURIComponent(name)}&rank_by=${encodeURIComponent(rank_by1)}`
+            `./searchManager.php?rank=${rank}&name=${encodeURIComponent(name)}`
         );
 
         const data = await response.json();

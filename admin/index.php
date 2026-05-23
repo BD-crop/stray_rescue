@@ -20,8 +20,8 @@
         <li><a href="./Employee/createEmployee.php">Create Employee</a></li>
         <li><a href="./rescue_point/createRescuePoint.php">Create Rescue Point</a></li>
         <li><a href="./Employee/getAllEmployee.php">Get All Employee</a></li>
-        <li><a href="./mangerView.php">Get All Manager</a></li>
-        <li><a href="./superVisorView.php">Super Visor View</a></li>
+        <li><a href="./Employee/managerView.php">Get All Manager</a></li>
+        <li><a href="./Employee/ManagerView.php">Super Visor View</a></li>
         <li><a href="./rescue_point/seeRescueLocations.php">See Rescue Locations</a></li>
     </ul>
 </body>
