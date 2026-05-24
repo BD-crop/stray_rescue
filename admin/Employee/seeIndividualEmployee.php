@@ -15,7 +15,7 @@ if (!check_if_employee()) {
 
 $level = $obj->find_employee_level();
 
-if ($level > 1) {
+if ($level > 1 || $level < 0 ) {
     $msg = urlencode("You need to be a Senior Employee or upper to access page");
     header("Location:http://localhost:80/dashboard/index.php?msg=$msg");
     exit();

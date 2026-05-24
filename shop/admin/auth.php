@@ -1,13 +1,8 @@
 <?php
-    include __DIR__.'/../PDO/PDO.php';
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL); 
-
+    include_once __DIR__.'/../../PDO/PDO.php';
     session_start();
-    
-    
-    if(!isset($_SESSION['id']) || empty($_SESSION['id']) || strlen($_SESSION['id'])===0){
+
+    if(!isset($_SESSION['id']) || empty($_SESSION['id'])){
         header("Location: ./../shop.php");     
         exit();
     }
@@ -26,4 +21,9 @@
         header("Location: ./../shop.php");
         exit();
     }
+
+
+    
+
+
 ?>

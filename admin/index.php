@@ -1,6 +1,5 @@
 <?php
-    include __DIR__ ."./auth.php";
-
+    include __DIR__ ."/auth.php";
 
 
 
@@ -23,6 +22,7 @@
         <li><a href="./Employee/managerView.php">Get All Manager</a></li>
         <li><a href="./Employee/ManagerView.php">Super Visor View</a></li>
         <li><a href="./rescue_point/seeRescueLocations.php">See Rescue Locations</a></li>
+        <li>Problem</li>
     </ul>
 </body>
 </html>

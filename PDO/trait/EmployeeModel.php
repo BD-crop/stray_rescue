@@ -916,22 +916,36 @@ trait EmployeeModel
 
     public function find_employee_level()
     {
-        $stmt = 'select emp_rank from Employee where emp_id = ?;';
-        $id = $_SESSION['id'];
+        try{
+            $this->pdo_initializer();
 
-        $this->pdo_initializer();
-        $stmt = $this->pdo->prepare($stmt);
-        $stmt->execute([$id]);
-        $count = $stmt->fetchColumn();
+            $stmt = 'select COUNT(*) from Employee where emp_id = ? ;';
+            $id = $_SESSION['id'];
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$id]);
+            if($stmt ->fetchColumn() == 0 ){
+                return -1;
+            }
 
-        // if(!$count){
-        //     http_response_code(400);
-        //     $msg ;
-        //     $msg['msg'] = 'Something went wrong';
+            $stmt = 'select emp_rank from Employee where emp_id = ?;';
+            $id = $_SESSION['id'];
+            $stmt = $this->pdo->prepare($stmt);
 
-        //     exit(json_encode( $msg , JSON_PRETTY_PRINT ));
-        // }
-        return $count;
+
+            $stmt->execute([$id]);
+
+            $count = $stmt->fetchColumn();
+
+            return $count;
+
+        }catch(PDOException $e) {
+            
+            return -1;
+        }
+            
+
+
+
     }
 
     public function get_employee_info($id)

@@ -4,7 +4,6 @@
 
 
 
-
 ?>
 
 <!DOCTYPE html>
@@ -21,6 +20,7 @@
         <li><a href="./shop/shop.php">Shop</a></li>
 
         <?php
+
             if(!isset($_SESSION["id"])){
                ?>
                 <li><a href="./auth/login.php" >login</a></li>
@@ -28,7 +28,8 @@
 
                <?php
             }else{
-                if(PDO_class::initializer()->find_employee_level()>=0){   
+                $data = PDO_class::initializer()->find_employee_level();
+                if($data >=0){   
                     ?>
                 <li><a href="./admin">admin</a></li>
                     <?php                

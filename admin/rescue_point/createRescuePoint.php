@@ -20,7 +20,7 @@
 
         $level = $obj->find_employee_level();
 
-        if (($level === null) || ($level > 1)) {
+        if (($level === null) || ($level > 1) || ($level < 0)) {
             $msg = urlencode(" must be an senior employee or upper ");
             header("Location: createRescuePoint.php?msg=$msg");
             exit();

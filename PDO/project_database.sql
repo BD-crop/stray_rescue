@@ -412,3 +412,77 @@ BEGIN
     RETURN lastdiag;
 END$$
 DELIMITER ;
+
+
+
+-- MARKET PLACE MANAGEMENT
+
+CREATE TABLE if not exists products (
+    product_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(150) NOT NULL UNIQUE,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT DEFAULT 0,
+    rating decimal(10 , 5),
+    rating_count int ,
+    check(stock >= 0 ),
+    is_deleted INT default 0 ,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+create table if not exists product_images(
+    id INT AUTO_INCREMENT primary key,
+    product_id CHAR(36),
+    image_path varchar(200) ,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    foreign key(product_id) references products(product_id)
+);
+
+create table if not exists product_category(
+    
+    product_id CHAR(36) ,
+    type varchar(100),
+    foreign key(product_id) references products(product_id),
+    primary key (product_id , type)
+);
+
+
+CREATE TABLE if not EXISTS product_history (
+    id int  AUTO_INCREMENT PRIMARY KEY ,
+    product_id CHAR(36),
+    old_price DECIMAL(10,2) ,
+    new_price DECIMAL(10 ,2) ,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE IF NOT EXISTS  orders (
+    order_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    user_id CHAR(36),
+    total_amount DECIMAL(10,2) DEFAULT 0,
+    is_delivered INT ,  -- 1 -> not delivered , 2 -> delivered
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE if NOT EXISTS order_items (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    order_id CHAR(36),
+    product_id CHAR(36),
+    quantity INT NOT NULL,
+    price_at_purchase DECIMAL(10,2) NOT NULL,
+
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE if not exists sales_history (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    product_id CHAR(36),
+    quantity INT,
+    sold_price DECIMAL(10,2),
+    sold_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
