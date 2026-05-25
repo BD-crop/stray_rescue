@@ -322,6 +322,7 @@ function map_updater(res) {
             <div id="parent_node">
 
                 ${group.map(datas => {
+                    console.log(datas);
                     max = Math.max(max, datas.sos_level);
                     return `
                         <div>
@@ -332,10 +333,10 @@ function map_updater(res) {
                             <div><b>Age:</b> ${datas.animal_age}</div>
                             <div><b>Time:</b> ${datas.post_time_stamp}</div>
 
-                            <img class="popup-img" src="${datas.rescue_post_image_link}">
+                            <img class="popup-img" src="${datas.rescue_post_image_link.split(';;;')[0]}">
 
                             <hr>
-                            <a href="../post/post.php?post_id=${datas.rescue_point_id}">see this post</a>
+                            <a href="../post/post.php?post_id=${datas.rescue_post_id}">see this post</a>
                         </div>
                     `;
                 }).join('')}

@@ -9,15 +9,32 @@ trait RescuePost
         try {
 
             $uniqid_ = $this->UUID_GENERATOR();
-            $stmt    = "insert into rescue_post(rescue_post_id,rescue_post_image_link , rescue_post , animal_species_type , animal_gender_type , animal_age ,post_loc_latitude , post_loc_longtitude ,user_id) values(?,?,?,?,?,?,?,?,?);";
+            $stmt    = "insert into 
+            rescue_post(rescue_post_id, rescue_post , animal_species_type ,
+                         animal_gender_type , animal_age ,post_loc_latitude ,
+                        post_loc_longtitude ,user_id ,sos_level) values(?,?,?,?,?,?,?,?,?);";
 
-            $global_path = $this->image_upload() ?? '';
 
             $this->pdo_initializer();
 
             $stmt = $this->pdo->prepare($stmt);
 
-            $stmt->execute([$uniqid_, $global_path, $_POST['post'], $_POST['species_type'], $_POST['gender'], $_POST['age'], $_POST['latitude'], $_POST['longitude'], $_SESSION['id']]);
+            $stmt
+            ->execute([$uniqid_, $_POST['post'], $_POST['species_type'], 
+                $_POST['gender'], $_POST['age'], $_POST['latitude'], $_POST['longitude'], 
+            $_SESSION['id'] , $_POST['sos_level']]);
+
+            $obj =$this->upload_multiple_images(); 
+
+            foreach($obj as $value ){
+                $this->pdo_initializer();
+
+                $stmt = "INSERT INTO rescue_post_image(rescue_post_id ,rescue_post_image_link)
+                        values(?,?);";
+                $stmt= $this->pdo->prepare($stmt);
+
+                $stmt->execute([$uniqid_ , $value]);
+            }
 
             return $uniqid_;
 
@@ -32,19 +49,33 @@ trait RescuePost
 
         try {
             $stmt = "
-                SELECT
-                    rescue_post_id,
-                    rescue_post_image_link,
+                SELECT 
+                    rescue_post.rescue_post_id as rescue_post_id,
                     rescue_post,
                     animal_species_type,
                     animal_gender_type,
                     animal_age,
                     post_loc_latitude,
-                    post_loc_longtitude
+                    post_loc_longtitude,
+                    post_time_stamp,
+                    sos_level,
+                    GROUP_CONCAT(DISTINCT rescue_post_image.rescue_post_image_link SEPARATOR ';;;' ) 
+                    as rescue_post_image_link
+                    FROM rescue_post 
+                    inner join rescue_post_image 
+                    on rescue_post.rescue_post_id = rescue_post_image.rescue_post_id 
+                    WHERE rescue_post.rescue_post_id =?;
+                    GROUP BY
+                        rescue_post_id,
+                        rescue_post,
+                        animal_species_type,
+                        animal_gender_type,
+                        animal_age,
+                        post_loc_latitude,
+                        post_loc_longtitude,
+                        post_time_stamp,
+                        sos_level
 
-                FROM rescue_post
-
-                WHERE rescue_post_id =?;
             ";
             $this->pdo_initializer();
 
@@ -87,8 +118,7 @@ trait RescuePost
 
         $stmt = $this->pdo->prepare(
                     "SELECT 
-                    rescue_post_id,
-                    rescue_post_image_link,
+                    rescue_post.rescue_post_id as rescue_post_id,
                     rescue_post,
                     animal_species_type,
                     animal_gender_type,
@@ -96,8 +126,22 @@ trait RescuePost
                     post_loc_latitude,
                     post_loc_longtitude,
                     post_time_stamp,
-                    sos_level
+                    sos_level,
+                    GROUP_CONCAT(DISTINCT rescue_post_image.rescue_post_image_link SEPARATOR ';;;' ) 
+                    as rescue_post_image_link
                     FROM rescue_post 
+                    inner join rescue_post_image 
+                    on rescue_post.rescue_post_id = rescue_post_image.rescue_post_id 
+                    GROUP BY
+                        rescue_post_id,
+                        rescue_post,
+                        animal_species_type,
+                        animal_gender_type,
+                        animal_age,
+                        post_loc_latitude,
+                        post_loc_longtitude,
+                        post_time_stamp,
+                        sos_level
                     ORDER BY post_time_stamp asc 
                     LIMIT :limit OFFSET :offset"
         );

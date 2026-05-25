@@ -1,12 +1,28 @@
 <?php
 
-include_once __DIR__ . "/../PDO/PDO.php";
+include_once __DIR__ . "/../auth/user_check.php";
+ ini_set('display_errors', 1);
+ ini_set('display_startup_errors', 1);
+ error_reporting(E_ALL); 
 
 $id = $_GET["post_id"] ?? null;
 
 if (!$id) {
     exit("No post id provided");
 }
+$self = 1;
+
+$profile = PDO_class::initializer()->is_poster($id,$_SESSION['id']);
+
+if ($profile === 1) {
+
+    $self = true ;
+} 
+
+
+if($var && $self){
+}
+
 
 $obj = PDO_class::initializer();
 
@@ -18,6 +34,8 @@ if (!$data) {
 
 $lng = (float)$data['post_loc_longtitude'];
 $lat = (float)$data['post_loc_latitude'];
+
+$imageLink = explode(';;;', $data['rescue_post_image_link']);
 
 ?>
 
@@ -105,10 +123,34 @@ body {
 
 <div class="wrapper">
 
-
     <div class="card-custom">
 
-        <img src="<?php echo $data['rescue_post_image_link']; ?>" class="card-img">
+        <!-- CAROUSEL START -->
+        <?php if (!empty($imageLink)) { ?>
+
+        <div id="rescueCarousel" class="carousel slide" data-bs-ride="carousel">
+
+            <div class="carousel-inner">
+
+                <?php foreach ($imageLink as $index => $img) { ?>
+                    <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
+                        <img src="<?php echo htmlspecialchars($img); ?>" class="d-block w-100 card-img">
+                    </div>
+                <?php } ?>
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#rescueCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+
+            <button class="carousel-control-next" type="button" data-bs-target="#rescueCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+
+        </div>
+
+        <?php } ?>
 
         <div class="card-body">
 
@@ -127,18 +169,21 @@ body {
     </div>
 
     <!-- MAP -->
-
     <div id="map1">
-                <p>
-            
+
+        <p>
             <?php
-                $ob=json_decode(file_get_contents("http://localhost:80/dashboard/proxy/proxy.php?lat=$lat&lng=$lng" , false),true);
+                $ob = json_decode(
+                    file_get_contents("http://localhost:80/dashboard/proxy/proxy.php?lat=$lat&lng=$lng"),
+                    true
+                );
+
                 echo $ob['display_name'];
             ?>
         </p>
-        <div id="map">
 
-        </div>
+        <div id="map"></div>
+
     </div>
 
 </div>
@@ -146,7 +191,6 @@ body {
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
 <script>
-
 const lng = <?php echo $lng; ?>;
 const lat = <?php echo $lat; ?>;
 
@@ -162,8 +206,9 @@ map.addControl(new maplibregl.NavigationControl());
 new maplibregl.Marker()
     .setLngLat([lng, lat])
     .addTo(map);
-
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

@@ -95,7 +95,6 @@ create table if not exists rescue_point_images (
 
 create table if not exists rescue_post (
         rescue_post_id CHAR(36)  primary key,
-        rescue_post_image_link varchar(200) default null,
         rescue_post text,
         animal_species_type varchar(100) default null,
         animal_gender_type char(1) default null,
@@ -106,7 +105,15 @@ create table if not exists rescue_post (
         user_id CHAR(36) default NULL,
         sos_level int default 1, -- 1 --> normal animal , 2 -->  help need   , 3 - immediate help needed 
         foreign key (user_id) references Users (user_id)
-    );
+);
+
+create table if not exists rescue_post_image(
+    id CHAR(36) primary key default UUID(),
+    rescue_post_id CHAR(36),
+    rescue_post_image_link varchar(200),
+    foreign key(rescue_post_id) references rescue_post(rescue_post_id) on delete cascade
+);
+
 
 CREATE TABLE IF NOT EXISTS animals (
         name varchar(100),

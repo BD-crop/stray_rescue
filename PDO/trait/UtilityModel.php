@@ -134,9 +134,13 @@ trait UtilityModel
         return null;
     }
 
-    public function image_upload()
+    public function image_upload($src = null)
     {
-        if (!isset($_FILES['fileToUpload'])) {
+        if($src === null){
+            $src = $_FILES['fileToUpload']; 
+        }
+
+        if (!isset($src)) {
             return "";
         }
 
@@ -151,7 +155,7 @@ trait UtilityModel
             }
         }
 
-        $file = $_FILES['fileToUpload'];
+        $file = $src;
 
         if ($file['error'] !== UPLOAD_ERR_OK) {
             exit(json_encode([
@@ -192,6 +196,30 @@ trait UtilityModel
 
         return $global_path;
     }
+
+    public function upload_multiple_images()
+    {
+        $result = [];
+
+        foreach ($_FILES['fileToUpload']['name'] as $key => $value) {
+
+            $singleFile = [
+                'name'     => $_FILES['fileToUpload']['name'][$key],
+                'type'     => $_FILES['fileToUpload']['type'][$key],
+                'tmp_name' => $_FILES['fileToUpload']['tmp_name'][$key],
+                'error'    => $_FILES['fileToUpload']['error'][$key],
+                'size'     => $_FILES['fileToUpload']['size'][$key]
+            ];
+
+            $path = $this->image_upload($singleFile);
+
+            $result[] = $path;
+        }
+
+        return $result;
+    }
+
+
     public function UUID_GENERATOR()
     {
         $stmt = 'SELECT UUID();';

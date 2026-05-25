@@ -74,4 +74,22 @@ trait UserModel
         return $res;
     }
 
+
+    public function is_poster($id , $poster_id){
+        $stmt = 'SELECT count(*) from rescue_post where user_id = ? and rescue_post_id = ?';
+
+        $this->pdo_initializer();
+        $stmt = $this->pdo->prepare($stmt);
+
+        $stmt->execute([$poster_id , $id]);
+
+        $res = $stmt->fetchColumn();
+
+        return $res;
+    }
+
+
+
+
+
 }

@@ -21,7 +21,8 @@ if (isset($_SESSION['id'])) {
             !isset($_POST['gender']) ||
             !isset($_POST['age']) ||
             !isset($_POST['latitude']) ||
-            !isset($_POST['longitude'])
+            !isset($_POST['longitude']) ||
+            !isset($_POST['sos_level'])
         ) {
 
             $msg = urlencode("All fields must be present");
@@ -77,7 +78,6 @@ body {
     color:white;
 }
 
-/* MAIN LAYOUT */
 .wrapper {
     display:flex;
     gap:20px;
@@ -86,7 +86,6 @@ body {
     padding:20px;
 }
 
-/* FORM BOX */
 .form-box {
     flex:1;
     background:rgba(255,255,255,0.05);
@@ -95,7 +94,6 @@ body {
     border-radius:15px;
 }
 
-/* MAP BOX */
 .map-box {
     flex:1;
     border-radius:15px;
@@ -108,7 +106,6 @@ body {
     height:100%;
 }
 
-/* RESPONSIVE */
 @media(max-width: 900px) {
     .wrapper {
         flex-direction:column;
@@ -138,35 +135,80 @@ body {
             }
         ?>
 
-        <form id="rescueForm" enctype="multipart/form-data" method="POST">
+    <form id="rescueForm" enctype="multipart/form-data" method="POST">
 
-            <input type="file" name="fileToUpload" required class="form-control mb-2">
+        <div id="imageContainer">
+            <div class="image-input-group mb-2">
+                <input type="file" name="fileToUpload[]" required class="form-control">
+            </div>
+        </div>
 
-            <input type="text" name="post" placeholder="Post description" class="form-control mb-2">
+        <button type="button" id="addImageBtn" class="btn btn-secondary mb-3">
+            + Add Another Image
+        </button>
 
-            <select name="species_type" class="form-control mb-2">
-                <option value="cat">Cat</option>
-                <option value="dog">Dog</option>
-                <option value="bird">Bird</option>
-                <option value="other">Other</option>
-            </select>
+        <input type="text" name="post" placeholder="Post description" class="form-control mb-2">
 
-            <select name="gender" class="form-control mb-2">
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-                <option value="O">Other</option>
-            </select>
+        <select name="species_type" class="form-control mb-2">
+            <option value="cat">Cat</option>
+            <option value="dog">Dog</option>
+            <option value="bird">Bird</option>
+            <option value="other">Other</option>
+        </select>
 
-            <input type="number" name="age" placeholder="Age" class="form-control mb-2">
+        <select name="sos_level" class="form-control mb-2">
+            <option value="1">Normal/Healthy </option>
+            <option value="2">Attention Needed Soon</option>
+            <option value="3">Emergency</option>
 
-            <input type="hidden" name="latitude" id="latitude">
-            <input type="hidden" name="longitude" id="longitude">
+        </select>
 
-            <button type="submit" name="submit" class="btn btn-primary w-100">
-                Submit
-            </button>
 
-        </form>
+        <select name="gender" class="form-control mb-2">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+            <option value="O">Other</option>
+        </select>
+
+        <input type="number" name="age" placeholder="Age" class="form-control mb-2">
+
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+
+        <button type="submit" name="submit" class="btn btn-primary w-100">
+            Submit
+        </button>
+
+    </form>
+
+<script>
+
+    const imageContainer = document.getElementById("imageContainer");
+    const addImageBtn = document.getElementById("addImageBtn");
+
+    addImageBtn.onclick = () => {
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "image-input-group mb-2";
+
+        wrapper.innerHTML = `
+            <div class="d-flex gap-2">
+                <input type="file" name="fileToUpload[]" class="form-control" required>
+
+                <button type="button" class="btn btn-danger remove-btn">
+                    ✕
+                </button>
+            </div>
+        `;
+
+        wrapper.querySelector(".remove-btn").onclick = () => {
+            wrapper.remove();
+        };
+
+        imageContainer.appendChild(wrapper);
+    };
+
+</script>
 
     </div>
 
