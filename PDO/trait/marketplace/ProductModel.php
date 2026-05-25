@@ -263,7 +263,6 @@ trait ProductModel
                 view_cte.product_id , view_cte.name , view_cte.description , 
                 view_cte.price , view_cte.stock , view_cte.rating , view_cte.rating_count 
                 ,view_cte.created_at
-            
             ORDER BY
                 levenshtein(name, :name) ASC,
                 $rank_by DESC
@@ -284,7 +283,8 @@ trait ProductModel
         return [
             'products' => $products,
             'is_left' => $page == 0 ? -1 : $page - 1,
-            'is_right' => count($products) > 12 ? $page + 1 : -1
+            'is_right' => count($products) > 12 ? $page + 1 : -1,
+            'page'    => $page
         ];
     }
 
