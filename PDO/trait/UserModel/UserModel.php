@@ -1,6 +1,8 @@
 <?php
+include_once __DIR__."/UserUtility.php";
 trait UserModel
 {
+    use UserUtility;
     public function update_user(){
         $sql="UPDATE Users set user_profile_picture_link = ? , user_bio= ? where user_id = ?;";
         $this->initializer();

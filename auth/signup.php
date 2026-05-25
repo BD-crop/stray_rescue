@@ -1,102 +1,125 @@
 <?php
-    session_start();
+session_start();
 
-    INCLUDE_ONCE __DIR__."/../PDO/PDO.php";
+INCLUDE_ONCE __DIR__."/../PDO/PDO.php";
 
-    function signup_template(){
+function signup_template(){
 
-        if (isset($_COOKIE[session_name()])) {
+    if (isset($_COOKIE[session_name()])) {
 
-            $_SESSION = [];
+        $_SESSION = [];
 
-            if (ini_get("session.use_cookies")) {
-                $params = session_get_cookie_params();
-                setcookie(
-                    session_name(),
-                    '',
-                    time() - 42000,
-                    $params["path"],
-                    $params["domain"],
-                    $params["secure"],
-                    $params["httponly"]
-                );
-            }
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
 
-            session_destroy();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
         }
 
+        session_destroy();
+    }
 
+    if(
+        !isset($_POST['email']) ||
+        !isset($_POST['password']) ||
+        !isset($_POST['table'])
+    ){
+        $msg = urlencode("All fields are required");
 
-
-        if(!isset($_POST['email'] ) || !isset($_POST['password']) || !isset($_POST['table'])){
-            $msg=urlencode("All fields are required");
-
-            header("Location: signup.php?msg=$msg");
-            exit();
-        }
-
-        
-        $user_data;
-        $user_data["name"] =$_POST['name'];
-        $user_data["email"] =$_POST['email'];
-        $user_data['password']=$_POST['password'];
-        $user_data['type'] =$_POST['table'];
-        $table_name = $user_data['type'];
-
-        if(!($user_data['type']==='Users' || $user_data['type'] ==='Employee' || $user_data['type'] === 'volunteers')){
-
-            $msg=urlencode("wrong type of user");
-            header("Location: signup.php?msg=$msg");
-            exit();
-
-        }
-
-        $obj = PDO_class::initializer();
-
-        if(($obj -> email_checker($user_data["email"] , $table_name ))){
-            $msg=urlencode("email already exists");
-            header("Location: signup.php?msg=$msg");
-            exit();
-        }
-
-        if($table_name=="Users"){
-            $obj-> user_insert($user_data['name'],$user_data["email"] ,$user_data['password']);
-        }
-        else if($table_name==="Employee"){
-            $obj-> admin_insert($user_data['name'],$user_data["email"] ,$user_data['password']);
-        }
-        else{
-            $obj -> volunteer_insert($user_data['name'] ,$user_data["email"] , $user_data["password"]);
-        }
-
-
-        session_start();
-        session_regenerate_id(true);
-
-
-        $email = $user_data["email"];
-        $msg = urlencode("mail sent to $email");
         header("Location: signup.php?msg=$msg");
         exit();
-
-
     }
 
-    if(isset($_POST['submit'])){
-        signup_template();
-        
+    $user_data = [];
+
+    $user_data["name"] = $_POST['name'];
+    $user_data["email"] = $_POST['email'];
+    $user_data['password'] = $_POST['password'];
+    $user_data['type'] = $_POST['table'];
+
+    $table_name = $user_data['type'];
+
+    if(
+        !(
+            $user_data['type'] === 'Users' ||
+            $user_data['type'] === 'Employee' ||
+            $user_data['type'] === 'volunteers'
+        )
+    ){
+        $msg = urlencode("wrong type of user");
+
+        header("Location: signup.php?msg=$msg");
+        exit();
     }
 
+    $obj = PDO_class::initializer();
 
+    if(($obj->email_checker($user_data["email"], $table_name))){
+        $msg = urlencode("email already exists");
+
+        header("Location: signup.php?msg=$msg");
+        exit();
+    }
+
+    if($table_name == "Users"){
+        $obj->user_insert(
+            $user_data['name'],
+            $user_data["email"],
+            $user_data['password']
+        );
+    }
+    else if($table_name === "Employee"){
+        $obj->admin_insert(
+            $user_data['name'],
+            $user_data["email"],
+            $user_data['password']
+        );
+    }
+    else{
+        $obj->volunteer_insert(
+            $user_data['name'],
+            $user_data["email"],
+            $user_data["password"]
+        );
+    }
+
+    session_start();
+    session_regenerate_id(true);
+
+    $email = $user_data["email"];
+
+    $msg = urlencode("mail sent to $email");
+
+    header("Location: signup.php?msg=$msg");
+    exit();
+}
+
+if(isset($_POST['submit'])){
+    signup_template();
+}
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition duration-300">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -104,247 +127,198 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-
         *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
             font-family:'Poppins', sans-serif;
         }
-
-        body{
-            background:#f4f7fb;
-            min-height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            padding:20px;
-        }
-
-        .signup-card{
-            width:100%;
-            max-width:450px;
-            background:white;
-            padding:40px;
-            border-radius:20px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.08);
-        }
-
-        .logo{
-            font-size:48px;
-            text-align:center;
-            margin-bottom:10px;
-        }
-
-        .title{
-            text-align:center;
-            font-size:30px;
-            font-weight:700;
-            color:#222;
-        }
-
-        .subtitle{
-            text-align:center;
-            color:#777;
-            margin-bottom:30px;
-            font-size:14px;
-        }
-
-        .form-label{
-            font-weight:500;
-            color:#333;
-            margin-bottom:8px;
-        }
-
-        .form-control,
-        .form-select{
-            border-radius:12px;
-            padding:12px;
-            border:1px solid #dcdcdc;
-        }
-
-        .form-control:focus,
-        .form-select:focus{
-            box-shadow:none;
-            border-color:#4f8cff;
-        }
-
-        .signup-btn{
-            width:100%;
-            border:none;
-            background:#4f8cff;
-            color:white;
-            padding:14px;
-            border-radius:12px;
-            font-weight:600;
-            transition:0.3s;
-        }
-
-        .signup-btn:hover{
-            background:#3c76e0;
-        }
-
-        .bottom-link{
-            text-align:center;
-            margin-top:20px;
-            color:#666;
-            font-size:14px;
-        }
-
-        .bottom-link a{
-            text-decoration:none;
-            font-weight:600;
-            color:#4f8cff;
-        }
-
-        .message-box{
-            padding:12px;
-            border-radius:10px;
-            margin-bottom:20px;
-            font-size:14px;
-            font-weight:500;
-        }
-
-        .success{
-            background:#d1f7df;
-            color:#0f7a38;
-        }
-
-        .error{
-            background:#ffe0e0;
-            color:#b42323;
-        }
-
     </style>
-
 </head>
-<body>
 
-<div class="signup-card">
+<body class="bg-gradient-to-br from-slate-100 to-slate-300 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300 min-h-screen overflow-x-hidden">
 
-    <div class="logo">
-        🐾
+    <div
+        class="w-full flex justify-between items-center px-4 py-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-md fixed top-0 left-0 z-50">
+
+        <h1 class="text-xl font-bold text-slate-800 dark:text-white">
+            <a  href="../index.php">Stray Rescue</a>
+
+        </h1>
+
+        <button id="themeToggle"
+            class="px-3 py-2 rounded-xl bg-black text-white dark:bg-white dark:text-black font-semibold transition hover:scale-105 text-sm">
+            Theme
+        </button>
+
     </div>
 
-    <div class="title">
-        Create Account
-    </div>
+<div class="flex items-center justify-center px-4 pt-24 pb-6">
 
-    <div class="subtitle">
-        Join the Stray Rescue Platform
-    </div>
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl rounded-3xl p-7 border border-gray-200 dark:border-slate-700">
 
-    <?php
-        if(isset($_GET['msg'])){
+        <div class="text-5xl text-center mb-2">
+            🐾
+        </div>
 
-            $msg = htmlspecialchars($_GET['msg']);
+        <h1 class="text-3xl font-bold text-center text-slate-800 dark:text-white">
+            Create Account
+        </h1>
 
-            $class = (stripos($msg, 'successful') !== false)
-                ? 'success'
-                : 'error';
+        <p class="text-center text-gray-500 dark:text-gray-400 mt-1 mb-6 text-sm">
+            Join the Stray Rescue Platform
+        </p>
 
-            echo "
-                <div class='message-box $class'>
-                    $msg
-                </div>
-            ";
-        }
-    ?>
+        <?php
+            if(isset($_GET['msg'])){
 
-    <form action="" method="POST">
+                $msg = htmlspecialchars($_GET['msg']);
 
-        <div class="mb-4">
+                $class =
+                    (stripos($msg, 'mail sent') !== false)
+                    ? 'bg-green-100 text-green-700 border-green-300'
+                    : 'bg-red-100 text-red-700 border-red-300';
 
-            <label class="form-label">
-                Full Name
-            </label>
+                echo "
+                    <div class='mb-5 px-4 py-3 rounded-xl border text-sm font-medium $class'>
+                        $msg
+                    </div>
+                ";
+            }
+        ?>
+
+        <form action="" method="POST" class="flex flex-col gap-4">
+
+            <div class="flex flex-col gap-1">
+
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Enter your full name"
+                    class="p-3 rounded-xl border border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-black dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                >
+
+            </div>
+
+            <div class="flex flex-col gap-1">
+
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email Address
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    class="p-3 rounded-xl border border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-black dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                >
+
+            </div>
+
+            <div class="flex flex-col gap-1">
+
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    class="p-3 rounded-xl border border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-black dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                >
+
+            </div>
+
+            <div class="flex flex-col gap-1">
+
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Account Type
+                </label>
+
+                <select
+                    name="table"
+                    class="p-3 rounded-xl border border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-black dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                >
+
+                    <option value="Users">
+                        User
+                    </option>
+
+                    <option value="Employee">
+                        Employee
+                    </option>
+
+                    <option value="volunteers">
+                        Volunteer
+                    </option>
+
+                </select>
+
+            </div>
 
             <input
-                type="text"
-                class="form-control"
-                name="name"
-                placeholder="Enter your full name"
+                type="submit"
+                name="submit"
+                value="Create Account"
+                class="p-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold cursor-pointer transition duration-200 hover:scale-[1.02]"
             >
 
-        </div>
+        </form>
 
-        <div class="mb-4">
+        <div class="text-center mt-5 text-sm text-gray-500 dark:text-gray-400">
 
-            <label class="form-label">
-                Email Address
-            </label>
+            Already have an account?
 
-            <input
-                type="email"
-                class="form-control"
-                name="email"
-                placeholder="Enter your email"
+            <a
+                href="login.php"
+                class="text-blue-600 hover:text-blue-700 font-semibold"
             >
+                Login
+            </a>
 
         </div>
-
-        <div class="mb-4">
-
-            <label class="form-label">
-                Password
-            </label>
-
-            <input
-                type="password"
-                class="form-control"
-                name="password"
-                placeholder="Enter your password"
-            >
-
-        </div>
-
-        <div class="mb-4">
-
-            <label class="form-label">
-                Account Type
-            </label>
-
-            <select
-                class="form-select"
-                name="table"
-            >
-
-                <option value="Users">
-                    User
-                </option>
-
-                <option value="Employee">
-                    Employee
-                </option>
-
-                <option value="volunteers">
-                    Volunteer
-                </option>
-
-            </select>
-
-        </div>
-
-        <input
-            type="submit"
-            name="submit"
-            value="Create Account"
-            class="signup-btn"
-        >
-
-    </form>
-
-    <div class="bottom-link">
-
-        Already have an account?
-
-        <a href="login.php">
-            Login
-        </a>
 
     </div>
 
 </div>
+
+<script>
+const btn = document.getElementById("themeToggle");
+
+let str = ThemeChecker();
+
+if(str === 'dark'){
+    document.documentElement.classList.add("dark");
+}
+
+btn.onclick = () => {
+
+    const currentTheme = localStorage.getItem('theme');
+
+    const nextTheme =
+        currentTheme === 'light'
+        ? 'dark'
+        : 'light';
+
+    localStorage.setItem('theme', nextTheme);
+
+    document.documentElement.classList.toggle("dark");
+};
+
+function ThemeChecker(){
+
+    let obj = localStorage.getItem('theme');
+
+    if(!obj){
+        localStorage.setItem('theme', 'light');
+        return 'light';
+    }
+
+    return obj;
+}
+</script>
 
 </body>
 </html>

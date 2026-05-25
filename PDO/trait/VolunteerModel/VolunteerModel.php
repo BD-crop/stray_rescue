@@ -1,8 +1,9 @@
 <?php
-
+include_once __DIR__ ."/volunteerUtility.php";
 trait VolunteerModel
 {
-
+    use volunteerUtility;
+    
     public function update_bio_volunteer($id)
     {
         try {

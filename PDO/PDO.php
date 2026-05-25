@@ -4,11 +4,11 @@ include_once __DIR__ . "/../mail/verification.php";
 
 include_once __DIR__ . "/trait/EmployeeModel.php";
 include_once __DIR__ . "/trait/AuthModel.php";
-include_once __DIR__ . "/trait/RescuePointModel.php";
+include_once __DIR__ . "/trait/RescuePointModel/RescuePointModel.php";
 include_once __DIR__ . "/trait/UtilityModel.php";
-include_once __DIR__ . "/trait/VolunteerModel.php";
-include_once __DIR__ . "/trait/UserModel.php";
-include_once __DIR__ . "/trait/RescuePost.php";
+include_once __DIR__ . "/trait/VolunteerModel/VolunteerModel.php";
+include_once __DIR__ . "/trait/UserModel/UserModel.php";
+include_once __DIR__ . "/trait/RescuePostModel/RescuePost.php";
 include_once __DIR__ ."/trait/marketplace/analyticsModel.php";
 include_once __DIR__ . "/trait/marketplace/orderModel.php";
 include_once __DIR__ . "/trait/marketplace/ProductModel.php";

@@ -1,7 +1,9 @@
 <?php
+include_once __DIR__."/RescuePostUtility.php";
 
 trait RescuePost
 {
+    use RescuePostUtility;
     public function upload_rescue_post()
     {
         try {
@@ -85,7 +87,7 @@ trait RescuePost
 
         $stmt = $this->pdo->prepare(
                     "SELECT 
-                    rescue_point_id,
+                    rescue_post_id,
                     rescue_post_image_link,
                     rescue_post,
                     animal_species_type,

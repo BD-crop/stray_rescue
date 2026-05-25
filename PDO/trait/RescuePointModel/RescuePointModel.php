@@ -1,7 +1,10 @@
 <?php
+    include_once __DIR__."/RescuePointUtility.php";
 
 trait RescuePointModel
 {
+    use RescuePointUtility;
+    
     public function total_rescue_points($offset , $limit)
     {
         $stmt = 'with view_cte as (

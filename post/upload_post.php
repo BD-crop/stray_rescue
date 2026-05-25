@@ -199,7 +199,7 @@ async function get23(lat, lng) {
     const res = await fetch(url);
 
     const data = await res.json(); 
-    
+    console.log(data);
     if(data.address === undefined || data.address.country_code !== 'bd' ){
         marker.setLngLat([90.4125 ,23.8103 ]);
         get23(23.8103, 90.4125);

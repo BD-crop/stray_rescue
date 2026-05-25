@@ -17,7 +17,8 @@ create table if not exists Users (
         password varchar(100) not null,
         joing_date timestamp default CURRENT_TIMESTAMP,
         user_profile_picture_link varchar(200) not null default "https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png",
-        user_bio text default ""
+        user_bio text default "",
+        is_deleted int default 0
     );
 
 create table if not exists Employee (
@@ -33,7 +34,8 @@ create table if not exists Employee (
         emp_profile_picture_link varchar(200) not null default 'https://res.cloudinary.com/dvpwqtobj/image/upload/v1757076286/user_xhxvc9.png',
         immediate_supervisor_id CHAR(36) default NULL,
         foreign key (immediate_supervisor_id) references Employee (emp_id),
-        rescue_point_id CHAR(36) default NULL
+        rescue_point_id CHAR(36) default NULL,
+        has_resigned int default 0
     );
 
 CREATE TABLE IF NOT EXISTS Employee_history (
@@ -75,7 +77,8 @@ create table if not exists rescue_point (
         rescue_point_location_longtitude decimal(16, 8),
         supervisor_id CHAR(36) default NULL,
         creation_date timestamp default CURRENT_TIMESTAMP,
-        foreign key (supervisor_id) references Employee (emp_id)
+        foreign key (supervisor_id) references Employee (emp_id),
+        is_closed int default 0 
     );
 
 ALTER TABLE Employee ADD constraint employee_rescue_point_constraint 
@@ -101,7 +104,7 @@ create table if not exists rescue_post (
         post_loc_longtitude decimal(16, 8) default null,
         post_time_stamp timestamp default CURRENT_TIMESTAMP,
         user_id CHAR(36) default NULL,
-        sos_level int default 1, -- 1 --> normal animal , 2 -->  help need   , 3 - imminently help needed 
+        sos_level int default 1, -- 1 --> normal animal , 2 -->  help need   , 3 - immediate help needed 
         foreign key (user_id) references Users (user_id)
     );
 
@@ -169,8 +172,9 @@ create table if not exists volunteers (
         volunteer_name varchar(100),
         joing_date timestamp default CURRENT_TIMESTAMP,
         volunteer_location_latitude decimal(16, 8) default null,
-        volunteer_location_longtitude decimal(16, 8) default null
-    );
+        volunteer_location_longtitude decimal(16, 8) default null,
+        has_resigned int default 0
+);
 
 CREATE TABLE IF NOT EXISTS rescued_event (
         rescue_post_id CHAR(36) default NULL,
@@ -178,7 +182,7 @@ CREATE TABLE IF NOT EXISTS rescued_event (
         FOREIGN KEY (rescue_post_id) REFERENCES rescue_post (rescue_post_id),
         FOREIGN KEY (volunteer_id) REFERENCES volunteers (volunteer_id),
         PRIMARY KEY (rescue_post_id, volunteer_id)
-    );
+);
 
 CREATE TABLE IF NOT EXISTS adoption_post (
         adoption_post_id CHAR(36) PRIMARY KEY,

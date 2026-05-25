@@ -1,11 +1,10 @@
 <?php
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+
     include_once __DIR__ . "/../PDO/PDO.php";
 
     $obj = PDO_class::initializer();
 
-    $offset = isset($_GET['offset']) ? (int) $offset : 0;
+    $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 
     $res = $obj->see_rescue_posts(0, 100000);
 
@@ -21,6 +20,7 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.css">
 
 <style>
 
@@ -141,7 +141,6 @@ p, div {
     box-shadow: 0 8px 18px rgba(0,0,0,0.12);
 }
 
-
 a {
     display: inline-block;
     margin-top: 10px;
@@ -182,27 +181,65 @@ a:hover {
     }
 }
 
-.noUi-connect{
-    background-color: blue !important;
+.marker {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 8px rgba(0,0,0,0.35);
 }
 
-.noUi-touch-area{
-    background-color: blue !important;
+.customLow svg g{
+    fill: #22c55e !important;
+}
+
+.customMedium svg  g {
+    fill: #f59e0b !important;
+}
+
+.customHigh svg g {
+    fill: #ef4444 !important;
+
+
+}
+
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    }
+    70% {
+        transform: scale(1.25);
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.noUi-connect {
+    background-color: #2563eb !important;
+}
+
+.noUi-touch-area {
+    background-color: #2563eb !important;
     border-radius: 25%;
 }
 
+
+
+
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.css">
 </head>
 
 <body>
-    <div id ="control_controller">
-        <div id="slider" ></div>
-        <h3 id="popLink"></h3>
-        <!-- <input id="min_input" type="number" min="0"  max="<?php echo $res['count']; ?>" >
-        <input id="max_input" type="number" min="0" max="<?php echo $res['count']; ?>"> -->
-        <!-- <input id="count_controller" value="0" type="range" step="1" min="0" max="<?php echo $res['count']; ?>" style="width:40vw"> -->
-    </div>
+
+<div id="control_controller">
+    <div id="slider"></div>
+    <h3 id="popLink"></h3>
+</div>
 
 <div id="container">
 
@@ -215,35 +252,33 @@ a:hover {
     </div>
 
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.js"></script>
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
 <script>
 
 let state = -1;
-popLink.innerText = "min: "+(Math.trunc(1)) +" max: "+ (Math.trunc(<?php echo $res['count'] ; ?>));
+popLink.innerText = "min: " + Math.trunc(1) + " max: " + Math.trunc(<?php echo $res['count']; ?>);
 
 const map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://tiles.openfreemap.org/styles/liberty',
-        center: [90.4125, 23.8103],
-        zoom: 7
-    });
+    container: 'map',
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [90.4125, 23.8103],
+    zoom: 7
+});
+
 map.addControl(new maplibregl.NavigationControl());
 
-const popups12=[];
-const markers=[];
-
+const popups12 = [];
+const markers = [];
 
 function map_updater(res) {
 
     const data = res;
 
     popups12.forEach(p => p.remove());
-    markers.forEach(p => p.remove());
-
-
-
+    markers.forEach(m => m.remove());
 
     if (!data || data.count == 0) {
         alert("No rescue posts found");
@@ -261,8 +296,6 @@ function map_updater(res) {
     const bounds = new maplibregl.LngLatBounds();
     let index = 0;
 
-    
-
     for (const key in posts) {
 
         const group = posts[key];
@@ -278,6 +311,7 @@ function map_updater(res) {
 
         popups12.push(popup);
 
+        let max = -1;
 
         popup._html = `
             <div id="navigation">
@@ -287,28 +321,37 @@ function map_updater(res) {
 
             <div id="parent_node">
 
-                ${group.map(datas => `
-                    <div>
-                        <h6>${datas.rescue_post}</h6>
+                ${group.map(datas => {
+                    max = Math.max(max, datas.sos_level);
+                    return `
+                        <div>
+                            <h6>${datas.rescue_post}</h6>
 
-                        <div><b>Species:</b> ${datas.animal_species_type}</div>
-                        <div><b>Gender:</b> ${datas.animal_gender_type}</div>
-                        <div><b>Age:</b> ${datas.animal_age}</div>
-                        <div><b>Time:</b> ${datas.post_time_stamp}</div>
+                            <div><b>Species:</b> ${datas.animal_species_type}</div>
+                            <div><b>Gender:</b> ${datas.animal_gender_type}</div>
+                            <div><b>Age:</b> ${datas.animal_age}</div>
+                            <div><b>Time:</b> ${datas.post_time_stamp}</div>
 
-                        <img class="popup-img"
-                             src="${datas.rescue_post_image_link}">
+                            <img class="popup-img" src="${datas.rescue_post_image_link}">
 
-                        <hr>
-                        <a href="../post/post.php?post_id=${datas.rescue_point_id}">see this post</a>
-                    </div>
-                `).join('')}
+                            <hr>
+                            <a href="../post/post.php?post_id=${datas.rescue_point_id}">see this post</a>
+                        </div>
+                    `;
+                }).join('')}
 
             </div>
         `;
 
+        const el = document.createElement("div");
+        console.log( max);
+        if (max == 3) el.className = "customHigh";
+        else if (max == 2) el.className = "customMedium";
+        else el.className = "customLow";
         popup.index = index++;
-        let newMarker = new maplibregl.Marker();
+
+        let newMarker = new maplibregl.Marker(el);
+
         markers.push(newMarker);
 
         newMarker
@@ -316,7 +359,7 @@ function map_updater(res) {
             .setPopup(popup)
             .addTo(map);
 
-        popup.on('open', () => {
+                    popup.on('open', () => {    
 
             state = popup.index;
 
@@ -325,7 +368,6 @@ function map_updater(res) {
             const view = {
                 index: 0,
                 elems: document.getElementById("parent_node").children,
-
                 init() {
                     for (let e of this.elems) e.style.display = "none";
                     this.elems[this.index].style.display = "block";
@@ -356,7 +398,9 @@ function map_updater(res) {
             if (state !== popup.index) return;
             document.getElementById("popup_shower").innerHTML = "";
         });
-    }
+}
+
+    
 
     if (!bounds.isEmpty()) {
         map.fitBounds(bounds, {
@@ -364,60 +408,32 @@ function map_updater(res) {
             maxZoom: 6
         });
     }
-
-};
+}
 
 map_updater(<?php echo $res_json; ?>);
-// count_controller.addEventListener("change" ,()=>{
-//     console.log(count_controller.value);
-// });
 
 const slider = document.getElementById('slider');
 
 noUiSlider.create(slider, {
     start: [1, <?php echo $res['count']; ?>],
     connect: true,
-    step:1,
+    step: 1,
     range: {
         min: 1,
         max: <?php echo $res['count']; ?>
     }
 });
 
-
-
-async function fetchPosts( x ,  y){
+async function fetchPosts(x, y) {
     let data = await fetch(`http://localhost:80/dashboard/Map/fetchRes.php?offset=${x-1}&limit=${y-x+1}`);
-    
     let res = await data.json();
-
-    console.log(res);
     map_updater(res);
-
 }
 
-
-slider.noUiSlider.on('change', function (values, handle) {
-    popLink.innerText = "min: "+(Math.trunc(values[0])) +" max: "+ (Math.trunc(values[1]));
-fetchPosts(Math.trunc(values[0]) , Math.trunc(values[1]));
-
+slider.noUiSlider.on('change', function (values) {
+    popLink.innerText = "min: " + Math.trunc(values[0]) + " max: " + Math.trunc(values[1]);
+    fetchPosts(Math.trunc(values[0]), Math.trunc(values[1]));
 });
-
-
-// min_input.addEventListener('keydown' ,(e)=>{
-//     if(e.key === 'Enter'){
-//         console.log(min_input.value);
-//     }
-// });
-
-// max_input.addEventListener('keydown' ,(e)=>{
-//     if(e.key === 'Enter'){
-//         if(){
-
-//         }
-//     }
-// });
-
 
 </script>
 
