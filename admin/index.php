@@ -22,7 +22,7 @@
         <li><a href="./Employee/managerView.php">Get All Manager</a></li>
         <li><a href="./Employee/ManagerView.php">Super Visor View</a></li>
         <li><a href="./rescue_point/seeRescueLocations.php">See Rescue Locations</a></li>
-        <li>Problem</li>
+        <li><a href="./PetCenters/createCenter.php">Create Pet Center</a></li>
     </ul>
 </body>
 </html>

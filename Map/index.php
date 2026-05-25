@@ -13,6 +13,6 @@
 <body>
     <a href="./RescuePost.php">Post Maps</a><br>
     <a href="./RescuePoint.php">Rescue Points</a><br>
-    
+    <a href="./NearbyPetCenters.php">Nearby Pet Center</a>
 </body>
 </html>

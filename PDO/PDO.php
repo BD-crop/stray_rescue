@@ -12,7 +12,7 @@ include_once __DIR__ . "/trait/RescuePostModel/RescuePost.php";
 include_once __DIR__ ."/trait/marketplace/analyticsModel.php";
 include_once __DIR__ . "/trait/marketplace/orderModel.php";
 include_once __DIR__ . "/trait/marketplace/ProductModel.php";
-
+include_once __DIR__."/trait/PetCenters/PetCenterModel.php";
 
 class PDO_class
 {
@@ -67,7 +67,7 @@ class PDO_class
         }
 
     }
-    
+    use PetCenterModel;
     use EmployeeModel;
     use AuthModel;
     use UtilityModel;
@@ -75,6 +75,7 @@ class PDO_class
     use VolunteerModel;
     use UserModel;
     use RescuePost;
-       use orderModel;
-       use ProductModel;
-       use analyticsModel;}
+    use orderModel;
+    use ProductModel;
+    use analyticsModel;
+}

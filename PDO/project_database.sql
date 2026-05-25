@@ -490,3 +490,24 @@ CREATE TABLE if not exists sales_history (
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
+
+
+
+--  3rd party pet centers (gromming center , veterenarian hospital , park , pet friendly resturants)
+
+create table if not exists PetCenters(
+    id char(36) PRIMARY KEY DEFAULT (UUID()),
+    Name varchar(200),
+    lat decimal(12, 6),
+    lng decimal(12, 6),
+    type ENUM('gromming center', 'veterenarian hospital', 'park', 'other'),
+    center_email varchar(200) default null,
+    center_contact_number varchar(200) default null          
+);
+
+create table if not exists PetCenterImages(
+    ImageID char(36) PRIMARY KEY DEFAULT(UUID()),
+    id char(36),
+    image_path varchar(200) not null,
+    foreign key (id) references PetCenters(id)
+);
