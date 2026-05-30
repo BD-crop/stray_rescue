@@ -20,6 +20,10 @@
                 $output[$row['status']] = (int)$row['total'];
             }
 
+            $output['Active'] = $output['Active'] ?? 0;
+            $output['Inactive'] = $output['Inactive'] ?? 0;
+
+
             return $output;
         }
     }
