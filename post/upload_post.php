@@ -14,7 +14,7 @@ if (isset($_SESSION['id'])) {
             exit();
         }
 
-        if (
+        if (!isset($_POST['name']) ||
             !isset($_FILES['fileToUpload']) ||
             !isset($_POST['post']) ||
             !isset($_POST['species_type']) ||
@@ -22,16 +22,16 @@ if (isset($_SESSION['id'])) {
             !isset($_POST['age']) ||
             !isset($_POST['latitude']) ||
             !isset($_POST['longitude']) ||
+            !isset($_POST['address']) ||
             !isset($_POST['sos_level'])
         ) {
-
             $msg = urlencode("All fields must be present");
             header("Location: upload_post.php?msg=$msg");
             exit();
         }
 
         if ($_SESSION['type'] === "Users") {
-            
+
             $res = urlencode(PDO_class::initializer()->upload_rescue_post());
 
             header("Location: post.php?post_id=$res");
@@ -60,6 +60,7 @@ if (isset($_SESSION['id'])) {
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +73,6 @@ if (isset($_SESSION['id'])) {
 <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
 
 <style>
-
 body {
     background:#0f172a;
     color:white;
@@ -115,7 +115,6 @@ body {
         height:400px;
     }
 }
-
 </style>
 
 </head>
@@ -124,7 +123,6 @@ body {
 
 <div class="wrapper">
 
-    <!-- FORM -->
     <div class="form-box">
 
         <?php
@@ -135,84 +133,75 @@ body {
             }
         ?>
 
-    <form id="rescueForm" enctype="multipart/form-data" method="POST">
+        <form id="rescueForm" enctype="multipart/form-data" method="POST">
 
-        <div id="imageContainer">
-            <div class="image-input-group mb-2">
-                <input type="file" name="fileToUpload[]" required class="form-control">
+            <div id="imageContainer">
+                <div class="image-input-group mb-2">
+                    <input type="file" name="fileToUpload[]" required class="form-control">
+                </div>
             </div>
-        </div>
 
-        <button type="button" id="addImageBtn" class="btn btn-secondary mb-3">
-            + Add Another Image
-        </button>
+            <button type="button" id="addImageBtn" class="btn btn-secondary mb-3">
+                + Add Another Image
+            </button>
 
-        <input type="text" name="post" placeholder="Post description" class="form-control mb-2">
+            <input type="text" name="post" placeholder="Post description" class="form-control mb-2">
 
-        <select name="species_type" class="form-control mb-2">
-            <option value="cat">Cat</option>
-            <option value="dog">Dog</option>
-            <option value="bird">Bird</option>
-            <option value="other">Other</option>
-        </select>
+            <input type="hidden" name="address" id="address" class="form-control mb-2" placeholder="Address" readonly>
+            <input type="text" name="name" required class="form-control mb-2" placeholder="Name">
+            <select name="species_type" class="form-control mb-2">
+                <option value="cat">Cat</option>
+                <option value="dog">Dog</option>
+                <option value="bird">Bird</option>
+                <option value="other">Other</option>
+            </select>
 
-        <select name="sos_level" class="form-control mb-2">
-            <option value="1">Normal/Healthy </option>
-            <option value="2">Attention Needed Soon</option>
-            <option value="3">Emergency</option>
+            <select name="sos_level" class="form-control mb-2">
+                <option value="1">Normal/Healthy</option>
+                <option value="2">Attention Needed Soon</option>
+                <option value="3">Emergency</option>
+            </select>
 
-        </select>
+            <select name="gender" class="form-control mb-2">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+            </select>
 
+            <input type="number" name="age" placeholder="Age" class="form-control mb-2">
 
-        <select name="gender" class="form-control mb-2">
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-            <option value="O">Other</option>
-        </select>
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
 
-        <input type="number" name="age" placeholder="Age" class="form-control mb-2">
+            <button type="submit" name="submit" class="btn btn-primary w-100">
+                Submit
+            </button>
 
-        <input type="hidden" name="latitude" id="latitude">
-        <input type="hidden" name="longitude" id="longitude">
-
-        <button type="submit" name="submit" class="btn btn-primary w-100">
-            Submit
-        </button>
-
-    </form>
+        </form>
 
 <script>
+const imageContainer = document.getElementById("imageContainer");
+const addImageBtn = document.getElementById("addImageBtn");
 
-    const imageContainer = document.getElementById("imageContainer");
-    const addImageBtn = document.getElementById("addImageBtn");
+addImageBtn.onclick = () => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "image-input-group mb-2";
 
-    addImageBtn.onclick = () => {
+    wrapper.innerHTML = `
+        <div class="d-flex gap-2">
+            <input type="file" name="fileToUpload[]" class="form-control" required>
+            <button type="button" class="btn btn-danger remove-btn">✕</button>
+        </div>
+    `;
 
-        const wrapper = document.createElement("div");
-        wrapper.className = "image-input-group mb-2";
+    wrapper.querySelector(".remove-btn").onclick = () => wrapper.remove();
 
-        wrapper.innerHTML = `
-            <div class="d-flex gap-2">
-                <input type="file" name="fileToUpload[]" class="form-control" required>
-
-                <button type="button" class="btn btn-danger remove-btn">
-                    ✕
-                </button>
-            </div>
-        `;
-
-        wrapper.querySelector(".remove-btn").onclick = () => {
-            wrapper.remove();
-        };
-
-        imageContainer.appendChild(wrapper);
-    };
-
+    imageContainer.appendChild(wrapper);
+};
 </script>
 
     </div>
 
-    <!-- MAP -->
     <div class="map-box">
         <h3 id="c1"></h3>
         <div id="map"></div>
@@ -227,32 +216,29 @@ body {
 const defaultLng = 90.4125;
 const defaultLat = 23.8103;
 
-
-
 const c1 = document.getElementById("c1");
 
-get23(defaultLat ,defaultLng);
-
+get23(defaultLat, defaultLng);
 
 async function get23(lat, lng) {
 
     const url = `http://localhost:80/dashboard/proxy/proxy.php?lat=${lat}&lng=${lng}`;
 
     const res = await fetch(url);
+    const data = await res.json();
 
-    const data = await res.json(); 
     console.log(data);
-    if(data.address === undefined || data.address.country_code !== 'bd' ){
-        marker.setLngLat([90.4125 ,23.8103 ]);
+
+    if (!data.address || data.address.country_code !== 'bd') {
+        marker.setLngLat([90.4125, 23.8103]);
         get23(23.8103, 90.4125);
         return;
     }
+
     c1.textContent = data.display_name;
+
+    document.getElementById("address").value = data.display_name || "";
 }
-
-
-
-
 
 const map = new maplibregl.Map({
     container: 'map',
@@ -274,14 +260,14 @@ marker.on('dragend', () => {
     const lngLat = marker.getLngLat();
     document.getElementById("latitude").value = lngLat.lat;
     document.getElementById("longitude").value = lngLat.lng;
-    get23(lngLat.lat , lngLat.lng);
+    get23(lngLat.lat, lngLat.lng);
 });
 
 map.on('click', (e) => {
     marker.setLngLat(e.lngLat);
     document.getElementById("latitude").value = e.lngLat.lat;
     document.getElementById("longitude").value = e.lngLat.lng;
-        get23(e.lngLat.lat, e.lngLat.lng);
+    get23(e.lngLat.lat, e.lngLat.lng);
 });
 
 </script>

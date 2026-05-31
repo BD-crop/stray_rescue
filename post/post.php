@@ -1,28 +1,24 @@
 <?php
 
 include_once __DIR__ . "/../auth/user_check.php";
- ini_set('display_errors', 1);
- ini_set('display_startup_errors', 1);
- error_reporting(E_ALL); 
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 $id = $_GET["post_id"] ?? null;
 
 if (!$id) {
     exit("No post id provided");
 }
+
 $self = 1;
 
-$profile = PDO_class::initializer()->is_poster($id,$_SESSION['id']);
+$profile = PDO_class::initializer()->is_poster($id, $_SESSION['id']);
 
 if ($profile === 1) {
-
-    $self = true ;
-} 
-
-
-if($var && $self){
+    $self = true;
 }
-
 
 $obj = PDO_class::initializer();
 
@@ -32,8 +28,8 @@ if (!$data) {
     exit("No post found");
 }
 
-$lng = (float)$data['post_loc_longtitude'];
-$lat = (float)$data['post_loc_latitude'];
+$lng = (float) $data['post_loc_longtitude'];
+$lat = (float) $data['post_loc_latitude'];
 
 $imageLink = explode(';;;', $data['rescue_post_image_link']);
 
@@ -41,148 +37,125 @@ $imageLink = explode(';;;', $data['rescue_post_image_link']);
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
 
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rescue Post</title>
+<title>Animal Data</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+    darkMode: 'class',
+    theme: {
+        screens: {
+            sm: "680px",
+            md: "768px",
+            lg: "1024px"
+        }
+    }
+};
+</script>
+
 <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
-
-<style>
-
-body {
-    background:#0f172a;
-    color:white;
-    font-family:Arial;
-}
-
-.wrapper {
-    display:flex;
-    gap:20px;
-    max-width:1200px;
-    margin:50px auto;
-    padding:20px;
-}
-
-.card-custom {
-    flex:1;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.1);
-    border-radius:20px;
-    overflow:hidden;
-}
-
-.card-img {
-    width:100%;
-    height:350px;
-    object-fit:cover;
-}
-
-.card-body {
-    padding:20px;
-}
-
-.badge-custom {
-    background:#f97316;
-    padding:6px 12px;
-    border-radius:12px;
-    font-size:12px;
-    margin-right:5px;
-}
-
-.title {
-    font-size:1.5rem;
-    font-weight:700;
-    margin-bottom:10px;
-}
-
-#map {
-    flex:1;
-    height:500px;
-    border-radius:20px;
-    overflow:hidden;
-}
-
-@media(max-width: 900px) {
-    .wrapper {
-        flex-direction:column;
-    }
-
-    #map {
-        height:400px;
-    }
-}
-
-</style>
 
 </head>
 
-<body>
+<body class="bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-<div class="wrapper">
+<div class="flex justify-between items-center px-6 py-4 bg-white dark:bg-slate-800 shadow-md sticky top-0 z-50">
 
-    <div class="card-custom">
 
-        <!-- CAROUSEL START -->
-        <?php if (!empty($imageLink)) { ?>
 
-        <div id="rescueCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="flex gap-3 items-center">
+        <a href="#image" class="px-4 py-2 rounded-lg bg-purple-500 text-white">Image Section</a>
+        <a href="#tree" class="px-4 py-2 rounded-lg bg-purple-500 text-white" >Family Tree</a>
+        <a href="#history_section" class="px-4 py-2 rounded-lg bg-purple-500 text-white" >history Section</a>
+        <?php if(!isset($_SESSION["id"])): ?>
 
-            <div class="carousel-inner">
+        <?php else: ?>
 
-                <?php foreach ($imageLink as $index => $img) { ?>
-                    <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
-                        <img src="<?php echo htmlspecialchars($img); ?>" class="d-block w-100 card-img">
-                    </div>
-                <?php } ?>
+            <?php if(PDO_class::initializer()->find_employee_level() >= 0): ?>
+                <a href="./admin" class="px-4 py-2 rounded-lg bg-purple-500 text-white">Admin</a>
+            <?php endif; ?>
 
-            </div>
+            
+            <a href="" class="px-4 py-2 rounded-lg bg-purple-500 text-white">ADD UPDATE</a>
+        <?php endif; ?>
 
-            <button class="carousel-control-prev" type="button" data-bs-target="#rescueCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-            </button>
-
-            <button class="carousel-control-next" type="button" data-bs-target="#rescueCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-            </button>
-
-        </div>
-
-        <?php } ?>
-
-        <div class="card-body">
-
-            <div class="title">
-                <?php echo htmlspecialchars($data['rescue_post']); ?>
-            </div>
-
-            <p>ID: <?php echo $data['rescue_post_id']; ?></p>
-
-            <span class="badge-custom">Species: <?php echo $data['animal_species_type']; ?></span>
-            <span class="badge-custom">Gender: <?php echo $data['animal_gender_type']; ?></span>
-            <span class="badge-custom">Age: <?php echo $data['animal_age']; ?></span>
-
-        </div>
+        <button id="themeToggle"
+            class="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black">
+            Theme
+        </button>
 
     </div>
+</div>
 
-    <!-- MAP -->
-    <div id="map1">
+<div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <p>
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden">
+
+        <!-- IMAGE SLIDER -->
+        <div class="relative w-full h-80 overflow-hidden bg-black">
+
+            <?php foreach ($imageLink as $index => $img) { ?>
+                <img
+                    src="<?php echo htmlspecialchars($img); ?>"
+                    class="slide-img absolute w-full h-full object-cover transition-opacity duration-500 <?php echo $index === 0 ? 'opacity-100' : 'opacity-0'; ?>"
+                >
+            <?php } ?>
+
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-5 space-y-3 row-span-2">
+
+            <h1 class="text-2xl font-bold">
+                <?php echo htmlspecialchars($data['rescue_post']); ?>
+            </h1>
+
+            <p class="text-sm text-gray-500 dark:text-gray-300">
+                ID: <?php echo $data['rescue_post_id']; ?>
+            </p>
+
+            <div class="flex flex-wrap gap-2">
+
+                <span class="px-3 py-1 rounded-full bg-gray-200 dark:bg-slate-700 text-sm">
+                    Species: <?php echo $data['animal_species_type']; ?>
+                </span>
+
+                <span class="px-3 py-1 rounded-full bg-gray-200 dark:bg-slate-700 text-sm">
+                    Gender: <?php echo $data['animal_gender_type']; ?>
+                </span>
+
+                <span class="px-3 py-1 rounded-full bg-gray-200 dark:bg-slate-700 text-sm">
+                    Age: <?php echo $data['animal_age']; ?>
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="flex justify-between ">
+            <p>Qr Code Image</p>
+            <img src="<?= $data['qr_image']; ?>" alt="">
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-4 space-y-3">
+
+        <p class="text-sm text-gray-600 dark:text-gray-300">
             <?php
-                $ob = json_decode(
-                    file_get_contents("http://localhost:80/dashboard/proxy/proxy.php?lat=$lat&lng=$lng"),
-                    true
-                );
-
-                echo $ob['display_name'];
+            $ob = json_decode(
+                file_get_contents("http://localhost:80/dashboard/proxy/proxy.php?lat=$lat&lng=$lng"),
+                true
+            );
+            echo $ob['display_name'];
             ?>
         </p>
 
-        <div id="map"></div>
+        <div id="map" class="w-full h-[500px] rounded-xl overflow-hidden"></div>
 
     </div>
 
@@ -191,6 +164,9 @@ body {
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
 <script>
+
+console.log(<?php echo(json_encode($data));?>);
+
 const lng = <?php echo $lng; ?>;
 const lat = <?php echo $lat; ?>;
 
@@ -208,7 +184,58 @@ new maplibregl.Marker()
     .addTo(map);
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let index = 0;
+const images = document.querySelectorAll(".slide-img");
+
+if (images.length > 0) {
+    setInterval(() => {
+        images[index].classList.remove("opacity-100");
+        images[index].classList.add("opacity-0");
+
+        index = (index + 1) % images.length;
+
+        images[index].classList.remove("opacity-0");
+        images[index].classList.add("opacity-100");
+    }, 3000);
+}
+</script>
+
+<script>
+const btn = document.getElementById("themeToggle");
+
+function ThemeChecker() {
+    let obj = localStorage.getItem('theme');
+
+    if (!obj) {
+        localStorage.setItem('theme', 'light');
+        return 'light';
+    }
+    return obj;
+}
+
+function applyTheme() {
+    let theme = ThemeChecker();
+
+    document.documentElement.classList.toggle("dark", theme === 'dark');
+}
+
+applyTheme();
+
+btn.onclick = () => {
+    let newTheme =
+        (localStorage.getItem('theme') === 'light') ? 'dark' : 'light';
+
+    localStorage.setItem('theme', newTheme);
+    applyTheme();
+};
+
+window.addEventListener("storage", (event) => {
+    if (event.key === "theme") {
+        applyTheme();
+    }
+});
+</script>
 
 </body>
 </html>

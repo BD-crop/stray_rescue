@@ -25,6 +25,16 @@
 
             return $output;
         }
+
+        public function qr_code_generator($id){
+            $url = "https://quickchart.io/qr?text=http://localhost:80/dashboard/qr_code/agreePage.php?id=$id";
+            $data = file_get_contents($url);
+            $name = $this->UUID_GENERATOR();
+
+            $path=__DIR__."/../../../upload_images/".$name.'code.png' ;
+            file_put_contents($path,$data);
+            return 'http://localhost/dashboard/upload_images/'.$name.'code.png';
+        }
     }
 
 
