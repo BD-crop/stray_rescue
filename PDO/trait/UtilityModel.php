@@ -234,5 +234,38 @@ trait UtilityModel
 
     }
 
+    public function type_of_user(){
+        $id = $_SESSION['id'];
+
+        $stmt ="SELECT 
+        	COALESCE(role1 , 'xnonex') as role
+                from (
+                    SELECT 'user' as role1 from Users inner join email_verification on email_verification.email_id = Users.email 
+                    where is_verified = 'Y' and Users.user_id = ? 
+
+                    UNION ALL
+
+                    SELECT 'employee' as role1 from Employee 
+                    inner join email_verification on email_verification.email_id = Employee.email 
+                    where is_verified = 'Y' and Employee.emp_id = ?
+
+                    UNION ALL
+
+                    SELECT 'volunteer' as role1 from volunteers
+                    inner join email_verification on email_verification.email_id = volunteers.email
+                    where is_verified = 'Y' and volunteers.volunteer_id = ?
+                	
+                    UNION ALL 
+                    SELECT NULL as role1
+                ) as roles
+                order by role asc
+                limit 1 ;
+                ";
+        $stmt=$this->pdo->prepare($stmt);
+
+        $stmt->execute([$id , $id , $id]);
+
+        return $stmt->fetchColumn() ;
+    }
 
 }

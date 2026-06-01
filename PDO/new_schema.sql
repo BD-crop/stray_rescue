@@ -144,6 +144,11 @@ create table if not exists animal_history_image_upload (
         primary key (history_id, image_link)
 );
 
+-- create table if not exists animal_history_report(
+--     history_id CHAR(36),
+--     report_id 
+-- )
+
 
 -- Rescue Point animal registry 
 

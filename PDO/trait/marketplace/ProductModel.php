@@ -242,8 +242,8 @@ trait ProductModel
 
         $offset = $page * 12;
 
-        $stmt = $this->pdo->prepare("
-            WITH view_cte AS (
+        $stmt = $this->pdo->prepare(
+            "WITH view_cte AS (
                 SELECT *
                 FROM products
                 WHERE name LIKE CONCAT(SUBSTRING(:name, 1, 1), '%')
@@ -276,9 +276,7 @@ trait ProductModel
 
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt = $this->pdo->prepare("
-
-        ");
+        
 
         return [
             'products' => $products,

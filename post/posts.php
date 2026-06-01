@@ -1,135 +1,257 @@
 <?php
-//      ini_set('display_errors', 1);
-//  ini_set('display_startup_errors', 1);
-//  error_reporting(E_ALL); 
 include_once __DIR__ . "/../PDO/PDO.php";
 
 $obj = PDO_class::initializer();
 
-$offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+$page = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 
-$res = $obj->see_rescue_posts($offset);
+$name = $_GET['name'] ?? "";
+$rank_by = $_GET['rank_by'] ?? "post_time_stamp";
 
+$res = $obj->see_rescue_posts($page, $name, $rank_by);
 
 $res_json = json_encode($res);
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>See Rescue Posts</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rescue Posts</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        .post {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            max-width: 500px;
-        }
-
-        .post img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        .post div {
-            margin: 5px 0;
-        }
-
-        .label {
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-
-    <h1>See Rescue Posts</h1>
-
-    <div id="rescuePosts"></div>
-
+<script src="https://cdn.tailwindcss.com"></script>
     <script>
-        (function () {
-
-            const container = document.getElementById("rescuePosts");
-
-            const data = <?php echo $res_json; ?>;
-
-            console.log(data);
-
-            if (!data || data.count == 0) {
-                container.innerText = "NO Posts to show";
-                return;
+        tailwind.config = {
+            darkMode: 'class',
+                theme: {
+                screens: {
+                    sm: "680px",
+                    md: "768px",
+                    lg: "1024px"
+                }
             }
+        }
+    </script>
+</head>
 
-            container.innerHTML = "";
+<body class="bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
 
-            
-            data.posts.forEach(datas => {
+<div class="flex justify-between items-center px-6 py-4
+            bg-white dark:bg-slate-900
+            shadow-md sticky top-0 z-50
+            border-b border-gray-200 dark:border-slate-800 transition">
 
-                container.innerHTML += `
-                    <div class="post">
+    <a class="hidden sm:block px-4 py-2 rounded-xl
+              bg-blue-500 hover:bg-blue-600 text-white transition"
+       href="../index.php">
+        Home
+    </a>
 
-                        <div>
-                            <span class="label">Post ID:</span>
-                            ${datas.rescue_point_id}
-                        </div>
+    <button id="themeToggle"
+        class="px-4 py-2 rounded-xl font-medium
+               bg-gray-900 text-white
+               dark:bg-white dark:text-black
+               hover:scale-105 transition">
+        Theme
+    </button>
+</div>
 
-                        <div>
-                            <span class="label">Text:</span>
-                            ${datas.rescue_post}
-                        </div>
+<div class="max-w-6xl mx-auto px-4 py-10">
 
-                        <div>
-                            <span class="label">Species:</span>
-                            ${datas.animal_species_type}
-                        </div>
+    <h1 class="text-4xl font-bold text-center mb-8
+               text-gray-900 dark:text-white">
+        🐾 Rescue Posts
+    </h1>
 
-                        <div>
-                            <span class="label">Gender:</span>
-                            ${datas.animal_gender_type}
-                        </div>
+    <form method="GET"
+          class="flex flex-col md:flex-row justify-center items-center gap-4 mb-10">
 
-                        <div>
-                            <span class="label">Age:</span>
-                            ${datas.animal_age}
-                        </div>
+        <input
+            type="text"
+            name="name"
+            value="<?= htmlspecialchars($name) ?>"
+            placeholder="Search animal name..."
+            class="w-full md:w-80 px-4 py-2 rounded-xl
+                   bg-white dark:bg-slate-900
+                   border border-gray-300 dark:border-slate-700
+                   text-gray-900 dark:text-gray-100
+                   focus:ring-2 focus:ring-purple-500 outline-none"
+        >
 
-                        <div>
-                            <span class="label">Latitude:</span>
-                            ${datas.post_loc_latitude}
-                        </div>
+        <select
+            name="rank_by"
+            class="w-full md:w-48 px-4 py-2 rounded-xl
+                   bg-white-900 dark:bg-slate-900
+                   border border-gray-300 dark:border-slate-700
+                   text-gray-900 dark:text-gray-100"
+        >
+            <option value="post_time_stamp" <?= $rank_by=='post_time_stamp'?'selected':'' ?>>Newest</option>
+            <option value="sos_level" <?= $rank_by=='sos_level'?'selected':'' ?>>SOS Level</option>
+            <option value="animal_age" <?= $rank_by=='animal_age'?'selected':'' ?>>Age</option>
+        </select>
 
-                        <div>
-                            <span class="label">Longitude:</span>
-                            ${datas.post_loc_longtitude}
-                        </div>
+        <button
+            type="submit"
+            class="px-6 py-2 rounded-xl
+                   bg-purple-600 hover:bg-purple-700
+                   text-white font-medium transition shadow-md">
+            Apply
+        </button>
+    </form>
 
-                        <div>
-                            <span class="label">Post Time:</span>
-                            ${datas.post_time_stamp}
-                        </div>
+    <!-- POSTS -->
+    <div id="rescuePosts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-                        <div>
-                            <img src="${datas.rescue_post_image_link}" alt="Rescue Image">
-                        </div>
+    <!-- PAGINATION -->
+    <div id="pagination" class="flex justify-center mt-10 gap-4"></div>
+
+</div>
+
+<script>
+
+const container = document.getElementById("rescuePosts");
+const pagination = document.getElementById("pagination");
+
+const data = <?= $res_json ?>;
+
+if (!data || !data.posts || data.posts.length === 0) {
+
+    container.innerHTML = `
+        <div class="col-span-full text-center text-gray-500 dark:text-gray-400 text-lg">
+            No posts found 🐾
+        </div>
+    `;
+} else {
+
+    if (data.posts.length === 11) {
+        data.posts.pop();
+    }
+
+    data.posts.forEach(post => {
+
+        container.innerHTML += `
+            <div class="rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition
+                        bg-white dark:bg-slate-900
+                        border border-gray-200 dark:border-slate-800">
+
+                <img src="${post.rescue_post_image_link}"
+                     class="w-full h-52 object-cover">
+
+                <div class="p-4 space-y-2">
+
+                    <div class="flex justify-between items-center">
+
+                        <span class="px-3 py-1 text-xs rounded-full
+                                     bg-purple-100 text-purple-700
+                                     dark:bg-purple-500/20 dark:text-purple-300">
+                            ${post.animal_species_type}
+                        </span>
+
+                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                            Age ${post.animal_age}
+                        </span>
 
                     </div>
-                `;
-            });
 
-        })();
-    </script>
+                    <p class="text-sm text-gray-800 dark:text-gray-200">
+                        ${post.rescue_post}
+                    </p>
+
+                    <div class="text-xs border-t pt-2 space-y-1
+                                text-gray-600 dark:text-gray-400
+                                border-gray-200 dark:border-slate-800">
+
+                        <div><b>Name:</b> ${post.name}</div>
+                        <div><b>Gender:</b> ${post.animal_gender_type}</div>
+                        <div><b>SOS:</b> ${post.sos_level}</div>
+                        <div><b>Time:</b> ${post.post_time_stamp}</div>
+
+                    </div>
+
+                    <a href="post.php?post_id=${post.rescue_post_id}"
+                       class="block text-center mt-3 py-2 rounded-xl
+                              bg-purple-600 hover:bg-purple-700
+                              text-white transition">
+                        View Details
+                    </a>
+
+                </div>
+            </div>
+        `;
+    });
+
+    // PAGINATION
+    let html = `<div class="flex items-center gap-4">`;
+
+    if (data.is_left !== -1) {
+        html += `
+            <a href="?offset=${data.is_left}&name=<?= urlencode($name) ?>&rank_by=${data.rank_by}"
+               class="px-4 py-2 rounded-lg
+                      bg-gray-700 hover:bg-gray-800 text-white">
+                Prev
+            </a>
+        `;
+    }
+
+    html += `<span class="font-semibold">Page ${data.page}</span>`;
+
+    if (data.is_right !== -1) {
+        html += `
+            <a href="?offset=${data.is_right}&name=<?= urlencode($name) ?>&rank_by=${data.rank_by}"
+               class="px-4 py-2 rounded-lg
+                      bg-purple-600 hover:bg-purple-700 text-white">
+                Next
+            </a>
+        `;
+    }
+
+    html += `</div>`;
+
+    pagination.innerHTML = html;
+}
+
+</script>
+
+<script>
+    const btn = document.getElementById("themeToggle");
+
+    let str = ThemeChecker();
+
+    if(str !== 'light'){
+        document.documentElement.classList.add("dark");
+    }
+
+    btn.onclick = () => {
+        localStorage.setItem('theme',
+            (localStorage.getItem('theme') === 'light') ? 'dark' : 'light'
+        );
+        document.documentElement.classList.toggle("dark");
+    };
+
+    function ThemeChecker(){
+        let obj = localStorage.getItem('theme');
+
+        if(!obj){
+            localStorage.setItem('theme','light');
+            return 'light';
+        }
+        return obj;
+    }
+
+    function eventListenerToggle(){
+        let theme = ThemeChecker();
+
+        document.documentElement.classList.toggle("dark" ,theme === 'dark');
+    }
+
+    window.addEventListener("storage", (event) => {
+        if (event.key === "theme") {
+            eventListenerToggle();
+        }
+    });
+</script>
 
 </body>
 </html>

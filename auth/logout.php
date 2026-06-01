@@ -47,9 +47,8 @@ if (isset($_COOKIE[session_name()])) {
     <div
         class="w-full flex justify-between items-center px-4 py-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-md fixed top-0 left-0 z-50">
 
-        <h1 class="text-xl font-bold text-slate-800 dark:text-white">
-            Stray Rescue
-        </h1>
+        <a class="hidden sm:block px-4 py-2 rounded-xl bg-blue-500 text-white" href="../index.php">Home</a>
+
 
         <button id="themeToggle"
             class="px-4 py-2 rounded-xl bg-black text-white dark:bg-white dark:text-black font-semibold transition hover:scale-105 text-sm">

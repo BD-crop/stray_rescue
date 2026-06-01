@@ -7,7 +7,15 @@ include_once __DIR__ . "/../PDO/PDO.php";
 if (isset($_SESSION['id'])) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+        $obj12 = PDO_class::initializer();
+        $role = $obj12->type_of_user();
+        
+        if($role !== 'user'){
+            $msg = urlencode("Only Users can Post");
+            header("Location: upload_post.php?msg=$msg");
+            exit();
+        }
+            
         if (!isset($_POST['submit'])) {
             $msg = urlencode("Not correct Submission");
             header("Location: upload_post.php?msg=$msg");
@@ -24,6 +32,7 @@ if (isset($_SESSION['id'])) {
             !isset($_POST['longitude']) ||
             !isset($_POST['address']) ||
             !isset($_POST['sos_level'])
+
         ) {
             $msg = urlencode("All fields must be present");
             header("Location: upload_post.php?msg=$msg");
@@ -172,7 +181,7 @@ body {
 
             <input type="hidden" name="latitude" id="latitude">
             <input type="hidden" name="longitude" id="longitude">
-
+            <input type="text" name="animal_parent_id" placeholder="Parent UUID">
             <button type="submit" name="submit" class="btn btn-primary w-100">
                 Submit
             </button>

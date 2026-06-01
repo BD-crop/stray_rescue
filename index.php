@@ -73,11 +73,11 @@ session_start();
                 Admin
             </a>
         <?php endif; ?>
-
-        <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition"
-           href="./post/upload_post.php">
+        <?php if($data < 0): ?>
+        <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition" href="./post/upload_post.php">
             Upload
         </a>
+        <?php endif;?>
 
         <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition"
            href="./post/posts.php">
@@ -132,8 +132,12 @@ session_start();
             ?>
                 <a class="hidden sm:block px-4 py-2 rounded-xl bg-purple-500 text-white" href="./admin">Admin</a>
             <?php endif; ?>
+            <?php $role12 = PDO_class::initializer()->type_of_user();
+            if($role12 === 'user'):
+             ?>
+            <a class="hidden sm:block px-4 py-2 rounded-xl bg-yellow-300" href="./post/upload_post.php">Upload Post</a>
 
-            <a class="hidden sm:block px-4 py-2 rounded-xl bg-amber-200" href="./post/upload_post.php">Upload</a>
+            <?php endif;?>
             <a class="hidden sm:block px-4 py-2 rounded-xl bg-indigo-300" href="./post/posts.php">Posts</a>
             <a class="hidden sm:block px-4 py-2 rounded-xl bg-green-300" href="./profile/profile.php">Profile</a>
             <a class="hidden sm:block px-4 py-2 rounded-xl bg-red-500 text-white" href="./auth/logout.php">Logout</a>
@@ -292,7 +296,7 @@ session_start();
             eventListenerToggle();
         }
     });
-    </script>
+</script>
 
 <script>
 const menuBtn = document.getElementById("menuBtn");
