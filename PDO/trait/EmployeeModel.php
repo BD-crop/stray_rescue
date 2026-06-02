@@ -1036,7 +1036,6 @@ trait EmployeeModel
                 END AS animal_id,
 
                 rank_assigned_by,
-
                 supervisor_id AS CURR_SUPERVISOR,
                 LAG(supervisor_id) OVER (
                     PARTITION BY emp_id 
@@ -1050,12 +1049,10 @@ trait EmployeeModel
                     PARTITION BY emp_id 
                     ORDER BY created_at
                 ) AS PREV_RANK,
-
                 salary AS CURR_SALARY,
                 LAG(salary) OVER (
                     PARTITION BY emp_id 
-                    ORDER BY created_at
-                ) AS PREV_SALARY,
+                    ORDER BY created_at ) AS PREV_SALARY,
 
                 reason
 

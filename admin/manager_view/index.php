@@ -3,7 +3,7 @@
     $employee_level = $level;
 
 
-    if($employee_level !== 3){
+    if($employee_level != 2){
         header("Location: ../index.php");
         exit();
     }
@@ -70,15 +70,8 @@
             </p>
         </a>
 
-        <a href="./animals/createAdoptionListing.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add Adoption Listing</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Add an Adoption Listing to find an forever home for a pet .
-            </p>
-        </a>
 
-        <a href="./animals/seeAllAnimal.php"
+        <a href="./animals/seeAllAnimals.php"
         class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white">See All Animals</h2>
             <p class="text-gray-600 dark:text-slate-300 mt-2">

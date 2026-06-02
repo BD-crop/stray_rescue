@@ -224,8 +224,8 @@ CREATE TABLE IF NOT EXISTS rescued_event (
 CREATE TABLE IF NOT EXISTS shelter_animals(
     animal_id CHAR(36) primary key,
     rescue_point_id CHAR(36),
-    animal_name VARCHAR(200) ,
-    animal_age DECIMAL(3,1),
+    animal_name VARCHAR(200) UNIQUE ,
+    animal_age DECIMAL(10,1),
     is_removed TINYINT DEFAULT 0, 
     health_status TINYINT default 1,-- 1 -> normal 2 -> attention needed 3 -> Emergency,
     added_at timestamp default CURRENT_TIMESTAMP,
@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS shelter_animals_images(
 );
 
 CREATE TABLE IF NOT EXISTS Adoption_animals(
-    animal_id CHAR(36) primary key,
+    animal_id CHAR(36) primary key ,
     shelter_id CHAR(36),
     foreign key (shelter_id) references shelter_animals(animal_id) on delete cascade,
     created_at TIMESTAMP default CURRENT_TIMESTAMP
@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS shelter_animal_Property(
     animal_id CHAR(36),
     property_type varchar(200) , -- vaccination , health , activity , affectionate level
     animal_property VARCHAR(100),
-    foreign key (animal_id) references Adoption_animals(animal_id) on DELETE CASCADE,
+    foreign key (animal_id) references shelter_animals(animal_id) on DELETE CASCADE,
     primary key(animal_id , animal_property)
 );
 
@@ -262,12 +262,11 @@ CREATE TABLE IF NOT EXISTS Adoption_Application(
     adoption_application_id CHAR(36) default UUID(),
     adoption_Application_text VARCHAR(2000) default 'no text',
     adoption_application_status ENUM('pending' , 'accepted' , 'rejected') default 'pending',
-    foreign key (animal_id) references Adoption_animals(animal_id) on cascade,
+    foreign key (animal_id) references Adoption_animals(animal_id) on delete cascade,
     foreign key (user_id) references Users(user_id),
     primary key (adoption_application_id),
     Unique(animal_id , user_id),
     created_at timestamp default CURRENT_TIMESTAMP
-    
 );
 
 CREATE TABLE IF NOT EXISTS adoption_queue (
