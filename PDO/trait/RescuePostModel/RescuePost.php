@@ -565,7 +565,7 @@ trait RescuePost
 
     }
 
-    public function see_rescue_posts($page,$name = "" ,$rank_by='post_time_stamp' , $limit = 10)
+    public function see_rescue_posts($page, $limit = 10,$name = "" ,$rank_by='post_time_stamp' )
     {
         $allowedOrder = ['post_time_stamp', 'sos_level', 'animal_age'];
 

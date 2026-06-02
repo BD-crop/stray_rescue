@@ -80,8 +80,8 @@ session_start();
         <?php endif;?>
 
         <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition"
-           href="./post/posts.php">
-            Posts
+           href="./animals/index.php">
+            Animals
         </a>
 
         <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition"
@@ -138,7 +138,7 @@ session_start();
             <a class="hidden sm:block px-4 py-2 rounded-xl bg-yellow-300" href="./post/upload_post.php">Upload Post</a>
 
             <?php endif;?>
-            <a class="hidden sm:block px-4 py-2 rounded-xl bg-indigo-300" href="./post/posts.php">Posts</a>
+            <a class="hidden sm:block px-4 py-2 rounded-xl bg-indigo-300" href="./animals/index.php">Animals</a>
             <a class="hidden sm:block px-4 py-2 rounded-xl bg-green-300" href="./profile/profile.php">Profile</a>
             <a class="hidden sm:block px-4 py-2 rounded-xl bg-red-500 text-white" href="./auth/logout.php">Logout</a>
 

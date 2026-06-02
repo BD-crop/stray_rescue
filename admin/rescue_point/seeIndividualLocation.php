@@ -10,7 +10,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $id = $_GET['id'];
 $res = PDO_class::initializer()->get_point_by_id($id);
 
-
 if (!$res) {
     $msg = urlencode("Rescue point not found");
     header("Location: seeIndividualLocation.php?msg=$msg");
@@ -22,407 +21,240 @@ $images = [];
 if (!empty($res['images'])) {
     $images = explode(';;;', $res['images']);
 }
-
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Rescue Point Dashboard</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f4f4;
-            padding: 20px;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-            max-width: 1400px;
-            margin: auto;
-        }
-        #left_orient {
-            flex: 2;
-            background: white;
-            padding: 25px;
-            border-radius: 14px;
-            height: 95vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
+<meta charset="UTF-8">
+<title>Rescue Point Dashboard</title>
 
-        .right_panel {
-            flex: 1;
-            background: white;
-            padding: 20px;
-            border-radius: 14px;
-            height: 95vh;
-            overflow-y: auto;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
-        .main_title {
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
+<script src="https://cdn.tailwindcss.com"></script>
 
-        .section_title {
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-size: 22px;
-        }
+<script>
+tailwind.config = {
+    darkMode: 'class'
+}
+</script>
 
-        /* INFO GRID */
-
-        .info_grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .info_card {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-
-        .info_card p {
-            margin: 0;
-            word-break: break-word;
-        }
-
-
-
-        .supervisor_card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            max-width: 400px;
-            border: 1px solid #ddd;
-        }
-
-        .supervisor_card img {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ddd;
-        }
-
-        .supervisor_info p {
-            margin: 4px 0;
-        }
-
-        /* IMAGE GRID */
-
-        .image_grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .image_grid img {
-            width: 170px;
-            height: 170px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-
-        /* UPLOAD BOX */
-
-        .upload_box {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-
-        input[type="submit"] {
-            border: none;
-            background: #2563eb;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        input[type="submit"]:hover {
-            background: #1d4ed8;
-        }
-
-        /* EMPLOYEE CARD */
-
-        .employee_card {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            padding: 12px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 12px;
-        }
-
-        .employee_avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #2563eb;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .employee_info p {
-            margin: 3px 0;
-            font-size: 14px;
-        }
-
-        /* QUICK GALLERY */
-
-        .quick_gallery img {
-            width: 100%;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            border: 1px solid #ddd;
-        }
-
-        /* SCROLLBAR */
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-gray-900 dark:text-white transition-colors duration-500">
 
-    <div class="container">
+<div class="sticky top-0 z-50 flex items-center justify-between px-6 py-3 backdrop-blur-md bg-white/70 dark:bg-slate-900/60 border-b border-gray-200 dark:border-slate-700">
 
-        <!-- LEFT PANEL -->
+    <a class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition" href="../index.php">
+        Go Back
+    </a>
 
-        <div id="left_orient">
+    <button id="themeToggle"
+        class="px-4 py-2 rounded-xl bg-black text-white dark:bg-gray-100 dark:text-black hover:scale-105 transition">
+        Theme
+    </button>
 
-            <h1 class="main_title">
-                🐾 Rescue Point Details
-            </h1>
+</div>
 
-            <h3>
-                Point Name:
-                <?php echo htmlspecialchars($res['emp_name']) ?>
-            </h3>
+<div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <!-- INFO -->
+<div class="lg:col-span-2 space-y-6">
 
-            <div class="info_grid">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
+        <h1 class="text-2xl font-bold mb-2">Rescue Point Details</h1>
 
-                <div class="info_card">
-                    <p>
-                        <b>ID</b><br>
-                        <?php echo htmlspecialchars($res['rescue_point_id']) ?>
-                    </p>
-                </div>
+        <p class="text-lg">
+            Point Name:
+            <span class="font-semibold">
+                <?php echo htmlspecialchars($res['rescue_point_name']) ?>
+            </span>
+        </p>
+    </div>
 
-                <div class="info_card">
-                    <p>
-                        <b>Supervisor ID</b><br>
-                        <?php echo htmlspecialchars($res['supervisor_id']) ?>
-                    </p>
-                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                <div class="info_card">
-                    <p>
-                        <b>Latitude</b><br>
-                        <?php echo htmlspecialchars($res['rescue_point_location_latitude']) ?>
-                    </p>
-                </div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700">
+            <p class="font-bold">ID</p>
+            <p class="text-sm break-all"><?php echo htmlspecialchars($res['rescue_point_id']) ?></p>
+        </div>
 
-                <div class="info_card">
-                    <p>
-                        <b>Longitude</b><br>
-                        <?php echo htmlspecialchars($res['rescue_point_location_longtitude']) ?>
-                    </p>
-                </div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700">
+            <p class="font-bold">Supervisor ID</p>
+            <p class="text-sm break-all"><?php echo htmlspecialchars($res['supervisor_id']) ?></p>
+        </div>
 
-            </div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700">
+            <p class="font-bold">Latitude</p>
+            <p><?php echo htmlspecialchars($res['rescue_point_location_latitude']) ?></p>
+        </div>
 
-            <!-- SUPERVISOR -->
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700">
+            <p class="font-bold">Longitude</p>
+            <p><?php echo htmlspecialchars($res['rescue_point_location_longtitude']) ?></p>
+        </div>
 
-            <h2 class="section_title">
-                👨‍💼 Supervisor
-            </h2>
+    </div>
 
-            <div class="supervisor_card">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
 
-                <img src="<?php echo $res['supervisor_image']; ?>" alt="">
+        <h2 class="text-xl font-bold mb-4">Supervisor</h2>
 
-                <div class="supervisor_info">
+        <div class="flex items-center gap-4">
 
-                    <p>
-                        <b><?php echo $res['supervisor_name']; ?></b>
-                    </p>
+            <img class="w-14 h-14 rounded-full object-cover border"
+                 src="<?php echo $res['supervisor_image']; ?>" />
 
-                    <p>
-                        <?php echo $res['supervisor_email']; ?>
-                    </p>
-
-                </div>
-
-            </div>
-
-            <!-- IMAGES -->
-
-            <h2 class="section_title">
-                🖼 Shelter Images
-            </h2>
-
-            <div class="image_grid">
-
-                <?php if (!empty($images)): ?>
-
-                    <?php foreach ($images as $img): ?>
-                        <form  action="./rescuePointImageDelete.php" method="POST" action="_blank">
-                            <img src="<?php echo htmlspecialchars($img); ?>">
-                            <input type="hidden" name="name" value="<?php echo htmlspecialchars($img); ?>">
-                            <input type="hidden" name="id" value="<?php echo $id ; ?>">
-                            <input type="submit" style="background-color:red" name="submit" value="DELETE">
-                        </form>
-                        
-                    <?php endforeach; ?>
-
-                <?php else: ?>
-
-                    <p>No images available</p>
-
-                <?php endif; ?>
-
-            </div>
-
-            <!-- UPLOAD -->
-
-            <h2 class="section_title">
-                ⬆ Upload Images
-            </h2>
-
-            <div class="upload_box">
-
-                <!-- FORM UNCHANGED -->
-
-                <form action="./rescuePointImageUpload.php" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="id" value="<?php echo $id; ?>">
-                    <input type="file" name="fileToUpload">
-                    <input type="submit" name="submit" value="submit">
-                </form>
-
+            <div>
+                <p class="font-semibold">
+                    <?php echo htmlspecialchars($res['supervisor_name']); ?>
+                </p>
+                <p class="text-sm opacity-70">
+                    <?php echo htmlspecialchars($res['supervisor_email']); ?>
+                </p>
             </div>
 
         </div>
+    </div>
 
-        <!-- RIGHT PANEL -->
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
 
-        <div class="right_panel">
+        <h2 class="text-xl font-bold mb-4">Shelter Images</h2>
 
-            <h2>
-                👨‍💼 Assigned Employees
-            </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            <?php
+            <?php if (!empty($images)): ?>
 
-            if (!empty($res['EMP_INFO'])) {
+                <?php foreach ($images as $img): ?>
+                    <form action="./rescuePointImageDelete.php" method="POST" class="space-y-2">
+                        <img class="rounded-lg w-full h-48 object-cover"
+                             src="<?php echo htmlspecialchars($img); ?>">
 
-                $emps = explode(';;;', $res['EMP_INFO']);
+                        <input type="hidden" name="name" value="<?php echo htmlspecialchars($img); ?>">
+                        <input type="hidden" name="id" value="<?php echo $id; ?>">
 
-                for ($i = 0; $i < count($emps); $i += 3) {
+                        <input type="submit"
+                               name="submit"
+                               value="DELETE"
+                               class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg">
+                    </form>
+                <?php endforeach; ?>
 
-                    $name = $emps[$i] ?? '';
-                    $email = $emps[$i + 1] ?? '';
-                    $uuid = $emps[$i + 2] ?? '';
+            <?php else: ?>
+                <p class="opacity-70">No images available</p>
+            <?php endif; ?>
 
-                    $avatar = strtoupper(substr($name, 0, 1));
+        </div>
+    </div>
 
-                    echo "
-                    <div class='employee_card'>
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
 
-                        <div class='employee_avatar'>
-                            {$avatar}
-                        </div>
+        <h2 class="text-xl font-bold mb-4">⬆ Upload Images</h2>
 
-                        <div class='employee_info'>
+        <form action="./rescuePointImageUpload.php"
+              method="POST"
+              enctype="multipart/form-data"
+              class="space-y-3">
 
-                            <p>
-                                <b>" . htmlspecialchars($name) . "</b>
-                            </p>
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
 
-                            <p>
-                                " . htmlspecialchars($email) . "
-                            </p>
+            <input type="file"
+                   name="fileToUpload"
+                   class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-700">
 
-                            <p style='font-size:12px;color:#666;'>
-                                " . htmlspecialchars($uuid) . "
-                            </p>
+            <input type="submit"
+                   name="submit"
+                   value="Upload"
+                   class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg">
 
-                        </div>
+        </form>
 
+    </div>
+
+</div>
+
+<div class="space-y-6">
+
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
+
+        <h2 class="text-xl font-bold mb-4">Assigned Employees</h2>
+
+        <?php
+        if (!empty($res['EMP_INFO'])) {
+
+            $emps = explode(';;;', $res['EMP_INFO']);
+
+            for ($i = 0; $i < count($emps); $i += 3) {
+
+                $name = $emps[$i] ?? '';
+                $email = $emps[$i + 1] ?? '';
+                $uuid = $emps[$i + 2] ?? '';
+
+                $avatar = strtoupper(substr($name, 0, 1));
+
+                echo "
+                <div class='flex items-center gap-3 p-3 mb-2 rounded-lg border dark:border-slate-700'>
+
+                    <div class='w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-slate-700 font-bold'>
+                        {$avatar}
                     </div>
+
+                    <div>
+                        <p class='font-semibold'>" . htmlspecialchars($name) . "</p>
+                        <p class='text-sm opacity-70'>" . htmlspecialchars($email) . "</p>
+                        <p class='text-xs opacity-50'>" . htmlspecialchars($uuid) . "</p>
+                    </div>
+
+                </div>
                 ";
-                }
-
-            } else {
-
-                echo "<p>No employees assigned</p>";
             }
 
-            ?>
+        } else {
+            echo "<p class='opacity-70'>No employees assigned</p>";
+        }
+        ?>
 
-            <hr>
+    </div>
 
-            <h2>
-                🖼 Quick Image View
-            </h2>
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
 
-            <div class="quick_gallery">
+        <h2 class="text-xl font-bold mb-4">Quick Image View</h2>
 
-                <?php if (!empty($images)): ?>
+        <div class="grid grid-cols-2 gap-3">
 
-                    <?php foreach ($images as $img): ?>
-
-                        <img src="<?php echo htmlspecialchars($img) ?>">
-
-                    <?php endforeach; ?>
-
-                <?php else: ?>
-
-                    <p>No images</p>
-
-                <?php endif; ?>
-
-            </div>
+            <?php if (!empty($images)): ?>
+                <?php foreach ($images as $img): ?>
+                    <img class="rounded-lg h-28 w-full object-cover"
+                         src="<?php echo htmlspecialchars($img); ?>">
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="opacity-70">No images</p>
+            <?php endif; ?>
 
         </div>
 
     </div>
 
-</body>
+</div>
 
+</div>
+
+<script>
+const btn = document.getElementById("themeToggle");
+
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+}
+
+function getTheme() {
+    return localStorage.getItem("theme") || "light";
+}
+
+applyTheme(getTheme());
+
+btn.onclick = () => {
+    const newTheme = getTheme() === "light" ? "dark" : "light";
+    localStorage.setItem("theme", newTheme);
+    applyTheme(newTheme);
+};
+</script>
+
+</body>
 </html>

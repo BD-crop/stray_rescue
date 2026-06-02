@@ -293,14 +293,37 @@ trait RescuePointModel
                     :lang,
                     :supervisor_id
                 );
+                INSERT INTO Employee_history
+                (
+                    emp_id,
+                    event_type,
+                    rank_assigned_by,
+                    rescue_point_id,
+                    emp_rank,
+                    salary,
+                    reason
+                )
+                VALUES
+                (
+                    :emp_id,
+                    :event_type,
+                    :rank_assigned_by,
+                    :rescue_point_id,
+                    :emp_rank,
+                    :salary,
+                    :reason
+                )
+
+                UPDATE Employee
+                set rescue_point_id = ?
+                where emp_id = ? 
 
                 COMMIT
             */
             $this->pdo->beginTransaction();
 
 
-            $stmt1 = $this->pdo->prepare("
-                INSERT INTO rescue_point(
+            $stmt1 = $this->pdo->prepare("INSERT INTO rescue_point(
                     rescue_point_name,
                     rescue_point_location_latitude,
                     rescue_point_location_longtitude,
@@ -363,25 +386,32 @@ trait RescuePointModel
                     :reason
                 )
             ");
-
+            $rescue_point_id = $this->get_point_ID_by_name($name);
             $stmt->bindValue(':emp_id', $manager_id, PDO::PARAM_STR);
             $stmt->bindValue(':event_type', 11, PDO::PARAM_INT);
             $stmt->bindValue(':rank_assigned_by', $_SESSION['id'], PDO::PARAM_STR);
-            $stmt->bindValue(':rescue_point_id', $this->get_point_ID_by_name($name), PDO::PARAM_STR);
+            $stmt->bindValue(':rescue_point_id', $rescue_point_id, PDO::PARAM_STR);
             $stmt->bindValue(':emp_rank', $manager['emp_rank'], PDO::PARAM_INT);
             $stmt->bindValue(':salary', $manager['salary']);
             $stmt->bindValue(':reason', "Assigned As a Manager", PDO::PARAM_STR);
 
             $stmt->execute();
+        
+
+            $stmt = $this->pdo->prepare("UPDATE Employee
+                    set rescue_point_id = ? where emp_id = ? ;");
+
+            $stmt->execute([$rescue_point_id , $manager_id]);
 
             $this->add_notification($manager_id , $_SESSION['id'], "Assigned as a manager");
-
             $this->pdo->commit();
+
+
             $this->change_employee_rank($manager_id ,2 , 2 , $_SESSION['id'] , "Assigned as a Manager"  );
-            return $this->get_rescue_point_id_by_name($_POST['name']);
+            return $rescue_point_id;
 
         } catch (PDOException $e) {
-
+            
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }

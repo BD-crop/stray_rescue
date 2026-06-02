@@ -46,44 +46,109 @@ if (isset($_POST['submit'])) {
 
 <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            screens: {
+                sm: "680px",
+                md: "768px",
+                lg: "1024px"
+            }
+        }
+    }
+</script>
+
 </head>
 
-<body>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-gray-900 dark:text-white transition-all duration-500">
+    <div class="sticky top-0 z-50 flex gap-3 items-center p-4 backdrop-blur-md bg-dark/30 dark:bg-slate-900/60 border-b border-gray-200 dark:border-slate-700">
 
-<h2>Create Pet Center</h2>
+        <a class="hidden sm:block px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition" href="../../index.php">
+            Home
+        </a>
 
-<form method="POST">
+        <button id="themeToggle"
+            class="sm:block px-4 py-2 rounded-xl bg-black text-white dark:bg-gray-100 dark:text-black hover:scale-105 transition-all duration-300 shadow-lg">
+            Theme
+        </button>
 
-    <label>Name</label><br>
-    <input type="text" name="name" required><br><br>
+    </div>
 
-    <label>Type</label><br>
-    <select name="type" required>
-        <option value="gromming center">Grooming Center</option>
-        <option value="veterenarian hospital">Veterinarian Hospital</option>
-        <option value="park">Park</option>
-        <option value="other">Other</option>
-    </select><br><br>
+<div class="max-w-6xl mx-auto px-6 pt-8">
+    <h1 class="text-4xl font-bold">Create Pet Centers</h1>
 
-    <label>Email</label><br>
-    <input type="email" name="email"><br><br>
+    <p class="mt-2 text-gray-600 dark:text-slate-400">
+        Create a pet center to inform pet owners about nearby pet friendly places.
+    </p>
+</div>
 
-    <label>Contact</label><br>
-    <input type="text" name="contact"><br><br>
+<div class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-    <input type="hidden" name="lat" id="lat">
-    <input type="hidden" name="lng" id="lng">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
 
-    <button type="submit" name="submit">Create</button>
+        <form method="POST" class="space-y-5">
 
-</form>
+            <div>
+                <label class="block mb-2 font-medium">Name</label>
+                <input type="text" name="name" required
+                    class="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                    placeholder="Name">
+            </div>
 
-<br>
+            <div>
+                <label class="block mb-2 font-medium">Type</label>
+                <select name="type" required
+                    class="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white">
+                    <option value="gromming center">Grooming Center</option>
+                    <option value="veterenarian hospital">Veterinarian Hospital</option>
+                    <option value="park">Park</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
 
-<h3>Pick Location on Map</h3>
-<div id="map" style="width:100%; height:400px;"></div>
+            <div>
+                <label class="block mb-2 font-medium">Email</label>
+                <input type="email" name="email"
+                    class="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                    placeholder="email">
+            </div>
 
-<p id="locationText">Click map to select location</p>
+            <div>
+                <label class="block mb-2 font-medium">Contact</label>
+                <input type="text" name="contact"
+                    class="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                    placeholder="contact number">
+            </div>
+
+            <input type="hidden" name="lat" id="lat">
+            <input type="hidden" name="lng" id="lng">
+
+            <button type="submit" name="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
+                Create Pet Center
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
+
+        <h3 class="text-xl font-semibold mb-4">Pick Location on Map</h3>
+
+        <div id="map" class="w-full rounded-xl overflow-hidden" style="height:500px;"></div>
+
+        <p id="locationText" class="mt-4 text-gray-600 dark:text-slate-300">
+            Click map to select location
+        </p>
+
+    </div>
+
+</div>
 
 <script>
 
@@ -126,6 +191,45 @@ marker.on('dragend', () => {
         pos.lat + ", " + pos.lng;
 });
 
+</script>
+
+<script>
+    const btn = document.getElementById("themeToggle");
+
+    let str = ThemeChecker();
+
+    if(str !== 'light'){
+        document.documentElement.classList.add("dark");
+    }
+
+    btn.onclick = () => {
+        localStorage.setItem('theme',
+            (localStorage.getItem('theme') === 'light') ? 'dark' : 'light'
+        );
+        document.documentElement.classList.toggle("dark");
+    };
+
+    function ThemeChecker(){
+        let obj = localStorage.getItem('theme');
+
+        if(!obj){
+            localStorage.setItem('theme','light');
+            return 'light';
+        }
+        return obj;
+    }
+
+    function eventListenerToggle(){
+        let theme = ThemeChecker();
+
+        document.documentElement.classList.toggle("dark" ,theme === 'dark');
+    }
+
+    window.addEventListener("storage", (event) => {
+        if (event.key === "theme") {
+            eventListenerToggle();
+        }
+    });
 </script>
 
 </body>

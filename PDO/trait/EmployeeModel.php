@@ -16,12 +16,14 @@ trait EmployeeModel
         try {
 
             $this->pdo_initializer();
+            $id = $this->UUID_GENERATOR();
+            $email_verification_id = $this->UUID_GENERATOR();
             $this->pdo->beginTransaction();
 
-            $id = $this->UUID_GENERATOR();
 
 
-            $stmt = $this->pdo->prepare(
+            $stmt = $this->pdo->
+            prepare(
                 "INSERT INTO Employee
             (
                 emp_id,
@@ -62,7 +64,7 @@ trait EmployeeModel
                 exit("STEP 1 FAILED: Employee insert");
             }
 
-            echo "STEP 1 OK: Employee inserted\n";
+
 
 
             $stmt = $this->pdo->prepare(
@@ -100,11 +102,10 @@ trait EmployeeModel
                     ':reason' => "Employee Created"
                 ])
             ) {
-                print_r($stmt->errorInfo());
-                exit("STEP 2 FAILED: Employee_history insert");
+
             }
 
-            echo "STEP 2 OK: History inserted\n";
+            
 
 
             $stmt = $this->pdo->prepare(
@@ -126,7 +127,7 @@ trait EmployeeModel
 
             if (
                 !$stmt->execute([
-                    ':email_verification_id' => $this->UUID_GENERATOR(),
+                    ':email_verification_id' => $email_verification_id,
                     ':email_id' => $email,
                     ':table_name' => "Employee"
                 ])
@@ -135,7 +136,7 @@ trait EmployeeModel
                 exit("STEP 3 FAILED: Email verification insert");
             }
 
-            echo "STEP 3 OK: Email verification inserted\n";
+
 
 
             $this->pdo->commit();
@@ -840,7 +841,7 @@ trait EmployeeModel
                     emp_rank,
                     salary ,
                     joing_date,
-                    rank() over(order by " . $rank_by . " asc) as rank,
+                    dense_rank() over(order by " . $rank_by . " asc) as rank,
                     levenshtein(emp_name , :name) as distance
                 FROM employee_cte
                 where emp_rank >= :rank
@@ -1144,6 +1145,21 @@ trait EmployeeModel
         }
     }
 
+    public function get_notifications($emp_id){
+        $stmt = $this->pdo->
+        prepare("SELECT
+            notification_id,
+            emp_id,
+            message,
+            created_at,
+            created_by
 
+            FROM EmployeeNotification
+            WHERE emp_id = ? ;
+        ");
+        $stmt->execute([$emp_id]);
+        return ['notifications' => $stmt->fetchAll(PDO::FETCH_ASSOC)];
+        
+    }
 
 }

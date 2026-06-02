@@ -1,10 +1,16 @@
 <?php
-    include __DIR__ ."/auth_all_Employee.php";
+    include __DIR__ ."/../auth_all_Employee.php";
     $employee_level = $level;
 
 
+    if($employee_level !== 3){
+        header("Location: ../index.php");
+        exit();
+    }
 
+    
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +18,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Admin panel</title>
+    <title>Manager View</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -35,7 +41,7 @@
     <div class="sticky top-0 z-50 flex gap-3 items-center p-4 backdrop-blur-md bg-dark/30 dark:bg-slate-900/60 border-b border-gray-200 dark:border-slate-700">
 
         <a class="hidden sm:block px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition" href="../index.php">
-            Home
+            Go Back
         </a>
 
         <button id="themeToggle"
@@ -46,89 +52,57 @@
     </div>
 
     <div class="max-w-6xl mx-auto px-6 pt-8">
-        <h1 class="text-4xl font-bold">Admin Dashboard</h1>
+        <h1 class="text-4xl font-bold">Manager View</h1>
 
         <p class="mt-2 text-gray-600 dark:text-slate-400">
-            Manage employees, rescue locations, pet centers and system operations.
+            Manage employees, shelter animals and day to day operations of a location.
         </p>
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">   
-        <!--Senior Employee or Upper view-->
-        <?php if($employee_level <= 1): ?>
-        <a href="./Employee/createEmployee.php"
+
+        
+        <a href="./animals/AddAnimal.php"
         class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Create Employee</h2>
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add Animals</h2>
             <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Add a new employee to the system with role and details.
+                Add New Animal to your rescue point
             </p>
         </a>
 
-        <a href="./rescue_point/createRescuePoint.php"
+        <a href="./animals/createAdoptionListing.php"
         class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Create Rescue Point</h2>
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add Adoption Listing</h2>
             <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Register a new rescue location for emergency operations.
+                Add an Adoption Listing to find an forever home for a pet .
             </p>
         </a>
 
-        <a href="./Employee/getAllEmployee.php"
+        <a href="./animals/seeAllAnimal.php"
         class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">All Employees</h2>
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">See All Animals</h2>
             <p class="text-gray-600 dark:text-slate-300 mt-2">
-                View the full list of employees in the system.
+                See all the animals that are currently residing at your shelter.
+            </p>
+        </a>
+
+        <a href="./employees/seeEmployees.php"
+        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">See All Employees</h2>
+            <p class="text-gray-600 dark:text-slate-300 mt-2">
+                See all the employees under you .
+            </p>
+        </a>
+
+        <a href="./adoption_management/seeAllAdoptionRequest.php"
+        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Adoption Requests</h2>
+            <p class="text-gray-600 dark:text-slate-300 mt-2">
+                See All Adoption Requests .
             </p>
         </a>
 
 
-        <a href="./rescue_point/seeRescueLocations.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Rescue Locations</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                View all registered rescue points on the system.
-            </p>
-        </a>
-        <a href="./PetCenters/createCenter.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Create Pet Center</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Add a new pet care or shelter center to the platform.
-            </p>
-        </a>
-
-        <?php elseif($employee_level ==2 ): ?>
-        <a href="./manager_view/index.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Manager View</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Manage a rescue point
-            </p>
-        </a>
-        <a href=""
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add Animal</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Add an animal
-            </p>
-        </a>
-        <?php elseif($employee_level == 3): ?>
-            <a href=""
-            class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Assigned Animals</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                    Manage Assigned Animals
-                </p>
-            </a>
-
-        <?php endif; ?>
-
-            <a href="./Employee/notification.php"
-            class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Notifications</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                   See Notifications
-                </p>
-            </a>
     </div>
 
 

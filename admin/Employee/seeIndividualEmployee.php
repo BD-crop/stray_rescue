@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-
 include_once __DIR__ . "/../auth.php";
 include_once __DIR__ . "/../../template/admin_check.php";
 
@@ -32,7 +31,7 @@ $targetRank = (int) $emp['emp_rank'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $level < $targetRank) {
 
     $empId = $_POST['emp_id'];
-    $reason = $_POST['reason'] ;
+    $reason = $_POST['reason'];
 
     try {
 
@@ -48,8 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $level < $targetRank) {
         if (isset($_POST['point']) && $_POST['point'] !== '' ) {
 
             $name = $_POST['point'];
-            $point_id = $this->get_rescue_point_id_by_name($name);
-            
 
             $obj->assign_at_a_point(
                 $empId,
@@ -59,15 +56,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $level < $targetRank) {
                 $reason ?? "Assigned at a point"
             );
         }
-        $id = $obj->getEmployee_id($_POST['manager']);
 
         if (isset($_POST['manager']) && $_POST['manager'] !== '') {
             $id = $obj->getEmployee_id($_POST['manager']);
-            if ($id !== $emp['immediate_supervisor_id']) {
+            if ($id && $id !== $emp['immediate_supervisor_id']) {
 
-                $obj->assign_employee_supervisor($empId, $id, $_SESSION['id'],$reason ?? 'Supervisor Updated'  );
+                $obj->assign_employee_supervisor(
+                    $empId,
+                    $id,
+                    $_SESSION['id'],
+                    $reason ?? 'Supervisor Updated'
+                );
             }
-        
         }
 
         header("Location:" . $_SERVER['PHP_SELF'] . "?id=" . $empId);
@@ -90,157 +90,158 @@ $msg = json_encode($emp);
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Employee Admin Panel</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Employee Admin Panel</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box
-        }
+<script src="https://cdn.tailwindcss.com"></script>
 
-        body {
-            font-family: Arial;
-            background: #f4f4f4;
-            padding: 40px
-        }
+<script>
+tailwind.config = {
+    darkMode: 'class'
+}
+</script>
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px
-        }
-
-        .profile {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            margin-bottom: 30px
-        }
-
-        .profile img {
-            width: 180px;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 4px solid #ddd
-        }
-
-        .info p {
-            margin: 8px 0;
-            font-size: 16px
-        }
-
-        .actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px
-        }
-
-        .card {
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1)
-        }
-
-        .card h3 {
-            margin-bottom: 10px
-        }
-
-        .card input,
-        .card select,
-        .card textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: green;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer
-        }
-    </style>
 </head>
 
-<body>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-gray-900 dark:text-white transition-all duration-500">
 
-    <div class="container">
-        <h1>Employee Admin Panel</h1>
-        <div id="content">Loading...</div>
+<!-- TOP BAR -->
+<div class="sticky top-0 z-50 flex items-center justify-between px-6 py-3 backdrop-blur-md bg-white/70 dark:bg-slate-900/60 border-b border-gray-200 dark:border-slate-700">
+
+    <h1 class="font-semibold text-lg">
+        Admin Control Panel
+    </h1>
+
+    <button id="themeToggle"
+        class="px-4 py-2 rounded-xl bg-black text-white dark:bg-gray-100 dark:text-black hover:scale-105 transition">
+        Theme
+    </button>
+
+</div>
+
+<!-- MAIN -->
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+<div id="content" class="space-y-6">Loading...</div>
+
+</div>
+
+<script>
+const emp = <?php echo $msg; ?>;
+const content = document.getElementById("content");
+
+content.innerHTML = `
+<div class="bg-white dark:bg-slate-900 rounded-2xl shadow border border-gray-100 dark:border-slate-700 p-6">
+
+    <div class="flex items-center gap-4 mb-6">
+
+        <img class="w-16 h-16 rounded-full object-cover border"
+             src="${emp.emp_profile_picture_link}">
+
+        <div>
+            <h2 class="text-xl font-bold">${emp.emp_name}</h2>
+            <p class="text-sm opacity-70">${emp.email}</p>
+        </div>
+
     </div>
 
-    <script>
-        const emp = <?php echo $msg; ?>;
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
 
-        const content = document.getElementById("content");
+        <div class="p-3 rounded-lg bg-gray-100 dark:bg-slate-800">
+            <b>ID</b><br>${emp.emp_id}
+        </div>
 
-        content.innerHTML = `
-            <div class="profile">
-                <img src="${emp.emp_profile_picture_link}">
-                <div class="info">
-                <p><b>ID:</b>${emp.emp_id}</p>
-                    <p><b>Name:</b>${emp.emp_name}</p>
-                    <p><b>Email:</b>${emp.email}</p>
-                    <p><b>Rank:</b>${emp.emp_rank}</p>
-                    <p><b>Salary:</b>${emp.salary}</p>
-                    <p><b>Supervisor:</b>${emp.supervisor_id || ""}</p>
-                </div>
-            </div>
+        <div class="p-3 rounded-lg bg-gray-100 dark:bg-slate-800">
+            <b>Rank</b><br>${emp.emp_rank}
+        </div>
 
-            <form method="POST">
-            <input type="hidden" name="emp_id" value="${emp.emp_id}">
+        <div class="p-3 rounded-lg bg-gray-100 dark:bg-slate-800">
+            <b>Salary</b><br>${emp.salary}
+        </div>
 
-            <div class="actions">
+        <div class="p-3 rounded-lg bg-gray-100 dark:bg-slate-800 col-span-2">
+            <b>Supervisor</b><br>${emp.supervisor_id || ""}
+        </div>
 
-            <div class="card">
-                <h3>Salary</h3>
-                <input type="number" name="salary" min="0" value="${emp.salary}">
-            </div>
+    </div>
 
+</div>
+    <?php if($emp_rank < $targetRank ): ?>
 
+<form method="POST"
+      class="bg-white dark:bg-slate-900 rounded-2xl shadow border border-gray-100 dark:border-slate-700 p-6 space-y-6">
 
-            <div class="card">
-                <h3>Manager</h3>
-                <input type="text" name="manager" placeholder="Manager Email">
-            </div>
+    <input type="hidden" name="emp_id" value="${emp.emp_id}">
 
-             <div class="card">
-                <h3>Assign Point</h3>
-                <input type="text" name="point" placeholder="Write a point name">
-            </div>           
+    
+    <div>
+        <h3 class="font-semibold mb-2">Salary</h3>
+        <input type="number"
+               name="salary"
+               min="0"
+               value="${emp.salary}"
+               class="w-full p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
+    </div>
 
-            <div class="card">
-                <h3>Reason</h3>
-                <textarea name="reason"></textarea>
-            </div>
+    <!-- MANAGER -->
+    <div>
+        <h3 class="font-semibold mb-2">Manager</h3>
+        <input type="text"
+               name="manager"
+               placeholder="Manager Email"
+               class="w-full p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
+    </div>
 
-            </div>
+    <!-- POINT -->
+    <div>
+        <h3 class="font-semibold mb-2">Assign Point</h3>
+        <input type="text"
+               name="point"
+               placeholder="Write a point name"
+               class="w-full p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
+    </div>
 
-            <button type="submit">Submit</button>
-            </form>
-            `;
+    <!-- REASON -->
+    <div>
+        <h3 class="font-semibold mb-2">Reason</h3>
+        <textarea name="reason"
+                  class="w-full p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800"></textarea>
+    </div>
 
+    <button type="submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl transition">
+        Submit Changes
+    </button>
 
+</form>
+<?php endif; ?>
 
-        console.log(<?= $msg?>);
-    </script>
+`;
+
+console.log(<?= $msg?>);
+</script>
+
+<!-- THEME -->
+<script>
+const btn = document.getElementById("themeToggle");
+
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+}
+
+function getTheme() {
+    return localStorage.getItem("theme") || "light";
+}
+
+applyTheme(getTheme());
+
+btn.onclick = () => {
+    const newTheme = getTheme() === "light" ? "dark" : "light";
+    localStorage.setItem("theme", newTheme);
+    applyTheme(newTheme);
+};
+</script>
 
 </body>
-
 </html>

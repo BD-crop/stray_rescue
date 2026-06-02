@@ -219,69 +219,96 @@ CREATE TABLE IF NOT EXISTS rescued_event (
 );
 
 
-
-
 -- Adoption Management
 
-CREATE TABLE IF NOT EXISTS adoption_post (
-        adoption_post_id CHAR(36) PRIMARY KEY,
-        animal_id CHAR(36) NOT NULL,
-        adoption_post_image_count INT NOT NULL DEFAULT 1,
-        adoption_post_image_link VARCHAR(1000) DEFAULT NULL,
-        adoption_post_text TEXT,
-        post_loc_latitude DECIMAL(16, 8) DEFAULT NULL,
-        post_loc_longitude DECIMAL(16, 8) DEFAULT NULL,
-        post_time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        emp_id CHAR(36) DEFAULT NULL,
-        rescue_point_id CHAR(36) DEFAULT NULL,
-        user_id CHAR(36) DEFAULT NULL,
-        FOREIGN KEY (animal_id) REFERENCES animals (animal_id),
-        FOREIGN KEY (user_id) REFERENCES Users (user_id),
-        FOREIGN KEY (emp_id) REFERENCES Employee (emp_id),
-        FOREIGN KEY (rescue_point_id) REFERENCES rescue_point (rescue_point_id)
+CREATE TABLE IF NOT EXISTS shelter_animals(
+    animal_id CHAR(36) primary key,
+    rescue_point_id CHAR(36),
+    animal_name VARCHAR(200) ,
+    animal_age DECIMAL(3,1),
+    is_removed TINYINT DEFAULT 0, 
+    health_status TINYINT default 1,-- 1 -> normal 2 -> attention needed 3 -> Emergency,
+    added_at timestamp default CURRENT_TIMESTAMP,
+    foreign key (rescue_point_id) references rescue_point(rescue_point_id)
+);
+
+CREATE TABLE IF NOT EXISTS shelter_animals_images(
+    id int AUTO_INCREMENT primary key,
+    animal_id CHAR(36),
+    image_path VARCHAR(200),
+    foreign key (animal_id) references shelter_animals(animal_id) on delete cascade
+);
+
+CREATE TABLE IF NOT EXISTS Adoption_animals(
+    animal_id CHAR(36) primary key,
+    shelter_id CHAR(36),
+    foreign key (shelter_id) references shelter_animals(animal_id) on delete cascade,
+    created_at TIMESTAMP default CURRENT_TIMESTAMP
+);
+
+
+
+CREATE TABLE IF NOT EXISTS shelter_animal_Property(
+    animal_id CHAR(36),
+    property_type varchar(200) , -- vaccination , health , activity , affectionate level
+    animal_property VARCHAR(100),
+    foreign key (animal_id) references Adoption_animals(animal_id) on DELETE CASCADE,
+    primary key(animal_id , animal_property)
+);
+
+CREATE TABLE IF NOT EXISTS Adoption_Application(
+    animal_id CHAR(36),
+    user_id CHAR(36),
+    adoption_application_id CHAR(36) default UUID(),
+    adoption_Application_text VARCHAR(2000) default 'no text',
+    adoption_application_status ENUM('pending' , 'accepted' , 'rejected') default 'pending',
+    foreign key (animal_id) references Adoption_animals(animal_id) on cascade,
+    foreign key (user_id) references Users(user_id),
+    primary key (adoption_application_id),
+    Unique(animal_id , user_id),
+    created_at timestamp default CURRENT_TIMESTAMP
+    
 );
 
 CREATE TABLE IF NOT EXISTS adoption_queue (
         queue_id CHAR(36) PRIMARY KEY,
-        adoption_post_id CHAR(36) NOT NULL,
-        user_id CHAR(36) NOT NULL,
-        request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        status ENUM ('pending', 'approved', 'rejected') DEFAULT 'pending',
-        FOREIGN KEY (adoption_post_id) REFERENCES adoption_post (adoption_post_id),
-        FOREIGN KEY (user_id) REFERENCES Users (user_id)
+        checked_until timestamp,
+
+        adoption_application_id CHAR(36) ,
+        FOREIGN KEY (adoption_application_id) REFERENCES Adoption_Application(adoption_application_id)
 );
 
-create table if not exists UserNotification (
-        notification_id CHAR(36) PRIMARY KEY,
-        user_id CHAR(36) NOT NULL,
-        message TEXT NOT NULL,
-        related_post_id CHAR(36) DEFAULT NULL,
-        notification_type ENUM ('rescue', 'adoption', 'queue', 'general') DEFAULT 'general',
-        is_read BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES Users (user_id)
-);
+-- create table if not exists UserNotification (
+--         notification_id CHAR(36) PRIMARY KEY,
+--         user_id CHAR(36) NOT NULL,
+--         message TEXT NOT NULL,
+--         related_post_id CHAR(36) DEFAULT NULL,
+--         notification_type ENUM ('rescue', 'adoption', 'queue', 'general') DEFAULT 'general',
+--         is_read BOOLEAN DEFAULT FALSE,
+--         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--         FOREIGN KEY (user_id) REFERENCES Users (user_id)
+-- );
 
 
-create table if not exists like_registry_adoption_post (
-        adoption_post_id CHAR(36),
-        user_id CHAR(36),
-        like_type int default 1,
-        foreign key (adoption_post_id) references adoption_post (adoption_post_id),
-        foreign key (user_id) references Users (user_id),
-        primary key (adoption_post_id, like_type)
-);
+-- create table if not exists like_registry_adoption_post (
+--         adoption_post_id CHAR(36),
+--         user_id CHAR(36),
+--         like_type int default 1,
+--         foreign key (adoption_post_id) references adoption_post (adoption_post_id),
+--         foreign key (user_id) references Users (user_id),
+--         primary key (adoption_post_id, like_type)
+-- );
 
-create table if not exists comment_registry_adoption_post (
-        comment_id CHAR(36) primary key,
-        adoption_post_id CHAR(36),
-        user_id CHAR(36),
-        comment_text text,
-        replying_to CHAR(36) default null,
-        foreign key (adoption_post_id) references adoption_post (adoption_post_id),
-        foreign key (user_id) references Users (user_id),
-        foreign key (replying_to) references comment_registry_adoption_post (comment_id)
-);
+-- create table if not exists comment_registry_adoption_post (
+--         comment_id CHAR(36) primary key,
+--         adoption_post_id CHAR(36),
+--         user_id CHAR(36),
+--         comment_text text,
+--         replying_to CHAR(36) default null,
+--         foreign key (adoption_post_id) references adoption_post (adoption_post_id),
+--         foreign key (user_id) references Users (user_id),
+--         foreign key (replying_to) references comment_registry_adoption_post (comment_id)
+-- );
 
 
 
@@ -421,17 +448,6 @@ SET
 CREATE TRIGGER if not exists before_insert_rescue_point BEFORE INSERT ON rescue_point FOR EACH ROW
 SET
     NEW.rescue_point_id = UUID ();
-
-
-CREATE TRIGGER if not exists before_insert_adoption_queue BEFORE INSERT ON adoption_queue FOR EACH ROW
-SET
-    NEW.queue_id = UUID();
-
-
-
-CREATE TRIGGER if not exists before_insert_comment_registry_adoption_post BEFORE INSERT ON comment_registry_adoption_post FOR EACH ROW
-SET
-    NEW.comment_id = UUID();
 
 
 

@@ -1,512 +1,332 @@
 <?php
 
-    include_once __DIR__ . "/../auth.php";
-    include_once __DIR__ . "/../template/admin_check.php";
+include_once __DIR__ . "/../auth.php";
+include_once __DIR__ . "/../template/admin_check.php";
 
-    if (isset($_POST['submit'])) {
-        $obj = PDO_class::initializer();
+if (isset($_POST['submit'])) {
+    $obj = PDO_class::initializer();
 
-        if (
-            empty($_POST['manager_id']) ||
-
-            empty($_POST['lat']) ||
-            empty($_POST['lang']) ||
-            empty($_POST['name'])
-        ) {
-            $msg = urlencode('all fields must be present');
-            header("Location: createRescuePoint.php?msg=$msg");
-            exit();
-        }
-
-        $level = $obj->find_employee_level();
-
-        if (($level === null) || ($level > 1) || ($level < 0)) {
-            $msg = urlencode(" must be an senior employee or upper ");
-            header("Location: createRescuePoint.php?msg=$msg");
-            exit();
-        }
-
-        $msg = urlencode($obj->create_rescue_point($_POST['manager_id'] , $_POST['lat'] 
-                                            ,$_POST['lang'] , $_POST['name']));
-        header("Location: seeIndividualLocation.php?id=$msg");
+    if (
+        empty($_POST['manager_id']) ||
+        empty($_POST['lat']) ||
+        empty($_POST['lang']) ||
+        empty($_POST['name'])
+    ) {
+        $msg = urlencode('all fields must be present');
+        header("Location: createRescuePoint.php?msg=$msg");
         exit();
     }
 
-?>
+    $level = $obj->find_employee_level();
 
+    if (($level === null) || ($level > 1) || ($level < 0)) {
+        $msg = urlencode(" must be an senior employee or upper ");
+        header("Location: createRescuePoint.php?msg=$msg");
+        exit();
+    }
+
+    $msg = urlencode(
+        $obj->create_rescue_point(
+            $_POST['manager_id'],
+            $_POST['lat'],
+            $_POST['lang'],
+            $_POST['name']
+        )
+    );
+    header("Location: seeIndividualLocation.php?id=$msg");
+    exit();
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Assign Rescue Point</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+    darkMode: 'class'
+}
+</script>
 
 <style>
-
-body{
-    background:#eef2f7;
+#map {
+    width: 100%;
+    height: 420px;
+    border-radius: 12px;
 }
 
-.container{
-    max-width:1200px;
+.search-results {
+    position: absolute;
+    width: 100%;
+    max-height: 220px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    display: none;
+    z-index: 50;
 }
 
-.card{
-    border:none;
-    border-radius:12px;
-    background:#ffffff;
+.dark .search-results {
+    background: #1e293b;
+    border-color: #334155;
 }
 
-.form-control{
-    border:2px solid #d0d7e2;
-    padding:10px;
-    box-shadow:none;
+.search-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.form-control:focus{
-    border-color:#1a73e8;
-    box-shadow:0 0 0 .2rem rgba(26,115,232,.15);
+.dark .search-item {
+    border-bottom: 1px solid #334155;
 }
 
-#map-wrapper{
-    position:relative;
-    width:100%;
-    min-height:450px;
+.search-item:hover {
+    background: #f3f4f6;
 }
 
-#map{
-    width:100%;
-    height:450px;
-    border-radius:12px;
-    overflow:hidden;
+.dark .search-item:hover {
+    background: #334155;
 }
-
-#Location_shown{
-    font-size:15px;
-    font-weight:600;
-    color:#1a73e8;
-    margin-bottom:10px;
-}
-
-.navbar{
-    background:#1a73e8;
-}
-
-.location-badge{
-    background:#e8f0fe;
-    color:#1a73e8;
-    padding:8px 12px;
-    border-radius:8px;
-    font-size:14px;
-    margin-bottom:15px;
-}
-
-/* dropdown */
-.search-results{
-    position:absolute;
-    top:100%;
-    left:0;
-    width:100%;
-    margin-top:6px;
-    background:#fff;
-    border-radius:12px;
-    border:1px solid #dbe4f0;
-    overflow:hidden;
-    z-index:999;
-    display:none;
-    max-height:300px;
-    overflow-y:auto;
-}
-
-.search-item{
-    padding:12px 14px;
-    cursor:pointer;
-    border-bottom:1px solid #eef2f7;
-    transition:.2s;
-}
-
-.search-item:hover{
-    background:#f3f8ff;
-}
-
-.search-item h6{
-    margin:0;
-    font-size:14px;
-}
-
-.search-item small{
-    color:#6b7280;
-}
-
-.manager-card{
-    border:1px solid #dbe4f0;
-    border-radius:10px;
-    padding:15px;
-    background:#f8fbff;
-}
-
 </style>
+
 </head>
 
-<body>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-gray-900 dark:text-white transition-colors duration-500">
 
-<nav class="navbar navbar-dark shadow-sm">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">
-            Assign Rescue Point
-        </span>
+<div class="sticky top-0 z-50 flex items-center justify-between px-6 py-3 backdrop-blur-md bg-white/70 dark:bg-slate-900/60 border-b border-gray-200 dark:border-slate-700">
 
-        <a href="../index.php" class="btn btn-outline-light btn-sm">
-            Home
-        </a>
-    </div>
-</nav>
+    <a class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition" href="../index.php">
+        Go Back
+    </a>
 
-<div class="container mt-5">
-
-<div class="row g-4 justify-content-center">
-
-<!-- LEFT SIDE -->
-<div class="col-lg-5">
-
-<form class="card p-4 shadow-sm" id="rescueForm" action="" method="POST">
-
-<h4 class="mb-4 text-center">
-Assign Rescue Point
-</h4>
-
-<label class="fw-semibold">
-Rescue Point Name
-</label>
-
-<input
-    class="form-control mb-3"
-    type="text"
-    name="name"
-    id="rescuePointName"
-    required
->
-
-<!-- SEARCH -->
-<label class="fw-semibold">
-Assign Manager
-</label>
-
-<div class="position-relative mb-3">
-
-    <div class="d-flex gap-2">
-
-        <input
-            type="text"
-            class="form-control"
-            id="managerSearch"
-            placeholder="Search employee..."
-            autocomplete="off"
-        >
-
-        <button
-            type="button"
-            class="btn btn-primary"
-            id="searchManagerBtn"
-        >
-            Search
-        </button>
-
-    </div>
-
-    <div id="searchResults" class="search-results"></div>
+    <button id="themeToggle"
+        class="px-4 py-2 rounded-xl bg-gray-900 text-white dark:bg-gray-100 dark:text-black hover:scale-105 transition">
+        Theme
+    </button>
 
 </div>
 
-<!-- SELECTED -->
-<div
-    class="manager-card mb-3"
-    id="selectedManagerBox"
-    style="display:none;"
->
-    Assigned:
-    <strong id="selectedManagerName"></strong>
-</div>
+<div class="max-w-6xl mx-auto mt-10 px-4">
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
+
+<h2 class="text-xl font-bold mb-5">Assign Rescue Point</h2>
+
+<form id="rescueForm" method="POST" class="space-y-4">
+
+    <input
+        class="w-full p-3 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800"
+        type="text"
+        name="name"
+        placeholder="Rescue Point Name"
+        required
+    >
+
+    <label class="font-semibold">Assign Manager</label>
+
+    <div class="relative">
+
+        <div class="flex gap-2">
+            <input
+                type="text"
+                id="managerSearch"
+                class="w-full p-3 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800"
+                placeholder="Search employee..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="searchManagerBtn"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+            >
+                Search
+            </button>
+        </div>
+
+        <div id="searchResults" class="search-results"></div>
+
+    </div>
+
+    <div id="selectedManagerBox"
+        class="hidden p-3 rounded-lg bg-green-100 dark:bg-green-900 mt-3">
+        Assigned:
+        <strong id="selectedManagerName"></strong>
+    </div>
 
     <input type="hidden" id="manager_id" name="manager_id">
-    <input type="hidden" id="lat" name="lat" >
+    <input type="hidden" id="lat" name="lat">
     <input type="hidden" id="lang" name="lang">
 
-    <input type="submit" name="submit" class="btn btn-primary w-100"/>
+    <input type="submit" name="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg" value="Create Rescue Point">
+        
 
 </form>
 
 </div>
 
-<!-- RIGHT SIDE -->
-<div class="col-lg-6">
 
-<div class="card p-3 shadow-sm">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
 
-<div class="location-badge">
+<div class="mb-3 text-sm text-gray-600 dark:text-gray-300">
 Click map to assign rescue point inside Bangladesh
 </div>
 
-<h5 id="Location_shown">
+<h3 id="Location_shown" class="font-semibold mb-3">
 Dhaka, Bangladesh
-</h5>
+</h3>
 
-<div id="map-wrapper">
-    <div id="map"></div>
-</div>
+<div id="map"></div>
 
 </div>
 
 </div>
-
-</div>
-
 </div>
 
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
 <script>
 
-
 const defaultLng = 90.4125;
 const defaultLat = 23.8103;
-
-const bangladeshBounds = [
-    [88.0, 20.5],
-    [92.8, 26.8]
-];
 
 const map = new maplibregl.Map({
     container: 'map',
     style: 'https://tiles.openfreemap.org/styles/liberty',
     center: [defaultLng, defaultLat],
     zoom: 6.5,
-    maxBounds: bangladeshBounds
+    maxBounds: [[88.0, 20.5], [92.8, 26.8]]
 });
 
 map.addControl(new maplibregl.NavigationControl());
 
-const marker = new maplibregl.Marker({
-    draggable:true,
-    color:"#1a73e8"
-})
-.setLngLat([defaultLng, defaultLat])
-.addTo(map);
+const marker = new maplibregl.Marker({ draggable: true, color: "#1a73e8" })
+    .setLngLat([defaultLng, defaultLat])
+    .addTo(map);
 
-function resetMarker(){
-
-    marker.setLngLat([defaultLng, defaultLat]);
-
-    map.flyTo({
-        center:[defaultLng, defaultLat],
-        zoom:6.5
-    });
-
-    updateLocation(defaultLat, defaultLng);
-}
-
-function updateLocation(lat,lng){
-
+function updateLocation(lat, lng) {
     document.getElementById("lat").value = lat;
     document.getElementById("lang").value = lng;
 }
 
-async function checkLocation(lat,lng){
-
-    try{
-
-        const res = await fetch(
-            `http://localhost:80/dashboard/proxy/proxy.php?lat=${lat}&lng=${lng}`
-        );
-
+async function checkLocation(lat, lng) {
+    try {
+        const res = await fetch(`http://localhost:80/dashboard/proxy/proxy.php?lat=${lat}&lng=${lng}`);
         const data = await res.json();
-        console.log(data);
-        if(
-            !data.address ||
-            data.address.country_code !== 'bd'
-        ){
+
+        if (!data.address || data.address.country_code !== 'bd') {
             alert("Only Bangladesh rescue points are allowed.");
-            resetMarker();
+
+            marker.setLngLat([defaultLng, defaultLat]);
+            map.flyTo({ center: [defaultLng, defaultLat], zoom: 6.5 });
+
             return false;
         }
 
-        let locationText = "";
+        let text = "";
+        if (data.address?.suburb) text += data.address.suburb + ", ";
+        if (data.address?.city) text += data.address.city + ", ";
+        else if (data.address?.state_district) text += data.address.state_district + ", ";
+        if (data.address?.country) text += data.address.country;
 
-        if(data.address?.suburb)
-            locationText += data.address.suburb + ", ";
-
-        if(data.address?.city)
-            locationText += data.address.city + ", ";
-
-        else if(data.address?.state_district)
-            locationText += data.address.state_district + ", ";
-
-        if(data.address?.country)
-            locationText += data.address.country;
-
-        document.getElementById("Location_shown")
-            .innerText = locationText;
+        document.getElementById("Location_shown").innerText = text;
 
         return true;
 
-    }catch(err){
-
-        console.error(err);
+    } catch (e) {
+        console.error(e);
         return false;
     }
 }
 
-
 updateLocation(defaultLat, defaultLng);
 
-
 map.on('click', async (e) => {
-
-    const ok = await checkLocation(
-        e.lngLat.lat,
-        e.lngLat.lng
-    );
-
-    if(!ok) return;
+    if (!(await checkLocation(e.lngLat.lat, e.lngLat.lng))) return;
 
     marker.setLngLat(e.lngLat);
-
-    updateLocation(
-        e.lngLat.lat,
-        e.lngLat.lng
-    );
+    updateLocation(e.lngLat.lat, e.lngLat.lng);
 });
 
 marker.on('dragend', async () => {
-
     const pos = marker.getLngLat();
-
-    const ok = await checkLocation(
-        pos.lat,
-        pos.lng
-    );
-
-    if(!ok) return;
-
+    if (!(await checkLocation(pos.lat, pos.lng))) return;
     updateLocation(pos.lat, pos.lng);
 });
 
-
-
-const searchManagerBtn =
-    document.getElementById('searchManagerBtn');
-
-const managerSearch =
-    document.getElementById("managerSearch");
-
-const searchResults =
-    document.getElementById("searchResults");
+const searchManagerBtn = document.getElementById('searchManagerBtn');
+const managerSearch = document.getElementById("managerSearch");
+const searchResults = document.getElementById("searchResults");
 
 let typingTimer = null;
 
-searchManagerBtn.onclick = async () => {
-    fetchEmployees(managerSearch.value);
-};
+searchManagerBtn.onclick = () => fetchEmployees(managerSearch.value);
 
 managerSearch.addEventListener("input", () => {
 
     clearTimeout(typingTimer);
 
-    const query = managerSearch.value.trim();
-
-    if(query.length < 1){
-
+    if (managerSearch.value.trim().length < 1) {
         searchResults.style.display = "none";
-
         return;
     }
 
     typingTimer = setTimeout(() => {
-
-        fetchEmployees(query);
-
+        fetchEmployees(managerSearch.value);
     }, 300);
 });
 
-async function fetchEmployees(query){
+async function fetchEmployees(query) {
 
-    const body =
-        `name=${encodeURIComponent(query)}&rank=${encodeURIComponent(3)}&submit=submit`;
+    const body = `name=${encodeURIComponent(query)}&rank=3&submit=submit`;
 
-    try {
+    const res = await fetch("../Employee/searchEmployeesEX.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body
+    });
 
-        const res = await fetch(
-            "../Employee/searchEmployeesEX.php",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-                },
-
-                body: body
-            }
-        );
-
-        const data = await res.json();
-        console.log(data);
-        renderEmployees(data);
-
-    }
-    catch (error) {
-
-        console.error(error);
-    }
+    const data = await res.json();
+    renderEmployees(data);
 }
-
 
 function renderEmployees(data) {
 
     searchResults.innerHTML = "";
 
-    if (!data || data.length === 0) {
-
-        searchResults.innerHTML = `
-            <div class="search-item">
-                <h6>No employee found</h6>
-            </div>
-        `;
-
+    if (!data.length) {
+        searchResults.innerHTML = `<div class="p-3">No employee found</div>`;
         searchResults.style.display = "block";
-
         return;
     }
 
     data.forEach(emp => {
 
         const div = document.createElement("div");
-
         div.className = "search-item";
 
         div.innerHTML = `
-            <h6>${emp.emp_name}</h6>
-            <small>${emp.email}</small>
+            <div class="font-semibold">${emp.emp_name}</div>
+            <div class="text-sm opacity-70">${emp.email}</div>
         `;
 
         div.onclick = () => {
-
             managerSearch.value = emp.emp_name;
+            document.getElementById("manager_id").value = emp.emp_id;
 
-            document.getElementById("manager_id").value =
-                emp.emp_id;
-
-            document.getElementById("selectedManagerBox")
-                .style.display = "block";
-
-            document.getElementById("selectedManagerName")
-                .innerText = emp.emp_name;
+            document.getElementById("selectedManagerBox").classList.remove("hidden");
+            document.getElementById("selectedManagerName").innerText = emp.emp_name;
 
             searchResults.style.display = "none";
         };
@@ -518,19 +338,28 @@ function renderEmployees(data) {
 }
 
 document.addEventListener("click", (e) => {
-
-    if(
-        !managerSearch.contains(e.target) &&
-        !searchResults.contains(e.target)
-    ){
+    if (!managerSearch.contains(e.target) && !searchResults.contains(e.target)) {
         searchResults.style.display = "none";
     }
-
 });
 
+const btn = document.getElementById("themeToggle");
 
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+}
 
+function getTheme() {
+    return localStorage.getItem("theme") || "light";
+}
 
+applyTheme(getTheme());
+
+btn.onclick = () => {
+    const newTheme = getTheme() === "light" ? "dark" : "light";
+    localStorage.setItem("theme", newTheme);
+    applyTheme(newTheme);
+};
 
 </script>
 

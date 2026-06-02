@@ -257,7 +257,7 @@ a:hover {
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
 <script>
-
+console.log(<?=  $res_json; ?>);
 let state = -1;
 popLink.innerText = "min: " + Math.trunc(1) + " max: " + Math.trunc(<?php echo $res['count']; ?>);
 

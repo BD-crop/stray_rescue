@@ -1,6 +1,5 @@
 <?php
-    include_once __DIR__ ."/../auth_all_Employee.php";
-
+include_once __DIR__ ."/../auth_all_Employee.php";
 ?>
 
 <!DOCTYPE html>
@@ -9,196 +8,197 @@
 <meta charset="UTF-8">
 <title>Manager Dashboard - Employees</title>
 
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+    darkMode: 'class'
+}
+</script>
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: #f4f6f8;
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    header {
-        background: #1f2937;
-        color: white;
-        padding: 15px 20px;
-        font-size: 20px;
-    }
+th, td {
+    padding: 12px;
+    text-align: left;
+}
 
-    .container {
-        padding: 20px;
-    }
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
 
-    .controls {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
+.rank {
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #e5e7eb;
+}
 
-    input, select {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-    }
-
-    th {
-        background: #111827;
-        color: white;
-    }
-
-    tr:hover {
-        background: #f3f4f6;
-    }
-
-    .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .rank {
-        padding: 4px 8px;
-        border-radius: 5px;
-        background: #e5e7eb;
-        display: inline-block;
-    }
-
-    .loading {
-        padding: 20px;
-        text-align: center;
-        color: #666;
-    }
+.dark .rank {
+    background: #334155;
+}
 </style>
+
 </head>
 
-<body>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-gray-900 dark:text-white transition-all duration-500">
 
-<header>
-    Manager Dashboard - Employee Control Panel
-</header>
+<div class="sticky top-0 z-50 flex items-center justify-between p-4 backdrop-blur-md bg-white/70 dark:bg-slate-900/60 border-b border-gray-200 dark:border-slate-700">
 
-<div class="container">
+    <a class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition" href="../index.php">
+        Go Back
+    </a>
 
-    <div class="controls">
-        <select id="rankFilter">
+    <button id="themeToggle"
+        class="px-4 py-2 rounded-xl bg-black text-white dark:bg-gray-100 dark:text-black hover:scale-105 transition">
+        Theme
+    </button>
+
+</div>
+
+<div class="max-w-6xl mx-auto mt-6 px-4">
+    <h1 class="text-2xl font-bold mb-4">Manager Dashboard - Employee Control Panel</h1>
+
+    <!-- CONTROLS -->
+    <div class="flex flex-col md:flex-row gap-3 mb-6">
+
+        <select id="rankFilter"
+            class="p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
             <option value="0">All Ranks</option>
             <option value="1">Rank > 1</option>
             <option value="2">Rank > 2</option>
             <option value="3">Rank > 3</option>
         </select>
 
-        <select id="rankBy">
+        <select id="rankBy"
+            class="p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
             <option value="emp_rank">Employee Rank</option>
             <option value="salary">Salary</option>
             <option value="joing_date">Joining date</option>
         </select>
 
-        <input type="text" id="searchInput" placeholder="Search employee name...">
+        <input type="text"
+            id="searchInput"
+            placeholder="Search employee name..."
+            class="p-2 flex-1 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
+
     </div>
 
-    <div id="tableContainer">
-        <div class="loading">Loading employees...</div>
+    <!-- TABLE -->
+    <div id="tableContainer" class="overflow-x-auto bg-white dark:bg-slate-900 rounded-xl shadow border border-gray-100 dark:border-slate-700 p-2">
+        <div class="p-4">Loading employees...</div>
     </div>
-
 </div>
 
 <script>
 const tableContainer = document.getElementById("tableContainer");
 const searchInput = document.getElementById("searchInput");
 const rankFilter = document.getElementById("rankFilter");
+const rankBy = document.getElementById("rankBy");
+
 let debounceTimer = null;
-// Fetch employees
+
 async function fetchEmployees() {
-    console.log(rankFilter.value);
 
     const rank = rankFilter.value;
     const name = searchInput.value.trim();
-    const rank_by1 =rankBy.value;
+    const rank_by1 = rankBy.value;
+
     try {
-        tableContainer.innerHTML = `<div class="loading">Loading...</div>`;
+        tableContainer.innerHTML = `<div class="p-4">Loading...</div>`;
 
         const response = await fetch(
             `./searchEmployees.php?rank=${rank}&name=${encodeURIComponent(name)}&rank_by=${encodeURIComponent(rank_by1)}`
         );
 
         const data = await response.json();
-        console.log(data);
         renderTable(data);
+
     } catch (err) {
-        tableContainer.innerHTML = `<div class="loading">Error loading data</div>`;
-        console.error(err);
+        tableContainer.innerHTML = `<div class="p-4">Error loading data</div>`;
     }
 }
 
-// Render table
 function renderTable(data) {
 
     if (!data || data.length === 0) {
-        tableContainer.innerHTML = `<div class="loading">No employees found</div>`;
+        tableContainer.innerHTML = `<div class="p-4">No employees found</div>`;
         return;
     }
 
     let html = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Profile</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>${rankBy.value}</th>
-                    <th>Employee Rank</th>
-                    <th>See detail</th>
-                </tr>
-            </thead>
-            <tbody>
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-100 dark:bg-slate-800">
+            <tr>
+                <th>Profile</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>${rankBy.value}</th>
+                <th>Rank</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
     `;
 
     data.forEach(emp => {
         html += `
-            <tr>
-                <td>
-                    <img class="avatar" src="${emp.emp_profile_picture_link}" />
-                </td>
-                <td>${emp.emp_name}</td>
-                <td>${emp.email}</td>
-                <td>${emp[rankBy.value]}</td>
-                <td><span class="rank">${emp.emp_rank}</span></td>
-                <td><a href="./seeIndividualEmployee.php?id=${emp.emp_id}" target="_blank">see detail</a></td>
-
-            </tr>
+        <tr class="border-t border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800">
+            <td><img class="avatar" src="${emp.emp_profile_picture_link}"></td>
+            <td>${emp.emp_name}</td>
+            <td>${emp.email}</td>
+            <td>${emp[rankBy.value] ?? '-'}</td>
+            <td><span class="rank">${emp.rank}</span></td>
+            <td>
+                <a class="text-blue-500 hover:underline"
+                   href="./seeIndividualEmployee.php?id=${emp.emp_id}"
+                   target="_blank">
+                   see detail
+                </a>
+            </td>
+        </tr>
         `;
     });
-    console.log();
-    html += `</tbody></table>`;
 
+    html += `</tbody></table>`;
     tableContainer.innerHTML = html;
 }
 
-// Live search with debounce
 searchInput.addEventListener("input", () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(fetchEmployees, 300);
 });
 
 rankFilter.addEventListener("change", fetchEmployees);
-rankBy.addEventListener("change" , fetchEmployees);
-// Initial load
-fetchEmployees();
+rankBy.addEventListener("change", fetchEmployees);
 
+fetchEmployees();
+</script>
+
+<script>
+const btn = document.getElementById("themeToggle");
+
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+}
+
+function getTheme() {
+    return localStorage.getItem("theme") || "light";
+}
+
+applyTheme(getTheme());
+
+btn.onclick = () => {
+    const newTheme = getTheme() === "light" ? "dark" : "light";
+    localStorage.setItem("theme", newTheme);
+    applyTheme(newTheme);
+};
 </script>
 
 </body>

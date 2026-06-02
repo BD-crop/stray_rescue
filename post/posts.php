@@ -8,7 +8,7 @@ $page = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 $name = $_GET['name'] ?? "";
 $rank_by = $_GET['rank_by'] ?? "post_time_stamp";
 
-$res = $obj->see_rescue_posts($page, $name, $rank_by);
+$res = $obj->see_rescue_posts($page,10, $name, $rank_by);
 
 $res_json = json_encode($res);
 ?>

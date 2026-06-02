@@ -13,6 +13,7 @@ include_once __DIR__ ."/trait/marketplace/analyticsModel.php";
 include_once __DIR__ . "/trait/marketplace/orderModel.php";
 include_once __DIR__ . "/trait/marketplace/ProductModel.php";
 include_once __DIR__."/trait/PetCenters/PetCenterModel.php";
+include_once __DIR__.'/trait/manager_view/ManagerViewModel.php';
 
 class PDO_class
 {
@@ -78,4 +79,5 @@ class PDO_class
     use orderModel;
     use ProductModel;
     use analyticsModel;
+    use ManagerViewModel;
 }
