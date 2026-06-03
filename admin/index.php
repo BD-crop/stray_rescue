@@ -54,7 +54,6 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">   
-        <!--Senior Employee or Upper view-->
         <?php if($employee_level <= 1): ?>
         <a href="./Employee/createEmployee.php"
         class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
@@ -88,6 +87,7 @@
                 View all registered rescue points on the system.
             </p>
         </a>
+
         <a href="./PetCenters/createCenter.php"
         class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Create Pet Center</h2>
@@ -104,21 +104,16 @@
                 Manage a rescue point
             </p>
         </a>
-        <a href=""
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add Animal</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Add an animal
-            </p>
-        </a>
-        <?php elseif($employee_level == 3): ?>
-            <a href=""
+
+        <?php if($employee_level == 2 || $employee_level == 3): ?>
+            <a href="./EmployeeView/seeAssignedAnimals.php"
             class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Assigned Animals</h2>
                 <p class="text-gray-600 dark:text-slate-300 mt-2">
                     Manage Assigned Animals
                 </p>
             </a>
+        <?php endif; ?>
 
         <?php endif; ?>
 

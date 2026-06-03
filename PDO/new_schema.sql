@@ -66,6 +66,8 @@ create table if not exists Employee (
 
 
 
+
+
 create table if not exists volunteers (
         volunteer_id CHAR(36) primary key,
         volunteer_bio text default "",
@@ -226,10 +228,12 @@ CREATE TABLE IF NOT EXISTS shelter_animals(
     rescue_point_id CHAR(36),
     animal_name VARCHAR(200) UNIQUE ,
     animal_age DECIMAL(10,1),
+    manager CHAR(36) default null,
     is_removed TINYINT DEFAULT 0, 
     health_status TINYINT default 1,-- 1 -> normal 2 -> attention needed 3 -> Emergency,
     added_at timestamp default CURRENT_TIMESTAMP,
-    foreign key (rescue_point_id) references rescue_point(rescue_point_id)
+    foreign key (rescue_point_id) references rescue_point(rescue_point_id),
+    foreign key (manager) references Employee(emp_id)
 );
 
 CREATE TABLE IF NOT EXISTS shelter_animals_images(

@@ -6,8 +6,9 @@ trait ManagerViewModel
         $stmt = $this->pdo->
                 prepare("SELECT rescue_point_id 
                         from 
-                        rescue_point where supervisor_id = ? ");
-        $stmt->execute([$managerID]);
+                        rescue_point where supervisor_id = :id ;");
+        $stmt->bindValue(':id',$managerID ,PDO::PARAM_STR);
+        $stmt->execute();
 
         return $stmt ->fetchColumn();
     }
@@ -305,6 +306,89 @@ trait ManagerViewModel
             ";
             $stmt = $this->pdo->prepare($stmt);
             $stmt->execute([$name]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+        } catch(PDOException $e){
+            exit(json_encode(
+                ["msg" => $e->getMessage()],
+                JSON_PRETTY_PRINT
+            ));
+        }
+
+    }
+
+    public function getAllShelteredAnimalsByEmpID($emp_id , $name ="" ,$rank_by = 'added_at' ,$order='asc' ){
+        try {
+
+            $rank_by = $rank_by ?? 'added_at';
+
+            if (
+                $rank_by !== 'animal_age'  && $rank_by !== 'is_removed'
+                && $rank_by !== 'health_status' && $rank_by !== 'added_at'
+            ) {
+
+                return [];
+            }
+
+            if($order != 'asc' || $order != 'desc'){
+                $order = 'asc'; 
+            }
+
+
+            $stmt = "WITH animal_name_cte as (
+                    SELECT    
+                    
+                    animal_id,
+                    animal_name,
+                    animal_age,
+                    is_removed,
+                    health_status,
+                    added_at,
+                    manager
+                    from shelter_animals
+                    where animal_name like concat(substr(? , 1 ,1 ) ,'%')
+                )
+                SELECT  ani.animal_id       as animal_id,
+                        ani.animal_name     as animal_name,
+                        ani.animal_age      as animal_age, 
+                        ani.is_removed      as is_removed,
+                        ani.health_status   as health_status,
+                        ani.added_at        as added_at,
+                        ani.manager         as manager,
+                    COUNT(DISTINCT shel_image.image_path) as image_count,
+                    COUNT(DISTINCT shel_prop.property_type) as prop_count,
+                    CASE
+                        WHEN adopt.shelter_id IS NULL THEN 'not listed'
+                        ELSE 'listed' 
+                    END as is_listed
+                FROM animal_name_cte as ani
+                LEFT JOIN shelter_animals_images as shel_image
+                ON 
+                shel_image.animal_id = ani.animal_id
+                LEFT JOIN shelter_animal_Property as shel_prop
+                ON
+                shel_prop.animal_id = ani.animal_id
+                LEFT JOIN Adoption_animals  as adopt
+                ON 
+                adopt.shelter_id = ani.animal_id
+                WHERE ani.manager = ?
+                GROUP BY
+                    animal_id,
+                    animal_name,
+                    animal_age,
+                    is_removed,
+                    health_status,
+                    added_at,
+                    is_listed,
+                    manager
+                ORDER BY
+                ".$rank_by." ".$order." 
+
+            ";
+            $stmt = $this->pdo->prepare($stmt);
+            $stmt->execute([$name ,$emp_id]);
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 

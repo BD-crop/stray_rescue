@@ -1,25 +1,12 @@
 <?php
-include_once __DIR__ ."/../../auth_all_Employee.php";
-
-//  ini_set('display_errors', 1);
-//  ini_set('display_startup_errors', 1);
-//  error_reporting(E_ALL); 
-
-$obj = PDO_class::initializer();
-
-
-
-
-
-$point_id= $obj-> getManagerRescuePointID($_SESSION['id']);
-
+include_once __DIR__ ."/../auth_all_Employee.php";
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Manager Dashboard - Employees</title>
+<title>See All Animals</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -43,7 +30,7 @@ th, td {
 .avatar {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 8px;
     object-fit: cover;
 }
 
@@ -76,65 +63,62 @@ th, td {
 </div>
 
 <div class="max-w-6xl mx-auto mt-6 px-4">
-    <h1 class="text-2xl font-bold mb-4">Manager Dashboard - Employee Control Panel</h1>
+    <h1 class="text-2xl font-bold mb-4">Manager Dashboard - See All Animals</h1>
 
-    <!-- CONTROLS -->
     <div class="flex flex-col md:flex-row gap-3 mb-6">
 
-        <!-- <select id="rankFilter"
+        <select id="orderBy"
             class="p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
-            <option value="0">All Ranks</option>
-            <option value="1">Rank > 1</option>
-            <option value="2">Rank > 2</option>
-            <option value="3">Rank > 3</option>
-        </select> -->
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
 
-        <!-- <select id="rankBy"
+        <select id="rankBy"
             class="p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
-            <option value="emp_rank">Employee Rank</option>
-            <option value="salary">Salary</option>
-            <option value="joing_date">Joining date</option>
-        </select> -->
+            <option value="animal_age">Age</option>
+            <option value="health_status">Health Status</option>
+            <option value="added_at">Added Date</option>
+            <option value="is_removed">Removed Status</option>
+        </select>
 
         <input type="text"
             id="searchInput"
-            placeholder="Search employee name..."
+            placeholder="Search animal name..."
             class="p-2 flex-1 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
 
     </div>
 
-    <!-- TABLE -->
     <div id="tableContainer" class="overflow-x-auto bg-white dark:bg-slate-900 rounded-xl shadow border border-gray-100 dark:border-slate-700 p-2">
-        <div class="p-4">Loading employees...</div>
+        <div class="p-4">Loading animals...</div>
     </div>
 </div>
 
 <script>
 const tableContainer = document.getElementById("tableContainer");
 const searchInput = document.getElementById("searchInput");
-// const rankFilter = document.getElementById("rankFilter");
+const rankFilter = document.getElementById("orderBy");
+const rankBy = document.getElementById("rankBy");
 
 let debounceTimer = null;
 
-async function fetchEmployees() {
+async function fetchAnimals() {
 
-
-    const name = searchInput.value.trim();
-
+    const order = document.getElementById("orderBy").value;    const name = searchInput.value.trim();
+    const rank_by1 = rankBy.value;
 
     try {
         tableContainer.innerHTML = `<div class="p-4">Loading...</div>`;
 
-        const pointId = <?= json_encode($point_id) ?>;
-
         const response = await fetch(
-            `./seeEmployeesHelper.php?point=${encodeURIComponent(pointId)}&name=${encodeURIComponent(name)}`
+            `./seeAllAnimalsHelper.php?name=${encodeURIComponent(name)}&rank_by=${encodeURIComponent(rank_by1)}&order=${order}`
         );
+
         const data = await response.json();
         console.log(data);
         renderTable(data);
 
     } catch (err) {
+        console.log(err);
         tableContainer.innerHTML = `<div class="p-4">Error loading data</div>`;
     }
 }
@@ -142,7 +126,7 @@ async function fetchEmployees() {
 function renderTable(data) {
 
     if (!data || data.length === 0) {
-        tableContainer.innerHTML = `<div class="p-4">No employees found</div>`;
+        tableContainer.innerHTML = `<div class="p-4">No animals found</div>`;
         return;
     }
 
@@ -150,26 +134,40 @@ function renderTable(data) {
     <table class="min-w-full text-sm">
         <thead class="bg-gray-100 dark:bg-slate-800">
             <tr>
-                <th>Profile</th>
                 <th>Name</th>
-                <th>Email</th>
-                <th>emp_rank</th>
+                <th>Age</th>
+                <th>Health</th>
+                <th>Images</th>
+                <th>Properties</th>
+                <th>Listed</th>
+                <th>Added</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
     `;
 
-    data.forEach(emp => {
+    data.forEach(animal => {
+
+        let healthText =
+            animal.health_status == 1 ? "Normal" :
+            animal.health_status == 2 ? "Attention" :
+            "Emergency";
+
         html += `
         <tr class="border-t border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800">
-            <td><img class="avatar" src="${emp.emp_profile_picture_link}"></td>
-            <td>${emp.emp_name}</td>
-            <td>${emp.email}</td>
-            <td>${emp.emp_rank}</td>
+            <td>${animal.animal_name}</td>
+            <td>${animal.animal_age}</td>
+            <td>${healthText}</td>
+            <td>${animal.image_count}</td>
+            <td>${animal.prop_count}</td>
+            <td>
+                <span class="rank">${animal.is_listed}</span>
+            </td>
+            <td>${animal.added_at}</td>
             <td>
                 <a class="text-blue-500 hover:underline"
-                   href="./seeIndividualEmployee.php?id=${emp.emp_id}"
+                   href="./seeIndividualAnimal.php?animal_id=${animal.animal_id}"
                    target="_blank">
                    see detail
                 </a>
@@ -184,13 +182,13 @@ function renderTable(data) {
 
 searchInput.addEventListener("input", () => {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(fetchEmployees, 300);
+    debounceTimer = setTimeout(fetchAnimals, 300);
 });
 
-// rankFilter.addEventListener("change", fetchEmployees);
-// rankBy.addEventListener("change", fetchEmployees);
+rankFilter.addEventListener("change", fetchAnimals);
+rankBy.addEventListener("change", fetchAnimals);
 
-fetchEmployees();
+fetchAnimals();
 </script>
 
 <script>

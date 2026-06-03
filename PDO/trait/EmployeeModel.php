@@ -874,10 +874,7 @@ trait EmployeeModel
     public function get_all_employeeEX($rank, $name)
     {
         try {
-
-
             $stmt = "
-
                 SELECT
                     emp_id,
                     emp_profile_picture_link,
@@ -898,6 +895,55 @@ trait EmployeeModel
             $stmt = $this->pdo->prepare($stmt);
 
             $stmt->bindValue(":rank", $rank, PDO::PARAM_INT);
+            $stmt->bindValue(":name", $name, PDO::PARAM_STR);
+            $stmt->execute();
+            $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $employees;
+
+        } catch (PDOException $e) {
+
+            exit(json_encode(
+                ["msg" => $e->getMessage()],
+                JSON_PRETTY_PRINT
+            ));
+        }
+    }
+
+    public function get_all_employee_by_point($point_id , $name){
+        try {
+
+            $stmt = "
+                with employee_cte as (
+                    select emp_id,
+                    emp_profile_picture_link,
+                    emp_name,
+                    email,
+                    emp_rank,
+                    salary,
+                    joing_date,
+                    rescue_point_id
+                    from Employee 
+                    where emp_name like concat(substr(:name , 1 ,1 ),'%') 
+                )
+                    SELECT emp_id,
+                    emp_profile_picture_link,
+                    emp_name,
+                    email,
+                    emp_rank,
+                    salary ,
+                    joing_date,
+                    levenshtein(emp_name , :name) as distance
+                FROM employee_cte
+                where rescue_point_id = :point_id ;
+            ";
+            $this->pdo_initializer();
+
+
+
+            $stmt = $this->pdo->prepare($stmt);
+
+            $stmt->bindValue(":point_id", $point_id, PDO::PARAM_STR);
             $stmt->bindValue(":name", $name, PDO::PARAM_STR);
 
             $stmt->execute();
@@ -1100,6 +1146,31 @@ trait EmployeeModel
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function assignAnimal($emp_id ,$written_by, $shelter_id ,$reason= "Assigned Animal" ){
+        try{
+            $this->pdo->beginTransaction();
+
+            $stmt = "UPDATE shelter_animals set manager= ? 
+                    where animal_id = ? ";
+            $stmt = $this->pdo->prepare($stmt);
+
+            $stmt->execute([$emp_id , $shelter_id]);
+
+            $this->add_notification($emp_id , $written_by, $reason);
+            
+            $this->pdo->commit();
+
+        }catch(PDOException $e){
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+        }
+        $stmt = "UPDATE shelter_animals set manager = ? where 
+            
+            ";
+    }
+
     //employee notification handling
 
     public function add_notification($emp_id, $written_by, $message)
