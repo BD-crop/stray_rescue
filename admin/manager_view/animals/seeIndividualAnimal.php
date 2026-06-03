@@ -260,7 +260,7 @@ if (!empty($data['animal_property'])) {
 </div>
 
 
-<script src="../../js/themetoggle.js"></script>
+<script src="../../../js/themetoggle.js"></script>
 
 <script>
 document.getElementById("addImageBtn").addEventListener("click", () => {

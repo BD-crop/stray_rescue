@@ -1,4 +1,5 @@
 <?php
+
 include_once __DIR__ . "/../auth.php";
 include_once __DIR__ . "/../template/admin_check.php";
 
@@ -54,6 +55,48 @@ tailwind.config = {
 }
 </script>
 
+<style>
+#map {
+    width: 100%;
+    height: 420px;
+    border-radius: 12px;
+}
+
+.search-results {
+    position: absolute;
+    width: 100%;
+    max-height: 220px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    display: none;
+    z-index: 50;
+}
+
+.dark .search-results {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.search-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .search-item {
+    border-bottom: 1px solid #334155;
+}
+
+.search-item:hover {
+    background: #f3f4f6;
+}
+
+.dark .search-item:hover {
+    background: #334155;
+}
+</style>
 
 </head>
 
@@ -299,7 +342,6 @@ document.addEventListener("click", (e) => {
         searchResults.style.display = "none";
     }
 });
-
 </script>
 
 <script src="../../js/themetoggle.js"></script>

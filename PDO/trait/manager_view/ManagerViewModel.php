@@ -239,7 +239,7 @@ trait ManagerViewModel
         $this->readAnimal($shelter_id);
     }
 
-    public function getAllShelteredAnimals($name ="" ,$rank_by = 'added_at' ,$order='asc'){
+    public function getAllShelteredAnimals($supervisor_id,$name ="" ,$rank_by = 'added_at' ,$order='asc'){
         try {
 
             $rank_by = $rank_by ?? 'added_at';
@@ -268,7 +268,12 @@ trait ManagerViewModel
                     added_at
 
                     from shelter_animals
+                    inner join rescue_point on 
+                    shelter_animals.rescue_point_id = rescue_point.rescue_point_id
+                    inner join Employee on
+                    Employee.emp_id = rescue_point.supervisor_id 
                     where animal_name like concat(substr(? , 1 ,1 ) ,'%')
+                    AND Employee.emp_id = ?
                 )
                 SELECT  ani.animal_id       as animal_id,
                         ani.animal_name     as animal_name,
@@ -305,7 +310,7 @@ trait ManagerViewModel
 
             ";
             $stmt = $this->pdo->prepare($stmt);
-            $stmt->execute([$name]);
+            $stmt->execute([ $name,$supervisor_id]);
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -176,7 +176,7 @@ content.innerHTML = `
 console.log(<?= $msg?>);
 </script>
 
-<script src="../../js/themetoggle.js"></script>
+<script src="../../../js/themetoggle.js"></script>
 
 </body>
 </html>

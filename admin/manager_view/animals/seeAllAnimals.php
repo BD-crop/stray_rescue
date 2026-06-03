@@ -162,7 +162,7 @@ rankBy.addEventListener("change", fetchAnimals);
 fetchAnimals();
 </script>
 
-<script src="../../js/themetoggle.js"></script>
+<script src="../../../js/themetoggle.js"></script>
 
 </body>
 </html>
