@@ -182,7 +182,6 @@ if (!data || !data.posts || data.posts.length === 0) {
         `;
     });
 
-    // PAGINATION
     let html = `<div class="flex items-center gap-4">`;
 
     if (data.is_left !== -1) {
@@ -214,44 +213,8 @@ if (!data || !data.posts || data.posts.length === 0) {
 
 </script>
 
-<script>
-    const btn = document.getElementById("themeToggle");
+    <script src="../js/themetoggle.js"></script>
 
-    let str = ThemeChecker();
-
-    if(str !== 'light'){
-        document.documentElement.classList.add("dark");
-    }
-
-    btn.onclick = () => {
-        localStorage.setItem('theme',
-            (localStorage.getItem('theme') === 'light') ? 'dark' : 'light'
-        );
-        document.documentElement.classList.toggle("dark");
-    };
-
-    function ThemeChecker(){
-        let obj = localStorage.getItem('theme');
-
-        if(!obj){
-            localStorage.setItem('theme','light');
-            return 'light';
-        }
-        return obj;
-    }
-
-    function eventListenerToggle(){
-        let theme = ThemeChecker();
-
-        document.documentElement.classList.toggle("dark" ,theme === 'dark');
-    }
-
-    window.addEventListener("storage", (event) => {
-        if (event.key === "theme") {
-            eventListenerToggle();
-        }
-    });
-</script>
 
 </body>
 </html>

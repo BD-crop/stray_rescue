@@ -16,35 +16,6 @@ tailwind.config = {
 }
 </script>
 
-<style>
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    object-fit: cover;
-}
-
-.rank {
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: #e5e7eb;
-}
-
-.dark .rank {
-    background: #334155;
-}
-</style>
-
 </head>
 
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-gray-900 dark:text-white transition-all duration-500">
@@ -191,25 +162,7 @@ rankBy.addEventListener("change", fetchAnimals);
 fetchAnimals();
 </script>
 
-<script>
-const btn = document.getElementById("themeToggle");
-
-function applyTheme(theme) {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-}
-
-function getTheme() {
-    return localStorage.getItem("theme") || "light";
-}
-
-applyTheme(getTheme());
-
-btn.onclick = () => {
-    const newTheme = getTheme() === "light" ? "dark" : "light";
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-};
-</script>
+<script src="../../js/themetoggle.js"></script>
 
 </body>
 </html>

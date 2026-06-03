@@ -106,7 +106,6 @@ tailwind.config = {
 
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-gray-900 dark:text-white transition-all duration-500">
 
-<!-- TOP BAR -->
 <div class="sticky top-0 z-50 flex items-center justify-between px-6 py-3 backdrop-blur-md bg-white/70 dark:bg-slate-900/60 border-b border-gray-200 dark:border-slate-700">
 
     <h1 class="font-semibold text-lg">
@@ -120,7 +119,6 @@ tailwind.config = {
 
 </div>
 
-<!-- MAIN -->
 <div class="max-w-5xl mx-auto px-4 py-8">
 
 <div id="content" class="space-y-6">Loading...</div>
@@ -184,7 +182,6 @@ content.innerHTML = `
                class="w-full p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
     </div>
 
-    <!-- MANAGER -->
     <div>
         <h3 class="font-semibold mb-2">Manager</h3>
         <input type="text"
@@ -193,7 +190,6 @@ content.innerHTML = `
                class="w-full p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
     </div>
 
-    <!-- POINT -->
     <div>
         <h3 class="font-semibold mb-2">Assign Point</h3>
         <input type="text"
@@ -202,7 +198,6 @@ content.innerHTML = `
                class="w-full p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
     </div>
 
-    <!-- REASON -->
     <div>
         <h3 class="font-semibold mb-2">Reason</h3>
         <textarea name="reason"
@@ -218,30 +213,9 @@ content.innerHTML = `
 <?php endif; ?>
 
 `;
-
-console.log(<?= $msg?>);
 </script>
 
-<!-- THEME -->
-<script>
-const btn = document.getElementById("themeToggle");
-
-function applyTheme(theme) {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-}
-
-function getTheme() {
-    return localStorage.getItem("theme") || "light";
-}
-
-applyTheme(getTheme());
-
-btn.onclick = () => {
-    const newTheme = getTheme() === "light" ? "dark" : "light";
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-};
-</script>
+<script src="../../js/themetoggle.js"></script>
 
 </body>
 </html>

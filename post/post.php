@@ -532,42 +532,7 @@ unset($node);
     </script>
 
 
-    <script>
-        const btn = document.getElementById("themeToggle");
-
-        function ThemeChecker() {
-            let obj = localStorage.getItem('theme');
-
-            if (!obj) {
-                localStorage.setItem('theme', 'light');
-                return 'light';
-            }
-            return obj;
-        }
-
-        function applyTheme() {
-            let theme = ThemeChecker();
-
-            document.documentElement.classList.toggle("dark", theme === 'dark');
-        }
-
-        applyTheme();
-
-        btn.onclick = () => {
-            let newTheme =
-                (localStorage.getItem('theme') === 'light') ? 'dark' : 'light';
-
-            localStorage.setItem('theme', newTheme);
-            applyTheme();
-        };
-
-        window.addEventListener("storage", (event) => {
-            if (event.key === "theme") {
-                applyTheme();
-            }
-        });
-    </script>
+    <script src="../js/themetoggle.js"></script>
 
 </body>
-
 </html>

@@ -13,5 +13,4 @@ $order = $_GET['order'] ?? "asc";
 $animals = $obj->getAllShelteredAnimalsByEmpID($_SESSION['id'],$name, $rank_by, $order);
 
 exit(json_encode($animals, JSON_PRETTY_PRINT));
-
 ?>

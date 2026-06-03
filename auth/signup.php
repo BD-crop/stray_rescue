@@ -121,16 +121,7 @@ if(isset($_POST['submit'])){
         }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <style>
-        *{
-            font-family:'Poppins', sans-serif;
-        }
-    </style>
+    
 </head>
 
 <body class="bg-gradient-to-br from-slate-100 to-slate-300 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300 min-h-screen overflow-x-hidden">
@@ -282,41 +273,8 @@ if(isset($_POST['submit'])){
 
 </div>
 
-<script>
-const btn = document.getElementById("themeToggle");
+    <script src="../js/themetoggle.js"></script>
 
-let str = ThemeChecker();
-
-if(str === 'dark'){
-    document.documentElement.classList.add("dark");
-}
-
-btn.onclick = () => {
-
-    const currentTheme = localStorage.getItem('theme');
-
-    const nextTheme =
-        currentTheme === 'light'
-        ? 'dark'
-        : 'light';
-
-    localStorage.setItem('theme', nextTheme);
-
-    document.documentElement.classList.toggle("dark");
-};
-
-function ThemeChecker(){
-
-    let obj = localStorage.getItem('theme');
-
-    if(!obj){
-        localStorage.setItem('theme', 'light');
-        return 'light';
-    }
-
-    return obj;
-}
-</script>
 
 </body>
 </html>

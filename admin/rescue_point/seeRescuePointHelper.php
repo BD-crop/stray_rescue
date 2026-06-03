@@ -7,12 +7,8 @@
         exit(json_encode($msg , JSON_PRETTY_PRINT));
     }
 
-
     $obj = PDO_class::initializer();
     $result= $obj->get_points_by_name($_GET['name'] , $_GET['rankBy'] ,$_GET['order']);
 
     exit(json_encode($result , JSON_PRETTY_PRINT));
-
-
-
 ?>

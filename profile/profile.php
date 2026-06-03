@@ -168,40 +168,7 @@ if (isset($_SESSION['id'])) {
 })();
 </script>
 
-<script>
-        const btn = document.getElementById("themeToggle");
+<script src="../js/themetoggle.js"></script>
 
-        let str = ThemeChecker();
-
-        if (str === 'dark') {
-            document.documentElement.classList.add("dark");
-        }
-
-        btn.onclick = () => {
-
-            const currentTheme = localStorage.getItem('theme');
-
-            const nextTheme =
-                currentTheme === 'light'
-                    ? 'dark'
-                    : 'light';
-
-            localStorage.setItem('theme', nextTheme);
-
-            document.documentElement.classList.toggle("dark");
-        };
-
-        function ThemeChecker() {
-
-            let obj = localStorage.getItem('theme');
-
-            if (!obj) {
-                localStorage.setItem('theme', 'light');
-                return 'light';
-            }
-
-            return obj;
-        }
-</script>
 </body>
 </html>

@@ -1,7 +1,4 @@
 <?php
-
-
-
     include_once __DIR__."/../auth.php";
     include_once __DIR__."/../../template/admin_check.php";
     
@@ -17,14 +14,9 @@
 
     $level = $obj->find_employee_level();
  
-
-
-
     $_SESSION['level']=$level;
     $msg = $obj -> get_employee_info($_SESSION['id']);
     
-
-
 
     if($level == 4){
         $msg["title"] = "Unassigned Employee";
@@ -38,8 +30,5 @@
         $msg['title'] = "Super Admin";
     }
 
-
     exit(json_encode($msg , JSON_PRETTY_PRINT));    
-
-
 ?>

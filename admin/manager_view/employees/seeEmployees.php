@@ -78,23 +78,7 @@ th, td {
 <div class="max-w-6xl mx-auto mt-6 px-4">
     <h1 class="text-2xl font-bold mb-4">Manager Dashboard - Employee Control Panel</h1>
 
-    <!-- CONTROLS -->
     <div class="flex flex-col md:flex-row gap-3 mb-6">
-
-        <!-- <select id="rankFilter"
-            class="p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
-            <option value="0">All Ranks</option>
-            <option value="1">Rank > 1</option>
-            <option value="2">Rank > 2</option>
-            <option value="3">Rank > 3</option>
-        </select> -->
-
-        <!-- <select id="rankBy"
-            class="p-2 rounded-lg border border-gray-300 dark:border-slate-700 dark:bg-slate-800">
-            <option value="emp_rank">Employee Rank</option>
-            <option value="salary">Salary</option>
-            <option value="joing_date">Joining date</option>
-        </select> -->
 
         <input type="text"
             id="searchInput"
@@ -103,7 +87,6 @@ th, td {
 
     </div>
 
-    <!-- TABLE -->
     <div id="tableContainer" class="overflow-x-auto bg-white dark:bg-slate-900 rounded-xl shadow border border-gray-100 dark:border-slate-700 p-2">
         <div class="p-4">Loading employees...</div>
     </div>
@@ -112,7 +95,6 @@ th, td {
 <script>
 const tableContainer = document.getElementById("tableContainer");
 const searchInput = document.getElementById("searchInput");
-// const rankFilter = document.getElementById("rankFilter");
 
 let debounceTimer = null;
 
@@ -187,31 +169,10 @@ searchInput.addEventListener("input", () => {
     debounceTimer = setTimeout(fetchEmployees, 300);
 });
 
-// rankFilter.addEventListener("change", fetchEmployees);
-// rankBy.addEventListener("change", fetchEmployees);
-
 fetchEmployees();
 </script>
 
-<script>
-const btn = document.getElementById("themeToggle");
-
-function applyTheme(theme) {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-}
-
-function getTheme() {
-    return localStorage.getItem("theme") || "light";
-}
-
-applyTheme(getTheme());
-
-btn.onclick = () => {
-    const newTheme = getTheme() === "light" ? "dark" : "light";
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-};
-</script>
+<script src="../../js/themetoggle.js"></script>
 
 </body>
 </html>

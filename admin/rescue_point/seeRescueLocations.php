@@ -33,10 +33,8 @@ tailwind.config = {
 
 </div>
 
-<!-- MAIN -->
 <div class="max-w-6xl mx-auto mt-8 px-4">
 
-<!-- CONTROLS -->
 <div class="flex flex-col md:flex-row gap-3 mb-6">
 
     <select id="rankBy"
@@ -62,7 +60,6 @@ tailwind.config = {
 
 </div>
 
-<!-- TABLE -->
 <div class="bg-white dark:bg-slate-900 rounded-2xl shadow border border-gray-100 dark:border-slate-700 overflow-x-auto">
 
     <div id="tableContainer" class="p-4">
@@ -163,25 +160,7 @@ fetchPoint();
 
 </script>
 
-<script>
-const btn = document.getElementById("themeToggle");
-
-function applyTheme(theme) {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-}
-
-function getTheme() {
-    return localStorage.getItem("theme") || "light";
-}
-
-applyTheme(getTheme());
-
-btn.onclick = () => {
-    const newTheme = getTheme() === "light" ? "dark" : "light";
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-};
-</script>
+<script src="../../js/themetoggle.js"></script>
 
 </body>
 </html>

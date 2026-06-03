@@ -278,5 +278,6 @@ if (isset($_SESSION['id'])) {
 
     </script>
 
+    <script src="../../js/themetoggle.js"></script>
 </body>
 </html>

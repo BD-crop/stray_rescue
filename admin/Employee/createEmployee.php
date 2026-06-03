@@ -78,12 +78,6 @@ tailwind.config = {
 }
 </script>
 
-<style>
-
-.search-results {
-    display: none;
-}
-</style>
 
 </head>
 
@@ -257,29 +251,7 @@ document.addEventListener("click", (e) => {
 
 </script>
 
-<script>
-const btn = document.getElementById("themeToggle");
-
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        document.documentElement.classList.add("dark");
-    } else {
-        document.documentElement.classList.remove("dark");
-    }
-}
-
-function getTheme() {
-    return localStorage.getItem('theme') || 'light';
-}
-
-applyTheme(getTheme());
-
-btn.onclick = () => {
-    let newTheme = (getTheme() === 'light') ? 'dark' : 'light';
-    localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
-};
-</script>
+<script src="../../js/themetoggle.js"></script>
 
 </body>
 </html>

@@ -4,10 +4,7 @@
 
     $obj = PDO_class::initializer();
 
-
-
     $res = $obj->get_all_points(0, 100000);
-
 
     $res_json = json_encode($res);
 ?>
@@ -19,209 +16,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rescue Map</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
-
-<style>
-
-body {
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #eef2f7, #e6f0ff);
-    font-family: Inter, Arial, Helvetica, sans-serif;
-}
-
-#control_controller {
-    width: 75vw;
-    margin: 20px auto 10px auto;
-    padding: 16px;
-    background: white;
-    border-radius: 18px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-}
-
-#slider {
-    margin: 10px 0 20px 0;
-}
-
-#control_controller input[type="range"] {
-    width: 100%;
-    accent-color: #2563eb;
-    cursor: pointer;
-}
-
-#container {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    align-items: flex-start;
-}
-
-#map {
-    flex: 1;
-    height: 90vh;
-    border-radius: 26px;
-    overflow: hidden;
-    box-shadow: 0 18px 50px rgba(0,0,0,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-}
-
-#popup_shower {
-    width: 380px;
-    height: 90vh;
-    overflow-y: auto;
-    background: rgba(255,255,255,0.9);
-    backdrop-filter: blur(12px);
-    border-radius: 26px;
-    padding: 22px;
-    box-shadow: 0 18px 45px rgba(0,0,0,0.15);
-    border: 1px solid rgba(255,255,255,0.5);
-}
-
-#navigation {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 18px;
-}
-
-#navigation button {
-    flex: 1;
-    border: none;
-    padding: 12px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 6px 15px rgba(37,99,235,0.25);
-}
-
-#navigation button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(37,99,235,0.35);
-}
-
-#navigation button:active {
-    transform: scale(0.97);
-}
-
-#parent_node > div {
-    animation: slideFade 0.25s ease;
-}
-
-@keyframes slideFade {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0px);
-    }
-}
-
-h6 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #111827;
-}
-
-p, div {
-    color: #374151;
-}
-
-.popup-img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    margin-top: 14px;
-    border-radius: 18px;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
-}
-
-
-a {
-    display: inline-block;
-    margin-top: 10px;
-    color: #2563eb;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-#popup_shower::-webkit-scrollbar {
-    width: 8px;
-}
-
-#popup_shower::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-
-@media (max-width: 1000px) {
-    #container {
-        flex-direction: column;
-    }
-
-    #popup_shower {
-        width: 100%;
-        height: auto;
-    }
-
-    #map {
-        height: 60vh;
-    }
-
-    #control_controller {
-        width: 95vw;
-    }
-}
-
-.noUi-connect{
-    background-color: blue !important;
-}
-
-.noUi-touch-area{
-    background-color: blue !important;
-    border-radius: 25%;
-}
-
-</style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                screens: {
+                    sm: "680px",
+                    md: "768px",
+                    lg: "1024px"
+                }
+            }
+        }
+</script>
+
 </head>
 
-<body>
-    <div id ="control_controller">
-        <div id="slider" ></div>
-        <h3 id="popLink"></h3>
-        <!-- <input id="min_input" type="number" min="0"  max="<?php echo $res['count']; ?>" >
-        <input id="max_input" type="number" min="0" max="<?php echo $res['count']; ?>"> -->
-        <!-- <input id="count_controller" value="0" type="range" step="1" min="0" max="<?php echo $res['count']; ?>" style="width:40vw"> -->
+<body class="min-h-screen bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-gray-100 transition-all duration-500">
+
+    <div class="sticky top-0 z-50 flex gap-3 items-center p-4 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 border-b border-gray-200 dark:border-slate-700">
+
+        <a class="hidden sm:block px-4 py-2 rounded-xl bg-indigo-200 text-gray-700 dark:bg-slate-800 dark:text-gray-200 hover:scale-105 transition"
+            href="/index.php">
+            Go Back
+        </a>
+
+        <button id="themeToggle"
+            class="sm:block px-4 py-2 rounded-xl bg-black text-white dark:bg-gray-200 dark:text-black hover:scale-105 transition-all duration-300 shadow-lg">
+            Theme
+        </button>
+
     </div>
 
-<div id="container">
+    <div id="container"
+        class="flex flex-col lg:flex-row gap-4 p-3">
 
-    <div id="map"></div>
-
-    <div id="popup_shower">
-        <div style="color:#6b7280;text-align:center;padding-top:40px;">
-            Click a marker to view rescue details
+        <div id="map"
+            class="w-full lg:w-2/3 h-[600px] rounded-xl overflow-hidden border border-gray-300 dark:border-slate-700">
         </div>
+
+        <div id="popup_shower"
+            class="w-full lg:w-1/3 bg-gray-50 dark:bg-slate-900/70 border border-gray-200 dark:border-slate-700 rounded-xl p-4 overflow-auto min-h-[200px]">
+
+            <div class="text-gray-500 dark:text-gray-400 text-center pt-10">
+                Click a marker to view rescue details
+            </div>
+
+        </div>
+
     </div>
 
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.js"></script>
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
 <script>
 
 let state = -1;
-popLink.innerText = "min: "+(Math.trunc(1)) +" max: "+ (Math.trunc(<?php echo $res['count']; ?>));
 
 const map = new maplibregl.Map({
         container: 'map',
@@ -229,11 +80,11 @@ const map = new maplibregl.Map({
         center: [90.4125, 23.8103],
         zoom: 7
     });
+
 map.addControl(new maplibregl.NavigationControl());
 
 const popups12=[];
 const markers=[];
-
 
 function map_updater(res) {
 
@@ -242,16 +93,13 @@ function map_updater(res) {
     popups12.forEach(p => p.remove());
     markers.forEach(p => p.remove());
 
-
-
-
     if (!data || data.count == 0) {
         alert("No rescue posts found");
         return;
     }
 
     const posts = {};
-    console.log()
+
     data.result.forEach(d => {
         const key = `${d.rescue_point_location_latitude},${d.rescue_point_location_longtitude}`;
         if (!posts[key]) posts[key] = [];
@@ -260,8 +108,6 @@ function map_updater(res) {
 
     const bounds = new maplibregl.LngLatBounds();
     let index = 0;
-
-
 
     for (const key in posts) {
 
@@ -278,25 +124,31 @@ function map_updater(res) {
 
         popups12.push(popup);
 
-
         popup._html = `
-            <div id="navigation">
-                <button id="prev">prev</button>
-                <button id="next">next</button>
+            <div id="navigation" class="flex gap-2 mb-2">
+                <button id="prev" class="px-2 py-1 bg-gray-200 dark:bg-slate-800 rounded">prev</button>
+                <button id="next" class="px-2 py-1 bg-gray-200 dark:bg-slate-800 rounded">next</button>
             </div>
 
             <div id="parent_node">
 
                 ${group.map(datas => `
-                    <div>
-                        <h6>${datas.rescue_point_name}</h6>
+                    <div class="space-y-1">
 
-                        <div><b>latitude:</b> ${datas.rescue_point_location_latitude}</div>
-                        <div><b>longitude:</b> ${datas.rescue_point_location_longtitude}</div>
-                        <div><b>SuperVisor :</b> ${datas.emp_name}</div>
-                        <div><b>SuperVisor email:</b> ${datas.email}</div>
-                        <hr>
-                        <a href="../post/post.php?post_id=${datas.rescue_point_id}">see this post</a>
+                        <h6 class="font-semibold">${datas.rescue_point_name}</h6>
+
+                        <div class="text-sm text-gray-600 dark:text-gray-300"><b>latitude:</b> ${datas.rescue_point_location_latitude}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300"><b>longitude:</b> ${datas.rescue_point_location_longtitude}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300"><b>SuperVisor :</b> ${datas.emp_name}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300"><b>SuperVisor email:</b> ${datas.email}</div>
+
+                        <hr class="border-gray-300 dark:border-slate-700">
+
+                        <a class="text-blue-600 dark:text-blue-400 hover:underline"
+                           href="../post/post.php?post_id=${datas.rescue_point_id}">
+                           see this post
+                        </a>
+
                     </div>
                 `).join('')}
 
@@ -304,7 +156,9 @@ function map_updater(res) {
         `;
 
         popup.index = index++;
+
         let newMarker = new maplibregl.Marker();
+
         markers.push(newMarker);
 
         newMarker
@@ -370,37 +224,27 @@ const slider = document.getElementById('slider');
 noUiSlider.create(slider, {
     start: [1, <?php echo $res['count']; ?>],
     connect: true,
-    step:1,
+    step: 1,
     range: {
         min: 1,
         max: <?php echo $res['count']; ?>
     }
 });
 
-
-
-async function fetchPosts( x ,  y){
+async function fetchPosts(x, y){
     let data = await fetch(`../RescuePoint/getAllRescuePoint.php?offset=${x-1}&limit=${y-x+1}`);
-
     let res = await data.json();
-
-    console.log(res);
     map_updater(res);
-
 }
 
-
-slider.noUiSlider.on('change', function (values, handle) {
+slider.noUiSlider.on('change', function (values) {
     popLink.innerText = "min: "+(Math.trunc(values[0])) +" max: "+ (Math.trunc(values[1]));
-fetchPosts(Math.trunc(values[0]) , Math.trunc(values[1]));
-
+    fetchPosts(Math.trunc(values[0]), Math.trunc(values[1]));
 });
 
-
-
-
-
 </script>
+
+<script src="../js/themetoggle.js"></script>
 
 </body>
 </html>

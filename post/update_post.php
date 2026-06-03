@@ -31,6 +31,6 @@ if (!isset($_SESSION['id']) ||
 
 $obj->update_history($_SESSION['id'] , $role);
 
-        $msg = urlencode("Success");
-        header("Location: ../index.php?msg=$msg");
-        exit(); 
+$msg = urlencode("Success");
+header("Location: ../index.php?msg=$msg");
+exit(); 

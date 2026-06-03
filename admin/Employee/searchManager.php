@@ -12,10 +12,5 @@
     $rank= $_GET['rank'];
     $employees =$obj->getEmployee_manager($name , $rank);
     
-    
-    
-
-
     exit(json_encode($employees , JSON_PRETTY_PRINT));  
-
 ?>

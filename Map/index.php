@@ -48,7 +48,7 @@
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        <a href="./RescuePost.php"
+        <a href="./RegisteredAnimals.php"
         class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Registered Animals</h2>
             <p class="text-gray-600 dark:text-slate-300 mt-2">
@@ -74,44 +74,7 @@
 
     </div>
 
-    <script>
-        const btn = document.getElementById("themeToggle");
-
-        let str = ThemeChecker();
-
-        if(str !== 'light'){
-            document.documentElement.classList.add("dark");
-        }
-
-        btn.onclick = () => {
-            localStorage.setItem('theme',
-                (localStorage.getItem('theme') === 'light') ? 'dark' : 'light'
-            );
-            document.documentElement.classList.toggle("dark");
-        };
-
-        function ThemeChecker(){
-            let obj = localStorage.getItem('theme');
-
-            if(!obj){
-                localStorage.setItem('theme','light');
-                return 'light';
-            }
-            return obj;
-        }
-
-        function eventListenerToggle(){
-            let theme = ThemeChecker();
-
-            document.documentElement.classList.toggle("dark" ,theme === 'dark');
-        }
-
-        window.addEventListener("storage", (event) => {
-            if (event.key === "theme") {
-                eventListenerToggle();
-            }
-        });
-    </script>
+    <script src="../js/themetoggle.js"></script>
     
 </body>
 </html>

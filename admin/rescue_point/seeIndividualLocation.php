@@ -214,9 +214,7 @@ tailwind.config = {
     </div>
 
     <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow border border-gray-100 dark:border-slate-700">
-
         <h2 class="text-xl font-bold mb-4">Quick Image View</h2>
-
         <div class="grid grid-cols-2 gap-3">
 
             <?php if (!empty($images)): ?>
@@ -236,25 +234,7 @@ tailwind.config = {
 
 </div>
 
-<script>
-const btn = document.getElementById("themeToggle");
-
-function applyTheme(theme) {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-}
-
-function getTheme() {
-    return localStorage.getItem("theme") || "light";
-}
-
-applyTheme(getTheme());
-
-btn.onclick = () => {
-    const newTheme = getTheme() === "light" ? "dark" : "light";
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-};
-</script>
+<script src="../../js/themetoggle.js"></script>
 
 </body>
 </html>

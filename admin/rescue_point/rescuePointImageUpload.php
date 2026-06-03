@@ -10,7 +10,4 @@
     $obj = PDO_class::initializer();
 
     $obj->rescue_point_image_upload($_POST['id']);
-
-    
-
 ?>

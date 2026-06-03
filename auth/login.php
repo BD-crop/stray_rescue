@@ -225,41 +225,7 @@ if (isset($_POST['submit'])) {
         </div>
 
     </div>
-    <script>
-        const btn = document.getElementById("themeToggle");
-
-        let str = ThemeChecker();
-
-        if (str === 'dark') {
-            document.documentElement.classList.add("dark");
-        }
-
-        btn.onclick = () => {
-
-            const currentTheme = localStorage.getItem('theme');
-
-            const nextTheme =
-                currentTheme === 'light'
-                    ? 'dark'
-                    : 'light';
-
-            localStorage.setItem('theme', nextTheme);
-
-            document.documentElement.classList.toggle("dark");
-        };
-
-        function ThemeChecker() {
-
-            let obj = localStorage.getItem('theme');
-
-            if (!obj) {
-                localStorage.setItem('theme', 'light');
-                return 'light';
-            }
-
-            return obj;
-        }
-    </script>
+    <script src="../js/themetoggle.js"></script>
 
 </body>
 
