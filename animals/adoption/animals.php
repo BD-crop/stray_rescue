@@ -19,21 +19,23 @@ $res_json = json_encode($res);
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rescue Posts</title>
+<title>Adoption Listings</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-                theme: {
-                screens: {
-                    sm: "680px",
-                    md: "768px",
-                    lg: "1024px"
-                }
-            }
+<script>
+tailwind.config = {
+    darkMode: 'class',
+    theme: {
+        screens: {
+            sm: "680px",
+            md: "768px",
+            lg: "1024px"
         }
-    </script>
+    }
+}
+</script>
+
+
 </head>
 
 <body class="bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
@@ -46,7 +48,7 @@ $res_json = json_encode($res);
     <a class="hidden sm:block px-4 py-2 rounded-xl
               bg-blue-500 hover:bg-blue-600 text-white transition"
        href="../index.php">
-        Home
+        Go Back
     </a>
 
     <button id="themeToggle"
@@ -83,7 +85,7 @@ $res_json = json_encode($res);
         <select
             name="rank_by"
             class="w-full md:w-48 px-4 py-2 rounded-xl
-                   bg-white-900 dark:bg-slate-900
+                   bg-white dark:bg-slate-900
                    border border-gray-300 dark:border-slate-700
                    text-gray-900 dark:text-gray-100"
         >
@@ -101,7 +103,7 @@ $res_json = json_encode($res);
         </button>
     </form>
 
-    <div id="rescuePosts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div id="rescuePosts" class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6"></div>
 
     <div id="pagination" class="flex justify-center mt-10 gap-4"></div>
 
@@ -128,9 +130,35 @@ if (!data || !data.posts || data.posts.length === 0) {
     }
 
     data.posts.forEach(post => {
+        let temp = (post.animal_properties ?? "").split(';;;');
+        let div = "";
+
+        temp.forEach(e => {
+            if (!e) return;
+
+            const classMap = {
+                vaccination: "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full m-1",
+                gender: "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full m-1",
+                activity: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-1",
+                loves: "bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded-full m-1"
+            };
+
+            let temp2 = e.split('--');
+
+            let baseClass = "text-white font-bold py-2 px-4 rounded-full m-1";
+            let colorClass = "bg-blue-500 hover:bg-blue-700";
+
+            if (temp2[0] in classMap) {
+                colorClass = classMap[temp2[0]];
+            }
+
+            div += `<button class="${baseClass} ${colorClass}">
+                        ${temp2[0]} -> ${temp2[1]}
+                    </button>`;
+        });
 
         container.innerHTML += `
-            <div class="rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition
+            <div class="break-inside-avoid mb-6 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition
                         bg-white dark:bg-slate-900
                         border border-gray-200 dark:border-slate-800">
 
@@ -141,15 +169,11 @@ if (!data || !data.posts || data.posts.length === 0) {
 
                     <div class="flex justify-between items-center">
 
-
-
                         <span class="text-xs text-gray-500 dark:text-gray-400">
                             Age ${post.animal_age}
                         </span>
 
                     </div>
-
-
 
                     <div class="text-xs border-t pt-2 space-y-1
                                 text-gray-600 dark:text-gray-400
@@ -159,6 +183,12 @@ if (!data || !data.posts || data.posts.length === 0) {
                         <div><b>SOS:</b> ${post.health_status}</div>
                         <div><b>Time:</b> ${post.created_at}</div>
 
+                    </div>
+
+                    <div class="text-xs border-t pt-2 gap-2
+                                text-gray-600 dark:text-gray-400
+                                border-gray-200 dark:border-slate-800">
+                        ${div}
                     </div>
 
                     <a href="./individualListing.php?id=${post.animal_id}"
@@ -178,8 +208,7 @@ if (!data || !data.posts || data.posts.length === 0) {
     if (data.is_left !== -1) {
         html += `
             <a href="?offset=${data.is_left}&name=<?= urlencode($name) ?>&rank_by=${data.rank_by}"
-               class="px-4 py-2 rounded-lg
-                      bg-gray-700 hover:bg-gray-800 text-white">
+               class="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-800 text-white">
                 Prev
             </a>
         `;
@@ -190,8 +219,7 @@ if (!data || !data.posts || data.posts.length === 0) {
     if (data.is_right !== -1) {
         html += `
             <a href="?offset=${data.is_right}&name=<?= urlencode($name) ?>&rank_by=${data.rank_by}"
-               class="px-4 py-2 rounded-lg
-                      bg-purple-600 hover:bg-purple-700 text-white">
+               class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white">
                 Next
             </a>
         `;
@@ -201,11 +229,10 @@ if (!data || !data.posts || data.posts.length === 0) {
 
     pagination.innerHTML = html;
 }
-console.log(<?= $res_json ;?>);
+
 </script>
 
 <script src="../../js/themetoggle.js"></script>
-
 
 </body>
 </html>

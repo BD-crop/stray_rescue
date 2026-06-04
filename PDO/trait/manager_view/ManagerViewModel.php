@@ -600,6 +600,114 @@ trait ManagerViewModel
             'page' => $page
         ];
     }
+
+    public function getAllProperties(){
+        $stmt = "SELECT 
+                DISTINCT CONCAT(property_type , '--' , animal_property) as property
+                from shelter_animal_Property ";
+        $stmt= $this->pdo->prepare($stmt);
+
+        $stmt->execute();
+
+        return $stmt ->fetchAll(PDO::FETCH_ASSOC);
+
+    }
+
+    public function getFilteredAdoptionListing($filter = [])
+    {
+        $placeholders = implode(',', array_fill(0, count($filter), '?'));
+
+        $stmt = "
+        WITH animal_cte AS (
+            SELECT
+                shelter_animals.animal_id     AS shelter_id,
+                shelter_animals.animal_name   AS animal_name,
+                shelter_animals.animal_age    AS animal_age,
+                shelter_animals.health_status AS health_status,
+                Adoption_animals.animal_id    AS animal_id,
+                Adoption_animals.created_at   AS created_at
+            FROM shelter_animals
+            INNER JOIN Adoption_animals
+                ON Adoption_animals.shelter_id = shelter_animals.animal_id
+        ),
+        image_table AS (
+            SELECT
+                animal_id AS shelter_id,
+                GROUP_CONCAT(image_path SEPARATOR ';;;') AS image_path
+            FROM shelter_animals_images
+            GROUP BY animal_id
+        )
+
+        SELECT
+            animal_cte.shelter_id    AS shelter_id,
+            animal_cte.animal_name   AS animal_name,
+            animal_cte.animal_age    AS animal_age,
+            animal_cte.health_status AS health_status,
+            animal_cte.animal_id     AS animal_id,
+            animal_cte.created_at    AS created_at,
+            image_table.image_path   AS image_path,
+
+            GROUP_CONCAT(
+                DISTINCT CONCAT(
+                    shelter_animal_Property.property_type,
+                    '--',
+                    shelter_animal_Property.animal_property
+                )
+                SEPARATOR ';;;'
+            ) AS animal_properties
+
+        FROM animal_cte
+
+        INNER JOIN image_table
+            ON image_table.shelter_id = animal_cte.shelter_id
+
+        LEFT JOIN shelter_animal_Property
+            ON shelter_animal_Property.animal_id = animal_cte.shelter_id
+
+        LEFT JOIN Adoption_Application
+            ON Adoption_Application.animal_id = animal_cte.animal_id
+
+        WHERE
+            (
+                Adoption_Application.adoption_application_status = 'pending'
+                OR Adoption_Application.adoption_application_status IS NULL
+            )
+        ";
+
+        if (!empty($filter)) {
+            $stmt .= "
+            AND animal_cte.shelter_id IN (
+                SELECT animal_id
+                FROM shelter_animal_Property
+                WHERE animal_property IN ($placeholders)
+                GROUP BY animal_id
+                HAVING COUNT(DISTINCT animal_property) = ?
+            )
+            ";
+        }
+
+        $stmt .= "
+        GROUP BY
+            shelter_id,
+            animal_name,
+            animal_age,
+            health_status,
+            animal_id,
+            created_at,
+            image_path
+        ";
+
+        $params = $filter;
+
+        if (!empty($filter)) {
+            $params[] = count($filter);
+        }
+
+        $stmt2 = $this->pdo->prepare($stmt);
+        $stmt2->execute($params);
+
+        return $stmt2->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 
 
