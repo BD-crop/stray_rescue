@@ -145,8 +145,8 @@ function map_updater(res) {
                         <hr class="border-gray-300 dark:border-slate-700">
 
                         <a class="text-blue-600 dark:text-blue-400 hover:underline"
-                           href="../post/post.php?post_id=${datas.rescue_point_id}">
-                           see this post
+                           href="./point.php?point_id=${datas.rescue_point_id}">
+                           see this point
                         </a>
 
                     </div>

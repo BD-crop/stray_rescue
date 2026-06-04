@@ -273,45 +273,6 @@ CREATE TABLE IF NOT EXISTS Adoption_Application(
     created_at timestamp default CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS adoption_queue (
-        queue_id CHAR(36) PRIMARY KEY,
-        checked_until timestamp,
-
-        adoption_application_id CHAR(36) ,
-        FOREIGN KEY (adoption_application_id) REFERENCES Adoption_Application(adoption_application_id)
-);
-
--- create table if not exists UserNotification (
---         notification_id CHAR(36) PRIMARY KEY,
---         user_id CHAR(36) NOT NULL,
---         message TEXT NOT NULL,
---         related_post_id CHAR(36) DEFAULT NULL,
---         notification_type ENUM ('rescue', 'adoption', 'queue', 'general') DEFAULT 'general',
---         is_read BOOLEAN DEFAULT FALSE,
---         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---         FOREIGN KEY (user_id) REFERENCES Users (user_id)
--- );
-
-
--- create table if not exists like_registry_adoption_post (
---         adoption_post_id CHAR(36),
---         user_id CHAR(36),
---         like_type int default 1,
---         foreign key (adoption_post_id) references adoption_post (adoption_post_id),
---         foreign key (user_id) references Users (user_id),
---         primary key (adoption_post_id, like_type)
--- );
-
--- create table if not exists comment_registry_adoption_post (
---         comment_id CHAR(36) primary key,
---         adoption_post_id CHAR(36),
---         user_id CHAR(36),
---         comment_text text,
---         replying_to CHAR(36) default null,
---         foreign key (adoption_post_id) references adoption_post (adoption_post_id),
---         foreign key (user_id) references Users (user_id),
---         foreign key (replying_to) references comment_registry_adoption_post (comment_id)
--- );
 
 
 
