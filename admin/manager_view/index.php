@@ -1,5 +1,6 @@
 <?php
     include __DIR__ ."/../auth_all_Employee.php";
+    include __DIR__ ."/../../template/card_template.php";
     $employee_level = $level;
 
 
@@ -59,40 +60,10 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">   
-
-        
-        <a href="./animals/AddAnimal.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add Animals</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Add New Animal to your rescue point
-            </p>
-        </a>
-
-
-        <a href="./animals/seeAllAnimals.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">See All Animals</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See all the animals that are currently residing at your shelter.
-            </p>
-        </a>
-
-        <a href="./employees/seeEmployees.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">See All Employees</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See all the employees under you .
-            </p>
-        </a>
-
-        <a href="./adoption_management/seeAllAdoptionRequest.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Adoption Requests</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See All Adoption Requests .
-            </p>
-        </a>
+        <?php  card_returner("./animals/AddAnimal.php", "Add Animals", "Add New Animal to your rescue point"); ?>
+        <?php card_returner("./animals/seeAllAnimals.php", "See All Animals", "See all the animals that are currently residing at your shelter."); ?>
+        <?php card_returner("./employees/seeEmployees.php", "See All Employees", "See all the employees under you ."); ?>
+        <?php card_returner("./adoption_management/seeAllAdoptionRequest.php", "Adoption Requests", "See all adoption requests."); ?>
     </div>
 
 <script src="../../js/themetoggle.js"></script>

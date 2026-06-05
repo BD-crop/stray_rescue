@@ -1,4 +1,6 @@
-
+<?php
+    include '../template/card_template.php';
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -47,31 +49,10 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <?php echo card_returner("./RegisteredAnimals.php", "Registered Animals", "See community registered animals on Map"); ?>
+        <?php echo card_returner("./RescuePoint.php", "Rescue Points", "See Registered Rescue Points"); ?>
+        <?php echo card_returner("./NearbyPetCenters.php", "Pet Centers", "See nearby pet friendly places"); ?> 
         
-        <a href="./RegisteredAnimals.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Registered Animals</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See community registered animals on Map
-            </p>
-        </a>
-
-        <a href="./RescuePoint.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Rescue Points</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See Registered Rescue Points
-            </p>
-        </a>
-
-        <a href="./NearbyPetCenters.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Pet Centers</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See nearby pet friendly places
-            </p>
-        </a>
-
     </div>
 
     <script src="../js/themetoggle.js"></script>

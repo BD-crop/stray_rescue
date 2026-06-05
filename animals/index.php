@@ -1,5 +1,6 @@
 <?php
     include_once __DIR__.'/../PDO/PDO.php';
+    include_once __DIR__.'/../template/card_template.php';
     session_start();
     $obj = PDO_class::initializer();
 
@@ -43,33 +44,15 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <?php echo card_returner("../post/posts.php", "Registered Animals", "See Different Registered Animals."); ?>
+        <?php echo card_returner("./adoption/animals.php", "Adoption Listings", "See different animals listed for Adoptions"); ?>
 
-        <a href="../post/posts.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Registered Animals</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See Different Registered Animals.
-            </p>
-        </a>
-
-        <a href="./adoption/animals.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Adoption Listings</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See different animals listed for Adoptions
-            </p>
-        </a>
 
     <?php
         if($obj->type_of_user() === 'user'){
             ?>
-        <a href="./adoption/swipey.php"
-        class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Swipey</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                Our Preference Based Animal to potential Owner match-making system .
-            </p>
-        </a>
+            <?php echo card_returner("./adoption/swipey.php", "Swipey", "Our Preference Based Animal to potential Owner match-making system ."); ?>
+        
 
             <?php
         }

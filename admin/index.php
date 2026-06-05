@@ -1,17 +1,16 @@
 <?php
 include __DIR__ . "/auth_all_Employee.php";
+include_once __DIR__ .'/../template/card_template.php';
 $employee_level = $level;
 
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Admin panel</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -58,75 +57,21 @@ $employee_level = $level;
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <?php if ($employee_level <= 1): ?>
-            <a href="./Employee/createEmployee.php"
-                class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Create Employee</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                    Add a new employee to the system with role and details.
-                </p>
-            </a>
-
-            <a href="./rescue_point/createRescuePoint.php"
-                class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Create Rescue Point</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                    Register a new rescue location for emergency operations.
-                </p>
-            </a>
-
-            <a href="./Employee/getAllEmployee.php"
-                class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">All Employees</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                    View the full list of employees in the system.
-                </p>
-            </a>
-
-
-            <a href="./rescue_point/seeRescueLocations.php"
-                class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Rescue Locations</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                    View all registered rescue points on the system.
-                </p>
-            </a>
-
-            <a href="./PetCenters/createCenter.php"
-                class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Create Pet Center</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                    Add a new pet care or shelter center to the platform.
-                </p>
-            </a>
-
+            <?php  card_returner("./Employee/createEmployee.php", "Create Employee", "Add a new employee to the system with role and details."); ?>
+            <?php card_returner("./rescue_point/createRescuePoint.php", "Create Rescue Point", "Register a new rescue location for emergency operations."); ?>
+            <?php card_returner("./Employee/getAllEmployee.php", "All Employees", "View the full list of employees in the system."); ?>
+            <?php card_returner("./rescue_point/seeRescueLocations.php", "Rescue Locations", "View all registered rescue points on the system."); ?>
+            <?php card_returner("./PetCenters/createCenter.php" ,"Create Pet Center" , "Add a new pet care or shelter center to the platform.");?>
         <?php elseif ($employee_level == 2): ?>
-            <a href="./manager_view/index.php"
-                class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Manager View</h2>
-                <p class="text-gray-600 dark:text-slate-300 mt-2">
-                    Manage a rescue point
-                </p>
-            </a>
+            <?php card_returner("./manager_view/index.php", "Manager View", "Manage a rescue point"); ?>
 
             <?php if ($employee_level == 2 || $employee_level == 3): ?>
-                <a href="./EmployeeView/seeAssignedAnimals.php"
-                    class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Assigned Animals</h2>
-                    <p class="text-gray-600 dark:text-slate-300 mt-2">
-                        Manage Assigned Animals
-                    </p>
-                </a>
+                <?php card_returner("./EmployeeView/seeAssignedAnimals.php", "Assigned Animals", "Manage Assigned Animals"); ?>
             <?php endif; ?>
 
         <?php endif; ?>
+            <?php card_returner("./Employee/notification.php", "Notifications", "See Notifications"); ?>
 
-        <a href="./Employee/notification.php"
-            class="block p-6 rounded-2xl bg-gray-300 dark:bg-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Notifications</h2>
-            <p class="text-gray-600 dark:text-slate-300 mt-2">
-                See Notifications
-            </p>
-        </a>
     </div>
 
     <script src="../js/themetoggle.js"></script>
