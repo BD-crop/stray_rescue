@@ -1,6 +1,5 @@
 <?php
 include_once __DIR__ . "/../mail/verification.php";
-// include_once __DIR__ ."/../error_print.php";
 
 include_once __DIR__ . "/trait/EmployeeModel.php";
 include_once __DIR__ . "/trait/AuthModel.php";
@@ -14,6 +13,8 @@ include_once __DIR__ . "/trait/marketplace/orderModel.php";
 include_once __DIR__ . "/trait/marketplace/ProductModel.php";
 include_once __DIR__."/trait/PetCenters/PetCenterModel.php";
 include_once __DIR__.'/trait/manager_view/ManagerViewModel.php';
+include_once __DIR__ . "/trait/community/community_model.php";
+
 
 class PDO_class
 {
@@ -80,4 +81,5 @@ class PDO_class
     use ProductModel;
     use analyticsModel;
     use ManagerViewModel;
+    use CommunityModel; 
 }

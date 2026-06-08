@@ -49,9 +49,9 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <?php echo card_returner("./RegisteredAnimals.php", "Registered Animals", "See community registered animals on Map"); ?>
-        <?php echo card_returner("./RescuePoint.php", "Rescue Points", "See Registered Rescue Points"); ?>
-        <?php echo card_returner("./NearbyPetCenters.php", "Pet Centers", "See nearby pet friendly places"); ?> 
+        <?php echo card_returner("./RegisteredAnimals.php", "Registered Animals", "See community registered animals on Map","https://www.svgrepo.com/show/206849/post-it-post-it.svg"); ?>
+        <?php echo card_returner("./RescuePoint.php", "Rescue Points", "See Registered Rescue Points","https://www.svgrepo.com/show/513317/location-pin.svg"); ?>
+        <?php echo card_returner("./NearbyPetCenters.php", "Pet Centers", "See nearby pet friendly places","https://www.svgrepo.com/show/454580/animal-domestic-pet-15.svg"); ?> 
         
     </div>
 

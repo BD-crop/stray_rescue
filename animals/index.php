@@ -44,18 +44,19 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <?php echo card_returner("../post/posts.php", "Registered Animals", "See Different Registered Animals."); ?>
-        <?php echo card_returner("./adoption/animals.php", "Adoption Listings", "See different animals listed for Adoptions"); ?>
+        <?php echo card_returner("../post/posts.php", "Registered Animals", "See Different Registered Animals." ,"https://www.svgrepo.com/show/454509/animal-cat-domestic.svg"); ?>
+        <?php echo card_returner("./adoption/animals.php", "Adoption Listings", "See different animals listed for Adoptions","https://www.svgrepo.com/show/301686/listing-tick.svg"); ?>
 
 
     <?php
         if($obj->type_of_user() === 'user'){
             ?>
-            <?php echo card_returner("./adoption/swipey.php", "Swipey", "Our Preference Based Animal to potential Owner match-making system ."); ?>
-        
-
+            <?php echo card_returner("./adoption/swipey.php", "Swipey", "Our Preference Based Animal to potential Owner match-making system ." , "https://www.svgrepo.com/show/287693/pet-dog.svg"); ?>
             <?php
+            echo card_returner("./imageViewer.php", "Images", "See images of Animals Registered With Stray Rescue.", "https://www.svgrepo.com/show/439188/images.svg");
         }
+
+
     ?>
     </div>
     <script src="../js/themetoggle.js"></script>

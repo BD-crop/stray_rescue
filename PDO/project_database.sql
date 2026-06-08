@@ -82,7 +82,7 @@ create table if not exists volunteers (
 );
 
 
--- Rescue Post (Here is just mean the registered animals , community tagged animals)
+-- Rescue Post (Here it just means the registered animals , community tagged animals)
 
 create table if not exists rescue_post (
         rescue_post_id CHAR(36)  primary key,
@@ -545,3 +545,61 @@ BEGIN
     RETURN lastdiag;
 END$$
 DELIMITER ;
+
+
+
+-- COMMUNITY CHALLENGES
+
+CREATE TABLE IF NOT EXISTS  community_challenges (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_by CHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ends_at TIMESTAMP NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS challenge_entries (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    challenge_id CHAR(36),
+    user_id CHAR(36),
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (challenge_id) REFERENCES community_challenges(id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS challenge_entry_images (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    entry_id CHAR(36),
+    image_link VARCHAR(200),
+    FOREIGN KEY (entry_id) REFERENCES challenge_entries(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS challenge_votes (
+    id CHAR(36)  DEFAULT UUID(),
+    challenge_id CHAR(36),
+    entry_id CHAR(36),
+    user_id CHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+
+    PRIMARY KEY (challenge_id, user_id),
+    FOREIGN KEY (entry_id) REFERENCES challenge_entries(id),
+    FOREIGN KEY (challenge_id) REFERENCES community_challenges(id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS challenge_report(
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    entry_id CHAR(36),
+    user_id CHAR(36),
+    report_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (entry_id) REFERENCES challenge_entries(id) ,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);

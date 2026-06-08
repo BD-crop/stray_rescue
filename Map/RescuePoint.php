@@ -94,7 +94,6 @@ function map_updater(res) {
     markers.forEach(p => p.remove());
 
     if (!data || data.count == 0) {
-        alert("No rescue posts found");
         return;
     }
 

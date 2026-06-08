@@ -57,20 +57,21 @@ $employee_level = $level;
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <?php if ($employee_level <= 1): ?>
-            <?php  card_returner("./Employee/createEmployee.php", "Create Employee", "Add a new employee to the system with role and details."); ?>
-            <?php card_returner("./rescue_point/createRescuePoint.php", "Create Rescue Point", "Register a new rescue location for emergency operations."); ?>
-            <?php card_returner("./Employee/getAllEmployee.php", "All Employees", "View the full list of employees in the system."); ?>
-            <?php card_returner("./rescue_point/seeRescueLocations.php", "Rescue Locations", "View all registered rescue points on the system."); ?>
-            <?php card_returner("./PetCenters/createCenter.php" ,"Create Pet Center" , "Add a new pet care or shelter center to the platform.");?>
-        <?php elseif ($employee_level == 2): ?>
-            <?php card_returner("./manager_view/index.php", "Manager View", "Manage a rescue point"); ?>
+            <?php echo card_returner("./Employee/createEmployee.php", "Create Employee", "Add a new employee to the system with role and details." ,"https://www.svgrepo.com/show/467489/add-user-8.svg"); ?>
+            <?php echo card_returner("./rescue_point/createRescuePoint.php", "Create Rescue Point", "Register a new rescue location for emergency operations." ,"https://www.svgrepo.com/show/513309/house.svg"); ?>
+            <?php echo card_returner("./Employee/getAllEmployee.php", "All Employees", "View the full list of employees in the system." ,"https://www.svgrepo.com/show/69684/employees.svg"); ?>
+            <?php echo card_returner("./rescue_point/seeRescueLocations.php", "Rescue Locations", "View all registered rescue points on the system." ,"https://www.svgrepo.com/show/513317/location-pin.svg"); ?>
+            <?php echo card_returner("./PetCenters/createCenter.php" ,"Create Pet Center" , "Add a new pet care or shelter center to the platform." ,"https://www.svgrepo.com/show/454580/animal-domestic-pet-15.svg");?>
+            <?php echo card_returner("./Community/createChallenge.php", "Create Challenge", "Create a new community challenge." ,"https://www.svgrepo.com/show/405161/crown.svg"); ?>
+            
+            <?php elseif ($employee_level == 2): ?>
+            <?php echo card_returner("./manager_view/index.php", "Manager View", "Manage a rescue point" ,"https://www.svgrepo.com/show/207567/teamwork-interview.svg"); ?>
 
             <?php if ($employee_level == 2 || $employee_level == 3): ?>
-                <?php card_returner("./EmployeeView/seeAssignedAnimals.php", "Assigned Animals", "Manage Assigned Animals"); ?>
+                <?php card_returner("./EmployeeView/seeAssignedAnimals.php", "Assigned Animals", "Manage Assigned Animals" ,"https://www.svgrepo.com/show/500086/dog.svg"); ?>
             <?php endif; ?>
-
         <?php endif; ?>
-            <?php card_returner("./Employee/notification.php", "Notifications", "See Notifications"); ?>
+            <?php echo card_returner("./Employee/notification.php", "Notifications", "See Notifications"  ,"https://www.svgrepo.com/show/513275/bell.svg"); ?>
 
     </div>
 

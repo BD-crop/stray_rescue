@@ -268,4 +268,53 @@ trait UtilityModel
         return $stmt->fetchColumn() ;
     }
 
+
+public function get_images($page = 0 ,$type =2)
+{
+    $limit = 50;
+    $offset = $page * $limit;
+
+    $sql = "SELECT image_path, url_id ,image_type
+    FROM (
+
+        SELECT 
+            CONCAT('http://localhost:80/dashboard/post/post.php?ani_id=', animals.animal_id) AS url_id,
+            animal_history_image_upload.image_link AS image_path, 0 as image_type
+        FROM animals
+        INNER JOIN animal_history 
+            ON animals.animal_id = animal_history.animal_id
+        INNER JOIN animal_history_image_upload 
+            ON animal_history_image_upload.history_id = animal_history.history_id
+
+        UNION ALL
+
+        SELECT 
+            CONCAT(
+                'http://localhost:80/dashboard/animals/adoption/individualListing.php?id=',
+                Adoption_animals.animal_id
+            ) AS url_id,
+            shelter_animals_images.image_path AS image_path , 1 as image_type
+        FROM shelter_animals
+        INNER JOIN shelter_animals_images 
+            ON shelter_animals_images.animal_id = shelter_animals.animal_id
+        INNER JOIN Adoption_animals 
+            ON Adoption_animals.shelter_id = shelter_animals.animal_id
+
+    ) AS combined
+    WHERE image_type != :type
+    LIMIT :offset, :limit
+    ";
+
+    $this->pdo_initializer();
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':type', $type, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }

@@ -60,10 +60,10 @@
     </div>
 
     <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">   
-        <?php  card_returner("./animals/AddAnimal.php", "Add Animals", "Add New Animal to your rescue point"); ?>
-        <?php card_returner("./animals/seeAllAnimals.php", "See All Animals", "See all the animals that are currently residing at your shelter."); ?>
-        <?php card_returner("./employees/seeEmployees.php", "See All Employees", "See all the employees under you ."); ?>
-        <?php card_returner("./adoption_management/seeAllAdoptionRequest.php", "Adoption Requests", "See all adoption requests."); ?>
+        <?php echo card_returner("./animals/AddAnimal.php", "Add Animals", "Add New Animal to your rescue point" ,"https://www.svgrepo.com/show/454544/add-animal-cat.svg"); ?>
+        <?php echo card_returner("./animals/seeAllAnimals.php", "See All Animals", "See all the animals that are currently residing at your shelter." ,"https://www.svgrepo.com/show/454509/animal-cat-domestic.svg"); ?>
+        <?php echo card_returner("./employees/seeEmployees.php", "See All Employees", "See all the employees under you ." ,"https://www.svgrepo.com/show/69684/employees.svg"); ?>
+        <?php echo card_returner("./adoption_management/seeAllAdoptionRequest.php", "Adoption Requests", "See all adoption requests." ,"https://www.svgrepo.com/show/513275/bell.svg"); ?>
     </div>
 
 <script src="../../js/themetoggle.js"></script>

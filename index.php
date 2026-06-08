@@ -24,6 +24,8 @@ session_start();
             }
         }
     </script>
+
+    
 </head>
 
 <body class="bg-gray-100 dark:bg-slate-900 text-gray-900 transition">
@@ -96,10 +98,10 @@ session_start();
 
     <?php endif; ?>
 
-    <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition"
-       href="#contact">
-        Contact
-    </a>
+        <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition" 
+        href="./community/community_challenges.php">
+            Community Challenges
+        </a>
 
     <a class="px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition"
        href="#about">
@@ -143,16 +145,20 @@ session_start();
             <a class="hidden sm:block px-4 py-2 rounded-xl bg-red-500 text-white" href="./auth/logout.php">Logout</a>
 
         <?php endif; ?>
-
+        <a
+            href="./community/community_challenges.php"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl
+                bg-indigo-500 text-white
+                hover:bg-indigo-600
+                shadow-md hover:shadow-lg
+                transition-all duration-300">
+            Community Challenges
+        </a>
         <a href="#about"
         class="hidden sm:block px-4 py-2 rounded-xl font-medium transition bg-gray-500 text-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-slate-300">
         About
         </a>
 
-        <a href="#contact"
-        class="hidden sm:block px-4 py-2 rounded-xl font-medium transition bg-gray-500 text-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-slate-300">
-        Contact
-        </a>
 
         <button id="themeToggle"
             class="sm:block px-4 py-2 rounded-xl bg-black text-white dark:bg-white dark:text-black">
@@ -166,7 +172,7 @@ session_start();
 
     <div class="items-start flex flex-col gap-4 row-span-2 p-6 rounded-2xl bg-amber-200 shadow-2xl shadow-black/30">
         <?php $obj = PDO_class::initializer()->count_total_RescuePOST(); ?>
-        <h1 class="text-xl font-bold">Registered Animals</h1>
+        <h1 class="flex items-center gap-2 text-xl font-bold"><img class="w-9 h-9" src="https://www.svgrepo.com/show/454509/animal-cat-domestic.svg" alt="Registered Animals"> Registered Animals</h1>
 
         <div>
             <p>Total: <?= $obj['Emergency'] + $obj['Attention Needed'] + $obj['Healty Animal']; ?></p>
@@ -185,7 +191,7 @@ session_start();
 
     <div class="items-start flex flex-col gap-4 p-6 rounded-2xl bg-green-300 shadow-2xl shadow-black/30">
         <?php $obj = PDO_class::initializer()->count_total_user(); ?>
-        <h1 class="text-xl font-bold">Community Members</h1>
+        <h1 class="flex items-center gap-2 text-xl font-bold"><img class="w-9 h-9" src="https://www.svgrepo.com/show/265357/teamwork-team.svg" alt="Community Members"> Community Members</h1>
 
         <div>
             <p>Total: <?= $obj['Inactive'] + $obj['Active']; ?></p>
@@ -199,7 +205,7 @@ session_start();
 
     <div class="items-start row-span-2 flex flex-col gap-7 p-6 rounded-2xl bg-red-200 shadow-2xl shadow-black/30">
         <?php $obj = PDO_class::initializer()->count_total_volunteers(); ?>
-        <h1 class="text-xl font-bold">Volunteers</h1>
+        <h1 class="flex items-center gap-2 text-xl font-bold"><img class="w-9 h-9" src="https://www.svgrepo.com/show/380334/volunteer-kindness-care-heart-love.svg" alt="Volunteers"> Volunteers</h1>
 
         <div>
             <p>Total: <?= $obj['Inactive'] + $obj['Active']; ?></p>
@@ -218,7 +224,7 @@ session_start();
 
     <div class="items-start flex flex-col gap-4 p-6 rounded-2xl bg-indigo-300 shadow-2xl shadow-black/30">
         <?php $obj = PDO_class::initializer()->count_total_RescuePoint(); ?>
-        <h1 class="text-xl font-bold">Rescue Points</h1>
+        <h1 class="flex items-center gap-2 text-xl font-bold"><img class="w-9 h-9" src="https://www.svgrepo.com/show/513317/location-pin.svg" alt="Rescue Points"> Rescue Points</h1>
 
         <div>
             <p>Total: <?= $obj['Inactive'] + $obj['Active']; ?></p>
@@ -240,7 +246,14 @@ session_start();
 <div id="about"
      class="max-w-4xl mx-auto mt-10 p-6 rounded-2xl shadow-2xl shadow-black/30 bg-cyan-300 text-gray-800">
 
-    <h2 class="text-2xl font-bold mb-4">About Stray Rescue</h2>
+<h2 class="flex items-center gap-2 text-2xl font-bold mb-4">
+    <img
+        class="w-6 h-6"
+        src="https://www.svgrepo.com/show/451662/help-about.svg"
+        alt=""
+    >
+    About Us
+</h2>
 
     <p class="text-base leading-relaxed text-gray-900">
         <strong>Stray Rescue</strong> is a community-based street animal registry, vaccination, and rescue platform focused on Bangladesh. It fosters community participation and coordinated rescue efforts to reduce animal suffering.
@@ -250,8 +263,15 @@ session_start();
 
 <div id="contact"
      class="max-w-4xl mx-auto mt-10 p-6 rounded-2xl shadow-2xl shadow-black/60 bg-red-300 text-gray-800">
-
-    <h2 class="text-2xl font-bold mb-4">Contact US</h2>
+    
+<h2 class="flex items-center gap-2 text-2xl font-bold mb-4">
+    <img
+        class="w-7 h-7"
+        src="https://www.svgrepo.com/show/526083/phone-calling-rounded.svg"
+        alt=""
+    >
+    Contact Us
+</h2>
 
     <p>017xxxxxxxx</p>
     <p>016xxxxxxxx</p>

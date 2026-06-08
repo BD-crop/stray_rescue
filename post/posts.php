@@ -62,7 +62,7 @@ $res_json = json_encode($res);
 
     <h1 class="text-4xl font-bold text-center mb-8
                text-gray-900 dark:text-white">
-        🐾 Rescue Posts
+            Registered Animal Post
     </h1>
 
     <form method="GET"
@@ -120,7 +120,7 @@ if (!data || !data.posts || data.posts.length === 0) {
 
     container.innerHTML = `
         <div class="col-span-full text-center text-gray-500 dark:text-gray-400 text-lg">
-            No posts found 🐾
+            No posts found
         </div>
     `;
 } else {
